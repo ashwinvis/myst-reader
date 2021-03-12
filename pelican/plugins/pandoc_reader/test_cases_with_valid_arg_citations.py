@@ -1,10 +1,10 @@
-"""Tests using valid arguments and citations for pandoc-reader plugin."""
+"""Tests using valid arguments and citations for myst-reader plugin."""
 import os
 import unittest
 
 from pelican.tests.support import get_settings
 
-from pandoc_reader import PandocReader
+from myst_reader import MySTReader
 
 DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
@@ -30,9 +30,9 @@ class TestValidCaseWithArgumentsAndCitations(unittest.TestCase):
             ],
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -171,9 +171,9 @@ class TestValidCaseWithArgumentsAndCitations(unittest.TestCase):
             ],
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference
         self.maxDiff = None  # pylint: disable=invalid-name

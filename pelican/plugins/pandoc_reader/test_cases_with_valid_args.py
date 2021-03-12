@@ -1,10 +1,10 @@
-"""Tests using valid arguments and extensions for pandoc-reader plugin."""
+"""Tests using valid arguments and extensions for myst-reader plugin."""
 import os
 import unittest
 
 from pelican.tests.support import get_settings
 
-from pandoc_reader import PandocReader
+from myst_reader import MySTReader
 
 DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
@@ -15,7 +15,7 @@ PANDOC_EXTENSIONS = ["+smart"]
 
 
 class TestValidCasesWithArguments(unittest.TestCase):
-    """Valid test cases using Pandoc arguments and extensions."""
+    """Valid test cases using MyST arguments and extensions."""
 
     def test_valid_file(self):
         """Check if we get the appropriate output for valid input."""
@@ -23,9 +23,9 @@ class TestValidCasesWithArguments(unittest.TestCase):
             PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         self.assertEqual(
             (
@@ -46,9 +46,9 @@ class TestValidCasesWithArguments(unittest.TestCase):
             PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "mathjax_content.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         self.assertEqual(
             (
@@ -69,9 +69,9 @@ class TestValidCasesWithArguments(unittest.TestCase):
             PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_raw_paths.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -102,9 +102,9 @@ class TestValidCasesWithArguments(unittest.TestCase):
             PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS + ["--toc"],
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_toc.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference
         self.maxDiff = None  # pylint: disable=invalid-name
@@ -152,9 +152,9 @@ class TestValidCasesWithArguments(unittest.TestCase):
             PANDOC_ARGS=PANDOC_ARGS + ["--table-of-contents"],
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_toc.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference
         self.maxDiff = None  # pylint: disable=invalid-name

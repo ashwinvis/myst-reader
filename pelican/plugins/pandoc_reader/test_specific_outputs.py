@@ -1,10 +1,10 @@
-"""Tests reading time and summary output from pandoc-reader plugin."""
+"""Tests reading time and summary output from myst-reader plugin."""
 import os
 import unittest
 
 from pelican.tests.support import get_settings
 
-from pandoc_reader import PandocReader
+from myst_reader import MySTReader
 
 DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
@@ -27,9 +27,9 @@ class TestReadingTimeAndSummary(unittest.TestCase):
             CALCULATE_READING_TIME=CALCULATE_READING_TIME,
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "reading_time_content.md")
-        _, metadata = pandoc_reader.read(source_path)
+        _, metadata = myst_reader.read(source_path)
 
         self.assertEqual("1 minute", str(metadata["reading_time"]))
 
@@ -42,9 +42,9 @@ class TestReadingTimeAndSummary(unittest.TestCase):
             READING_SPEED=100,
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "reading_time_content.md")
-        _, metadata = pandoc_reader.read(source_path)
+        _, metadata = myst_reader.read(source_path)
 
         self.assertEqual("2 minutes", str(metadata["reading_time"]))
 
@@ -57,11 +57,11 @@ class TestReadingTimeAndSummary(unittest.TestCase):
             READING_SPEED="my words per minute",
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "reading_time_content.md")
 
         with self.assertRaises(ValueError) as context_manager:
-            pandoc_reader.read(source_path)
+            myst_reader.read(source_path)
 
         message = str(context_manager.exception)
         self.assertEqual("READING_SPEED setting must be a number.", message)
@@ -74,9 +74,9 @@ class TestReadingTimeAndSummary(unittest.TestCase):
             FORMATTED_FIELDS=FORMATTED_FIELDS,
         )
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
-        _, metadata = pandoc_reader.read(source_path)
+        _, metadata = myst_reader.read(source_path)
 
         self.assertEqual(
             (

@@ -1,10 +1,10 @@
-"""Tests using valid default files for pandoc-reader plugin."""
+"""Tests using valid default files for myst-reader plugin."""
 import os
 import unittest
 
 from pelican.tests.support import get_settings
 
-from pandoc_reader import PandocReader
+from myst_reader import MySTReader
 
 DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
@@ -16,16 +16,16 @@ class TestValidCasesWithDefaultFiles(unittest.TestCase):
 
     def test_valid_file_with_valid_defaults(self):
         """Check if we get the appropriate output specifying defaults."""
-        pandoc_default_files = [
+        myst_default_files = [
             os.path.join(TEST_DEFAULT_FILES_PATH, "valid_defaults.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=pandoc_default_files)
+        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
 
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         self.assertEqual(
             (
@@ -41,16 +41,16 @@ class TestValidCasesWithDefaultFiles(unittest.TestCase):
 
     def test_mathjax_with_valid_defaults(self):
         """Check if mathematics is rendered correctly with defaults."""
-        pandoc_default_files = [
+        myst_default_files = [
             os.path.join(TEST_DEFAULT_FILES_PATH, "valid_defaults.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=pandoc_default_files)
+        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
 
-        pandoc_reader = PandocReader(settings)
+        myst_reader = MySTReader(settings)
 
         source_path = os.path.join(TEST_CONTENT_PATH, "mathjax_content.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
 
         self.assertEqual(
             (
@@ -67,15 +67,15 @@ class TestValidCasesWithDefaultFiles(unittest.TestCase):
 
     def test_toc_with_valid_defaults(self):
         """Check if output and table of contents are valid with defaults."""
-        pandoc_default_files = [
+        myst_default_files = [
             os.path.join(TEST_DEFAULT_FILES_PATH, "valid_defaults_with_toc.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=pandoc_default_files)
-        pandoc_reader = PandocReader(settings)
+        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        myst_reader = MySTReader(settings)
 
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_toc.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
         self.maxDiff = None  # pylint: disable=invalid-name
 
         self.assertEqual(
@@ -117,17 +117,17 @@ class TestValidCasesWithDefaultFiles(unittest.TestCase):
 
     def test_citations_and_toc_with_valid_defaults(self):
         """Check if output, citations and table of contents are valid."""
-        pandoc_default_files = [
+        myst_default_files = [
             os.path.join(
                 TEST_DEFAULT_FILES_PATH, "valid_defaults_with_toc_and_citations.yaml",
             )
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=pandoc_default_files,)
-        pandoc_reader = PandocReader(settings)
+        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files,)
+        myst_reader = MySTReader(settings)
 
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
         self.maxDiff = None  # pylint: disable=invalid-name
 
         self.assertEqual(
@@ -263,17 +263,17 @@ class TestValidCasesWithDefaultFiles(unittest.TestCase):
 
     def test_citations_and_with_citeproc_filter(self):
         """Check if output, citations are valid using citeproc filter."""
-        pandoc_default_files = [
+        myst_default_files = [
             os.path.join(
                 TEST_DEFAULT_FILES_PATH, "valid_defaults_with_citeproc_filter.yaml",
             )
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=pandoc_default_files,)
-        pandoc_reader = PandocReader(settings)
+        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files,)
+        myst_reader = MySTReader(settings)
 
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
-        output, metadata = pandoc_reader.read(source_path)
+        output, metadata = myst_reader.read(source_path)
         self.maxDiff = None  # pylint: disable=invalid-name
 
         self.assertEqual(

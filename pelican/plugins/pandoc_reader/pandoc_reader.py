@@ -1,4 +1,4 @@
-"""Reader that processes Pandoc Markdown and returns HTML5."""
+"""Reader that processes MyST Markdown and returns HTML5."""
 import json
 import math
 import os
@@ -15,7 +15,7 @@ from pelican.utils import pelican_open
 
 DIR_PATH = os.path.dirname(__file__)
 TEMPLATES_PATH = os.path.abspath(os.path.join(DIR_PATH, "templates"))
-PANDOC_READER_HTML_TEMPLATE = "pandoc-reader-default.html"
+PANDOC_READER_HTML_TEMPLATE = "myst-reader-default.html"
 DEFAULT_READING_SPEED = 200  # Words per minute
 
 ENCODED_LINKS_TO_RAW_LINKS_MAP = {
@@ -25,7 +25,7 @@ ENCODED_LINKS_TO_RAW_LINKS_MAP = {
 }
 
 # Markdown variants supported in default files
-# Update as Pandoc adds or removes support for formats
+# Update as MyST adds or removes support for formats
 VALID_INPUT_FORMATS = (
     "commonmark",
     "commonmark_x",
@@ -39,34 +39,34 @@ VALID_OUTPUT_FORMATS = ("html", "html5")
 UNSUPPORTED_ARGUMENTS = ("--standalone", "--self-contained")
 VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
 FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd"]
-DEFAULT_PANDOC_EXECUTABLE = "pandoc"
+DEFAULT_PANDOC_EXECUTABLE = "myst"
 PANDOC_SUPPORTED_MAJOR_VERSION = 2
 PANDOC_SUPPORTED_MINOR_VERSION = 11
 
 
-class PandocReader(BaseReader):
-    """Convert files written in Pandoc Markdown to HTML 5."""
+class MySTReader(BaseReader):
+    """Convert files written in MyST Markdown to HTML 5."""
 
     enabled = True
     file_extensions = FILE_EXTENSIONS
 
     def read(self, source_path):
-        """Parse Pandoc Markdown and return HTML5 markup and metadata."""
-        # Get the user-defined path to the Pandoc executable or fall back to default
-        pandoc_executable = self.settings.get(
+        """Parse MyST Markdown and return HTML5 markup and metadata."""
+        # Get the user-defined path to the MyST executable or fall back to default
+        myst_executable = self.settings.get(
             "PANDOC_EXECUTABLE_PATH", DEFAULT_PANDOC_EXECUTABLE
         )
 
         # If user-defined path, expand and make it absolute in case the path is relative
-        if pandoc_executable != DEFAULT_PANDOC_EXECUTABLE:
-            pandoc_executable = os.path.abspath(os.path.expanduser(pandoc_executable))
+        if myst_executable != DEFAULT_PANDOC_EXECUTABLE:
+            myst_executable = os.path.abspath(os.path.expanduser(myst_executable))
 
-        # Check if pandoc is installed and is executable
-        if not shutil.which(pandoc_executable):
-            raise Exception("Could not find Pandoc. Please install.")
+        # Check if myst is installed and is executable
+        if not shutil.which(myst_executable):
+            raise Exception("Could not find MyST. Please install.")
 
-        # Check if the version of pandoc installed is 2.11 or higher
-        self._check_pandoc_version(pandoc_executable)
+        # Check if the version of myst installed is 0.13.5 or higher
+        self._check_myst_version(myst_executable)
 
         # Open Markdown file and read content
         content = ""
@@ -74,11 +74,11 @@ class PandocReader(BaseReader):
             content = file_content
 
         # Retrieve HTML content and metadata
-        output, metadata = self._create_html(source_path, content, pandoc_executable)
+        output, metadata = self._create_html(source_path, content, myst_executable)
 
         return output, metadata
 
-    def _create_html(self, source_path, content, pandoc_executable):
+    def _create_html(self, source_path, content, myst_executable):
         """Create HTML5 content."""
         # Get settings set in pelicanconf.py
         default_files = self.settings.get("PANDOC_DEFAULT_FILES", [])
@@ -96,21 +96,21 @@ class PandocReader(BaseReader):
             default_files, arguments, extensions
         )
 
-        # Construct preliminary pandoc command
-        pandoc_cmd = self._construct_pandoc_command(
-            pandoc_executable, default_files, arguments, extensions
+        # Construct preliminary myst command
+        myst_cmd = self._construct_myst_command(
+            myst_executable, default_files, arguments, extensions
         )
 
         # Find and add bibliography if citations are specified
         if citations:
             for bib_file in self._find_bibs(source_path):
-                pandoc_cmd.append("--bibliography={0}".format(bib_file))
+                myst_cmd.append("--bibliography={0}".format(bib_file))
 
-        # Create HTML content using pandoc-reader-default.html template
-        output = self._run_pandoc(pandoc_cmd, content)
+        # Create HTML content using myst-reader-default.html template
+        output = self._run_myst(myst_cmd, content)
 
         # Extract table of contents, text and metadata from HTML output
-        output, toc, pandoc_metadata = self._extract_contents(output, table_of_contents)
+        output, toc, myst_metadata = self._extract_contents(output, table_of_contents)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
         # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
@@ -118,8 +118,8 @@ class PandocReader(BaseReader):
         for encoded_str, raw_str in ENCODED_LINKS_TO_RAW_LINKS_MAP.items():
             output = output.replace(encoded_str, raw_str)
 
-        # Parse Pandoc metadata and add it to Pelican
-        metadata = self._process_metadata(pandoc_metadata)
+        # Parse MyST metadata and add it to Pelican
+        metadata = self._process_metadata(myst_metadata)
 
         if table_of_contents:
             # Create table of contents and add to metadata
@@ -153,7 +153,7 @@ class PandocReader(BaseReader):
         return table_of_contents, citations
 
     def _check_defaults(self, default_files):
-        """Check if the given Pandoc defaults file has valid values."""
+        """Check if the given MyST defaults file has valid values."""
         citations = False
         table_of_contents = False
         for default_file in default_files:
@@ -178,7 +178,7 @@ class PandocReader(BaseReader):
                 elif "citeproc" in defaults.get("filters", ""):
                     citeproc_specified = True
 
-                # The extension +citations is enabled by default in Pandoc 2.11
+                # The extension +citations is enabled by default in MyST 0.13.5
                 # are checking that the extension is not disabled using -citations
                 if citeproc_specified and "-citations" not in reader:
                     citations = True
@@ -207,11 +207,11 @@ class PandocReader(BaseReader):
 
         return reading_time
 
-    def _process_metadata(self, pandoc_metadata):
-        """Process Pandoc metadata and add it to Pelican."""
+    def _process_metadata(self, myst_metadata):
+        """Process MyST metadata and add it to Pelican."""
         # Cycle through the metadata and process them
         metadata = {}
-        for key, value in pandoc_metadata.items():
+        for key, value in myst_metadata.items():
             key = key.lower()
             if value and isinstance(value, str):
                 value = value.strip().strip('"')
@@ -221,32 +221,32 @@ class PandocReader(BaseReader):
         return metadata
 
     @staticmethod
-    def _check_pandoc_version(pandoc_executable):
-        """Check that the specified version of Pandoc is 2.11 or higher."""
+    def _check_myst_version(myst_executable):
+        """Check that the specified version of MyST is 0.13.5 or higher."""
         output = subprocess.run(
-            [pandoc_executable, "--version"],
+            [myst_executable, "--version"],
             capture_output=True,
             encoding="utf-8",
             check=True,
         )
 
-        # Returns a string of the form pandoc <version>
-        pandoc_version = output.stdout.split("\n")[0]
+        # Returns a string of the form myst <version>
+        myst_version = output.stdout.split("\n")[0]
 
         # Get the major and minor version from the above version string
-        major_version = pandoc_version.split()[1].split(".")[0]
-        minor_version = pandoc_version.split()[1].split(".")[1]
+        major_version = myst_version.split()[1].split(".")[0]
+        minor_version = myst_version.split()[1].split(".")[1]
 
-        # Pandoc major version less than 2 are not supported
+        # MyST major version less than 2 are not supported
         if int(major_version) < PANDOC_SUPPORTED_MAJOR_VERSION:
-            raise Exception("Pandoc version must be 2.11 or higher.")
+            raise Exception("MyST version must be 0.13.5 or higher.")
 
-        # Pandoc major version 2 minor version less than 11 are not supported
+        # MyST major version 2 minor version less than 11 are not supported
         if (
             int(major_version) == PANDOC_SUPPORTED_MAJOR_VERSION
             and int(minor_version) < PANDOC_SUPPORTED_MINOR_VERSION
         ):
-            raise Exception("Pandoc version must be 2.11 or higher.")
+            raise Exception("MyST version must be 0.13.5 or higher.")
 
     @staticmethod
     def _check_yaml_metadata_block(content):
@@ -274,30 +274,30 @@ class PandocReader(BaseReader):
             raise Exception("Could not find end of metadata block.")
 
     @staticmethod
-    def _construct_pandoc_command(
-        pandoc_executable, default_files, arguments, extensions
+    def _construct_myst_command(
+        myst_executable, default_files, arguments, extensions
     ):
-        """Construct Pandoc command for content."""
-        pandoc_cmd = [
-            pandoc_executable,
+        """Construct MyST command for content."""
+        myst_cmd = [
+            myst_executable,
             "--standalone",
             "--template={}".format(
                 os.path.join(TEMPLATES_PATH, PANDOC_READER_HTML_TEMPLATE)
             ),
         ]
         if not default_files:
-            pandoc_cmd.extend(["--from", "markdown" + extensions, "--to", "html5"])
-            pandoc_cmd.extend(arguments)
+            myst_cmd.extend(["--from", "markdown" + extensions, "--to", "html5"])
+            myst_cmd.extend(arguments)
         else:
             for default_file in default_files:
-                pandoc_cmd.append("--defaults={0}".format(default_file))
-        return pandoc_cmd
+                myst_cmd.append("--defaults={0}".format(default_file))
+        return myst_cmd
 
     @staticmethod
-    def _run_pandoc(pandoc_cmd, content):
-        """Execute the given pandoc command and return output."""
+    def _run_myst(myst_cmd, content):
+        """Execute the given myst command and return output."""
         output = subprocess.run(
-            pandoc_cmd,
+            myst_cmd,
             input=content,
             capture_output=True,
             encoding="utf-8",
@@ -308,11 +308,11 @@ class PandocReader(BaseReader):
     @staticmethod
     def _extract_contents(html_output, table_of_contents):
         """Extract body html, table of contents and metadata from output."""
-        # Extract pandoc metadata from html output
-        pandoc_json_metadata, _, html_output = html_output.partition("\n")
+        # Extract myst metadata from html output
+        myst_json_metadata, _, html_output = html_output.partition("\n")
 
         # Convert JSON string to dict
-        pandoc_metadata = json.loads(pandoc_json_metadata)
+        myst_metadata = json.loads(myst_json_metadata)
 
         # Parse HTML output
         soup = bs4.BeautifulSoup(html_output, "html.parser")
@@ -339,14 +339,14 @@ class PandocReader(BaseReader):
         # Strip leading and trailing spaces
         html_output = str(soup).strip()
 
-        return html_output, toc, pandoc_metadata
+        return html_output, toc, myst_metadata
 
     @staticmethod
     def _check_if_citations(arguments, extensions):
         """Check if citations are specified."""
         citations = False
         if arguments and extensions:
-            # The +citations extension is enabled by default in Pandoc 2.11
+            # The +citations extension is enabled by default in MyST 0.13.5
             # therefore we do a check to see that it is not disabled in extensions
             if (
                 "--citeproc" in arguments or "-C" in arguments
@@ -451,11 +451,11 @@ class PandocReader(BaseReader):
 
 
 def add_reader(readers):
-    """Add the PandocReader as the reader for all Pandoc Markdown files."""
-    for ext in PandocReader.file_extensions:
-        readers.reader_classes[ext] = PandocReader
+    """Add the MySTReader as the reader for all MyST Markdown files."""
+    for ext in MySTReader.file_extensions:
+        readers.reader_classes[ext] = MySTReader
 
 
 def register():
-    """Register the PandocReader."""
+    """Register the MySTReader."""
     signals.readers_init.connect(add_reader)

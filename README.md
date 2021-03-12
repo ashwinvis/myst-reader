@@ -1,11 +1,11 @@
-Pandoc Reader: A Plugin for Pelican
+MyST Reader: A Plugin for Pelican
 ===================================
 
-[![Build Status](https://img.shields.io/github/workflow/status/pelican-plugins/pandoc-reader/build)](https://github.com/pelican-plugins/pandoc-reader/actions)
-[![PyPI Version](https://img.shields.io/pypi/v/pelican-pandoc-reader)](https://pypi.org/project/pelican-pandoc-reader/)
-![License](https://img.shields.io/pypi/l/pelican-pandoc-reader?color=blue)
+[![Build Status](https://img.shields.io/github/workflow/status/ashwinvis/myst-reader/build)](https://github.com/ashwinvis/myst-reader/actions)
+[![PyPI Version](https://img.shields.io/pypi/v/pelican-myst-reader)](https://pypi.org/project/pelican-myst-reader/)
+![License](https://img.shields.io/pypi/l/pelican-myst-reader?color=blue)
 
-Pandoc Reader is a [Pelican][] plugin that converts documents written in [Pandoc’s variant of Markdown][] into HTML.
+MyST Reader is a [Pelican][] plugin that converts documents written in [MyST’s variant of Markdown][] into HTML.
 
 Requirements
 ------------
@@ -13,9 +13,9 @@ Requirements
 This plugin requires:
 
 * Python 3.7 or higher; and
-* Pandoc 2.11 or higher [[Pandoc installation instructions](https://pandoc.org/installing.html)].
+* MyST 0.13.5 or higher [[MyST installation instructions](https://myst.org/installing.html)].
 
-By default, the plugin looks for a `pandoc` executable on your `PATH`. If you wish, [you can specify an alternative location for your `pandoc` executable](#customizing-path-for-pandoc-executable).
+By default, the plugin looks for a `myst` executable on your `PATH`. If you wish, [you can specify an alternative location for your `myst` executable](#customizing-path-for-myst-executable).
 
 Installation
 ------------
@@ -23,13 +23,13 @@ Installation
 This plugin can be installed via:
 
 ```bash
-python -m pip install pelican-pandoc-reader
+python -m pip install pelican-myst-reader
 ```
 
 Configuration
 -------------
 
-This plugin converts [Pandoc’s variant of Markdown][] into HTML. Conversion from other Markdown variants is supported but requires the use of [Pandoc default files][].
+This plugin converts [MyST’s variant of Markdown][] into HTML. Conversion from other Markdown variants is supported but requires the use of [MyST default files][].
 
 Converting to output formats other than HTML is not supported.
 
@@ -55,18 +55,18 @@ date: "<date>"
 ...
 ```
 
-> ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to Pandoc for specifying content metadata. This is different from Pelican’s front-matter format. If you ever decide to stop using this plugin and switch to Pelican’s default Markdown handling, you may need to switch your front-matter metadata to [Python-Markdown’s Meta-Data format](https://python-markdown.github.io/extensions/meta_data/).
+> ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to MyST for specifying content metadata. This is different from Pelican’s front-matter format. If you ever decide to stop using this plugin and switch to Pelican’s default Markdown handling, you may need to switch your front-matter metadata to [Python-Markdown’s Meta-Data format](https://python-markdown.github.io/extensions/meta_data/).
 
-If you have files that use Pelican's front matter format, there is a script written by [Joseph Reagle](https://github.com/reagle) available that [converts Pelican's front matter to Pandoc's YAML header format](https://gist.github.com/reagle/5bc44ba9e2f1b961d1aaca9179fb403b).
+If you have files that use Pelican's front matter format, there is a script written by [Joseph Reagle](https://github.com/reagle) available that [converts Pelican's front matter to MyST's YAML header format](https://gist.github.com/reagle/5bc44ba9e2f1b961d1aaca9179fb403b).
 
-For more information on Pandoc's YAML metadata block or Pelican's default metadata format please visit the links below:
+For more information on MyST's YAML metadata block or Pelican's default metadata format please visit the links below:
 
-* [Pandoc’s YAML metadata blocks](https://pandoc.org/MANUAL.html#metadata-blocks)
+* [MyST’s YAML metadata blocks](https://myst.org/MANUAL.html#metadata-blocks)
 * [Pelican’s default metadata format](https://docs.getpelican.com/en/stable/content.html#file-metadata)
 
-### Specifying Pandoc Options
+### Specifying MyST Options
 
-The plugin supports two **mutually exclusive** methods for passing options to Pandoc.
+The plugin supports two **mutually exclusive** methods for passing options to MyST.
 
 #### Method One: Via Pelican Settings
 
@@ -75,7 +75,7 @@ The first method involves configuring two settings in your Pelican settings file
 * `PANDOC_ARGS`
 * `PANDOC_EXTENSIONS`
 
-In the `PANDOC_ARGS` setting, you may specify any arguments supported by Pandoc, as shown below:
+In the `PANDOC_ARGS` setting, you may specify any arguments supported by MyST, as shown below:
 
 ```python
 PANDOC_ARGS = [
@@ -84,7 +84,7 @@ PANDOC_ARGS = [
 ]
 ```
 
-In the `PANDOC_EXTENSIONS` setting, you may enable/disable any number of the supported [Pandoc extensions](https://pandoc.org/MANUAL.html#extensions):
+In the `PANDOC_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst.org/MANUAL.html#extensions):
 
 ```python
 PANDOC_EXTENSIONS = [
@@ -93,9 +93,9 @@ PANDOC_EXTENSIONS = [
 ]
 ```
 
-#### Method Two: Using Pandoc Default Files
+#### Method Two: Using MyST Default Files
 
-The second method involves specifying the path(s) to one or more [Pandoc default files][], with all your preferences written in YAML format.
+The second method involves specifying the path(s) to one or more [MyST default files][], with all your preferences written in YAML format.
 
 These paths should be set in your Pelican settings file by using the setting `PANDOC_DEFAULT_FILES`. The paths may be absolute or relative, but relative paths are recommended as they are more portable.
 
@@ -106,16 +106,16 @@ PANDOC_DEFAULT_FILES = [
 ]
 ```
 
-Here is a minimal example of content that should be available in a Pandoc default file:
+Here is a minimal example of content that should be available in a MyST default file:
 
 ```yaml
 reader: markdown
 writer: html5
 ```
 
-Using default files has the added benefit of allowing you to use other Markdown variants supported by Pandoc, such as [CommonMark](https://commonmark.org/) and [GitHub-Flavored Markdown](https://docs.github.com/en/free-pro-team@latest/github/writing-on-github).
+Using default files has the added benefit of allowing you to use other Markdown variants supported by MyST, such as [CommonMark](https://commonmark.org/) and [GitHub-Flavored Markdown](https://docs.github.com/en/free-pro-team@latest/github/writing-on-github).
 
-Please see [Pandoc default files][] for a more complete example.
+Please see [MyST default files][] for a more complete example.
 
 > ⚠️ **Note:** Neither method supports the `--standalone` or `--self-contained` arguments, which will yield an error if invoked.
 
@@ -137,7 +137,7 @@ PANDOC_ARGS = [
 ]
 ```
 
-To add a ToC via a Pandoc default file, use the syntax below:
+To add a ToC via a MyST default file, use the syntax below:
 
 ```yaml
 table-of-contents: true
@@ -165,7 +165,7 @@ PANDOC_ARGS = [
 ]
 ```
 
-If you are using a Pandoc default file, you need the following as a bare minimum to enable citations:
+If you are using a MyST default file, you need the following as a bare minimum to enable citations:
 
 ```yaml
 reader: markdown
@@ -178,7 +178,7 @@ Without these settings, citations will not be processed by the plugin.
 
 It is not necessary to specify the `+citations` extension since it is enabled by default. However, if you were to disable citations by specifying `-citations` in `PANDOC_EXTENSIONS` or by setting `reader: markdown-citations` in your default file, citations will **not** work.
 
-You may write your bibliography in any format supported by Pandoc with the appropriate extensions specified. However, you **must** name the bibliography file the same as your post.
+You may write your bibliography in any format supported by MyST with the appropriate extensions specified. However, you **must** name the bibliography file the same as your post.
 
 For example, a post with the file name `my-post.md` should have a bibliography file called `my-post.bib`, `my-post.json`, `my-post.yaml` or `my-post.bibtex` in the same directory as your post, or in a subdirectory of the directory that your blog resides in. Failure to do so will prevent the references from being picked up.
 
@@ -192,7 +192,7 @@ PANDOC_ARGS = [
 ]
 ```
 
-Or in a Pandoc default file:
+Or in a MyST default file:
 
 ```yaml
 csl: "https://www.zotero.org/styles/ieee-with-url"
@@ -208,7 +208,7 @@ PANDOC_ARGS = [
 ]
 ```
 
-Or in a Pandoc default file:
+Or in a MyST default file:
 
 ```yaml
 csl: "path/to/file/ieee-with-url.csl"
@@ -234,15 +234,15 @@ READING_SPEED = <words-per-minute>
 
 The number of words in a document is calculated using the [Markdown Word Count](https://github.com/gandreadis/markdown-word-count) package.
 
-### Customizing Path for `pandoc` Executable
+### Customizing Path for `myst` Executable
 
-If your `pandoc` executable does not reside on your `PATH`, set the `PANDOC_EXECUTABLE_PATH` in your Pelican settings file to the absolute path of where your `pandoc` resides as shown below:
+If your `myst` executable does not reside on your `PATH`, set the `PANDOC_EXECUTABLE_PATH` in your Pelican settings file to the absolute path of where your `myst` resides as shown below:
 
 ```python
-PANDOC_EXECUTABLE_PATH = /path/to/my/pandoc
+PANDOC_EXECUTABLE_PATH = /path/to/my/myst
 ```
 
-This setting is useful in cases where the `pandoc` executable from your hosting provider is not recent enough, and you may need to install a version of Pandoc—compatible with this plugin—in a non-standard location.
+This setting is useful in cases where the `myst` executable from your hosting provider is not recent enough, and you may need to install a version of MyST—compatible with this plugin—in a non-standard location.
 
 Contributing
 ------------
@@ -253,7 +253,7 @@ To start contributing to this plugin, review the [Contributing to Pelican][] doc
 
 Special thanks to [Justin Mayer](https://justinmayer.com), [Erwin Janssen](https://github.com/ErwinJanssen), [Joseph Reagle](https://github.com/reagle) and [Deniz Turgut](https://github.com/avaris) for their improvements and feedback on this plugin.
 
-[existing issues]: https://github.com/pelican-plugins/pandoc-reader/issues
+[existing issues]: https://github.com/ashwinvis/myst-reader/issues
 [Contributing to Pelican]: https://docs.getpelican.com/en/latest/contribute.html
 
 License
@@ -262,5 +262,5 @@ License
 This project is licensed under the AGPL-3.0 license.
 
 [Pelican]: https://getpelican.com
-[Pandoc’s variant of Markdown]: https://pandoc.org/MANUAL.html#pandocs-markdown
-[Pandoc default files]: https://pandoc.org/MANUAL.html#default-files
+[MyST’s variant of Markdown]: https://myst.org/MANUAL.html#mysts-markdown
+[MyST default files]: https://myst.org/MANUAL.html#default-files

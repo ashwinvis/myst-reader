@@ -1,2 +1,2 @@
-"""Importing pandoc_reader package."""
-from .pandoc_reader import *  # NOQA
+"""Importing myst_reader package."""
+from .myst_reader import *  # NOQA
