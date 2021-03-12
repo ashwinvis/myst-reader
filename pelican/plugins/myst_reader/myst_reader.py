@@ -36,7 +36,6 @@ VALID_INPUT_FORMATS = (
     "markdown_strict",
 )
 VALID_OUTPUT_FORMATS = ("html", "html5")
-UNSUPPORTED_ARGUMENTS = ("--standalone", "--self-contained")
 VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
 FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd"]
 DEFAULT_MYST_EXECUTABLE = None
@@ -68,7 +67,6 @@ class MySTReader(BaseReader):
         """Create HTML5 content."""
         # Get settings set in pelicanconf.py
         default_files = self.settings.get("MYST_DEFAULT_FILES", [])
-        arguments = self.settings.get("MYST_ARGS", [])
         extensions = self.settings.get("MYST_EXTENSIONS", [])
 
         if isinstance(extensions, list):
@@ -77,25 +75,19 @@ class MySTReader(BaseReader):
         # Check if source content has a YAML metadata block
         self._check_yaml_metadata_block(content)
 
-        # Check validity of arguments or default files
-        table_of_contents, citations = self._validate_fields(
-            default_files, arguments, extensions
-        )
-
         # Find and add bibliography if citations are specified
-        if citations:
-            for bib_file in self._find_bibs(source_path):
-                content += f"""
+        for bib_file in self._find_bibs(source_path):
+            content += f"""
 
 ```{{bibliography}} {bib_file}
 ```
 
 """
-
         # Create HTML content using myst-reader-default.html template
         output = self._run_myst(content)
 
         # Extract table of contents, text and metadata from HTML output
+        table_of_contents = True
         output, toc, myst_metadata = self._extract_contents(output, table_of_contents)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
@@ -118,62 +110,6 @@ class MySTReader(BaseReader):
             )
 
         return output, metadata
-
-    def _validate_fields(self, default_files, arguments, extensions):
-        """Validate fields and return citations and ToC request values."""
-        # If default_files is empty then validate the argument and extensions
-        if not default_files:
-            # Validate the arguments to see that they are supported
-            # by the plugin
-            self._check_arguments(arguments)
-
-            # Check if citations have been requested
-            citations = self._check_if_citations(arguments, extensions)
-
-            # Check if table of contents has been requested
-            table_of_contents = self._check_if_toc(arguments)
-        else:
-            # Validate default files and get the citations
-            # abd table of contents request value
-            citations, table_of_contents = self._check_defaults(default_files)
-        return table_of_contents, citations
-
-    def _check_defaults(self, default_files):
-        """Check if the given MyST defaults file has valid values."""
-        citations = False
-        table_of_contents = False
-        for default_file in default_files:
-            defaults = {}
-
-            # Convert YAML data to a Python dictionary
-            with open(default_file, "r") as file_handle:
-                defaults = safe_load(file_handle.read())
-
-            self._check_if_unsupported_settings(defaults)
-            reader = self._check_input_format(defaults)
-            self._check_output_format(defaults)
-
-            if not citations:
-                citeproc_specified = False
-
-                # Cases where citeproc is specified as citeproc: true
-                if defaults.get("citeproc", ""):
-                    citeproc_specified = True
-
-                # Cases where citeproc is specified in filters
-                elif "citeproc" in defaults.get("filters", ""):
-                    citeproc_specified = True
-
-                # The extension +citations is enabled by default in MyST 0.13.5
-                # are checking that the extension is not disabled using -citations
-                if citeproc_specified and "-citations" not in reader:
-                    citations = True
-
-            if not table_of_contents:
-                if defaults.get("table-of-contents", ""):
-                    table_of_contents = True
-
-        return citations, table_of_contents
 
     def _calculate_reading_time(self, content):
         """Calculate time taken to read content."""
@@ -273,28 +209,6 @@ class MySTReader(BaseReader):
         return html_output, toc, myst_metadata
 
     @staticmethod
-    def _check_if_citations(arguments, extensions):
-        """Check if citations are specified."""
-        citations = False
-        if arguments and extensions:
-            # The +citations extension is enabled by default in MyST 0.13.5
-            # therefore we do a check to see that it is not disabled in extensions
-            if (
-                "--citeproc" in arguments or "-C" in arguments
-            ) and "-citations" not in extensions:
-                citations = True
-        return citations
-
-    @staticmethod
-    def _check_if_toc(arguments):
-        """Check if a table of contents should be generated."""
-        table_of_contents = False
-        if arguments:
-            if "--toc" in arguments or "--table-of-contents" in arguments:
-                table_of_contents = True
-        return table_of_contents
-
-    @staticmethod
     def _find_bibs(source_path):
         """Find bibliographies recursively in the sourcepath given."""
         bib_files = []
@@ -306,21 +220,6 @@ class MySTReader(BaseReader):
                 if bib_name in files:
                     bib_files.append(os.path.join(root, bib_name))
         return bib_files
-
-    @staticmethod
-    def _check_arguments(arguments):
-        """Check to see that only supported arguments have been passed."""
-        for arg in arguments:
-            if arg in UNSUPPORTED_ARGUMENTS:
-                raise ValueError("Argument {0} is not supported.".format(arg))
-
-    @staticmethod
-    def _check_if_unsupported_settings(defaults):
-        """Check if unsupported settings are specified in the defaults."""
-        for arg in UNSUPPORTED_ARGUMENTS:
-            arg = arg[2:]
-            if defaults.get(arg, ""):
-                raise ValueError("The default {} should be set to false.".format(arg))
 
     @staticmethod
     def _check_input_format(defaults):
