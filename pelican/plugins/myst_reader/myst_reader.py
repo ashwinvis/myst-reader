@@ -2,12 +2,12 @@
 import json
 import math
 import os
-import shutil
-import subprocess
 
 import bs4
 from mwc.counter import count_words_in_markdown
 from yaml import safe_load
+
+from myst_parser import main
 
 from pelican import signals
 from pelican.readers import BaseReader
@@ -39,9 +39,9 @@ VALID_OUTPUT_FORMATS = ("html", "html5")
 UNSUPPORTED_ARGUMENTS = ("--standalone", "--self-contained")
 VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
 FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd"]
-DEFAULT_MYST_EXECUTABLE = "myst"
-MYST_SUPPORTED_MAJOR_VERSION = 2
-MYST_SUPPORTED_MINOR_VERSION = 11
+DEFAULT_MYST_EXECUTABLE = None
+MYST_SUPPORTED_MAJOR_VERSION = 0
+MYST_SUPPORTED_MINOR_VERSION = 13
 
 
 class MySTReader(BaseReader):
@@ -49,36 +49,22 @@ class MySTReader(BaseReader):
 
     enabled = True
     file_extensions = FILE_EXTENSIONS
+    parser_config = main.MdParserConfig()
 
     def read(self, source_path):
         """Parse MyST Markdown and return HTML5 markup and metadata."""
         # Get the user-defined path to the MyST executable or fall back to default
-        myst_executable = self.settings.get(
-            "MYST_EXECUTABLE_PATH", DEFAULT_MYST_EXECUTABLE
-        )
-
-        # If user-defined path, expand and make it absolute in case the path is relative
-        if myst_executable != DEFAULT_MYST_EXECUTABLE:
-            myst_executable = os.path.abspath(os.path.expanduser(myst_executable))
-
-        # Check if myst is installed and is executable
-        if not shutil.which(myst_executable):
-            raise Exception("Could not find MyST. Please install.")
-
-        # Check if the version of myst installed is 0.13.5 or higher
-        self._check_myst_version(myst_executable)
-
         # Open Markdown file and read content
         content = ""
         with pelican_open(source_path) as file_content:
             content = file_content
 
         # Retrieve HTML content and metadata
-        output, metadata = self._create_html(source_path, content, myst_executable)
+        output, metadata = self._create_html(source_path, content)
 
         return output, metadata
 
-    def _create_html(self, source_path, content, myst_executable):
+    def _create_html(self, source_path, content):
         """Create HTML5 content."""
         # Get settings set in pelicanconf.py
         default_files = self.settings.get("MYST_DEFAULT_FILES", [])
@@ -86,7 +72,7 @@ class MySTReader(BaseReader):
         extensions = self.settings.get("MYST_EXTENSIONS", [])
 
         if isinstance(extensions, list):
-            extensions = "".join(extensions)
+            self.parser_config.enable_extensions.extend(extensions)
 
         # Check if source content has a YAML metadata block
         self._check_yaml_metadata_block(content)
@@ -96,18 +82,18 @@ class MySTReader(BaseReader):
             default_files, arguments, extensions
         )
 
-        # Construct preliminary myst command
-        myst_cmd = self._construct_myst_command(
-            myst_executable, default_files, arguments, extensions
-        )
-
         # Find and add bibliography if citations are specified
         if citations:
             for bib_file in self._find_bibs(source_path):
-                myst_cmd.append("--bibliography={0}".format(bib_file))
+                content += f"""
+
+```{{bibliography}} {bib_file}
+```
+
+"""
 
         # Create HTML content using myst-reader-default.html template
-        output = self._run_myst(myst_cmd, content)
+        output = self._run_myst(content)
 
         # Extract table of contents, text and metadata from HTML output
         output, toc, myst_metadata = self._extract_contents(output, table_of_contents)
@@ -221,34 +207,6 @@ class MySTReader(BaseReader):
         return metadata
 
     @staticmethod
-    def _check_myst_version(myst_executable):
-        """Check that the specified version of MyST is 0.13.5 or higher."""
-        output = subprocess.run(
-            [myst_executable, "--version"],
-            capture_output=True,
-            encoding="utf-8",
-            check=True,
-        )
-
-        # Returns a string of the form myst <version>
-        myst_version = output.stdout.split("\n")[0]
-
-        # Get the major and minor version from the above version string
-        major_version = myst_version.split()[1].split(".")[0]
-        minor_version = myst_version.split()[1].split(".")[1]
-
-        # MyST major version less than 2 are not supported
-        if int(major_version) < MYST_SUPPORTED_MAJOR_VERSION:
-            raise Exception("MyST version must be 0.13.5 or higher.")
-
-        # MyST major version 2 minor version less than 11 are not supported
-        if (
-            int(major_version) == MYST_SUPPORTED_MAJOR_VERSION
-            and int(minor_version) < MYST_SUPPORTED_MINOR_VERSION
-        ):
-            raise Exception("MyST version must be 0.13.5 or higher.")
-
-    @staticmethod
     def _check_yaml_metadata_block(content):
         """Check if the source content has a YAML metadata block."""
         # Check that the given content is not empty
@@ -273,37 +231,10 @@ class MySTReader(BaseReader):
         if not yaml_block_end:
             raise Exception("Could not find end of metadata block.")
 
-    @staticmethod
-    def _construct_myst_command(
-        myst_executable, default_files, arguments, extensions
-    ):
-        """Construct MyST command for content."""
-        myst_cmd = [
-            myst_executable,
-            "--standalone",
-            "--template={}".format(
-                os.path.join(TEMPLATES_PATH, MYST_READER_HTML_TEMPLATE)
-            ),
-        ]
-        if not default_files:
-            myst_cmd.extend(["--from", "markdown" + extensions, "--to", "html5"])
-            myst_cmd.extend(arguments)
-        else:
-            for default_file in default_files:
-                myst_cmd.append("--defaults={0}".format(default_file))
-        return myst_cmd
-
-    @staticmethod
-    def _run_myst(myst_cmd, content):
+    @classmethod
+    def _run_myst(cls, content):
         """Execute the given myst command and return output."""
-        output = subprocess.run(
-            myst_cmd,
-            input=content,
-            capture_output=True,
-            encoding="utf-8",
-            check=True,
-        )
-        return output.stdout
+        return main.to_html(content, config=cls.parser_config)
 
     @staticmethod
     def _extract_contents(html_output, table_of_contents):
