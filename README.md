@@ -12,8 +12,7 @@ Requirements
 
 This plugin requires:
 
-* Python 3.7 or higher; and
-* MyST 0.13.5 or higher [[MyST installation instructions](https://myst.org/installing.html)].
+* Python 3.7 or higher
 
 By default, the plugin looks for a `myst` executable on your `PATH`. If you wish, [you can specify an alternative location for your `myst` executable](#customizing-path-for-myst-executable).
 
@@ -29,9 +28,10 @@ python -m pip install pelican-myst-reader
 Configuration
 -------------
 
-This plugin converts [MyST’s variant of Markdown][] into HTML. Conversion from other Markdown variants is supported but requires the use of [MyST default files][].
-
-Converting to output formats other than HTML is not supported.
+This plugin converts [MyST’s variant of Markdown][] into HTML. MyST being a
+superset of [CommonMark][CommonMark] should cover most Markdown variants, but
+strictly speaking, conversion from other Markdown variants is unsupported.
+Converting to output formats other than HTML is also unsupported.
 
 ### Specifying File Metadata
 
@@ -57,11 +57,8 @@ date: "<date>"
 
 > ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to MyST for specifying content metadata. This is different from Pelican’s front-matter format. If you ever decide to stop using this plugin and switch to Pelican’s default Markdown handling, you may need to switch your front-matter metadata to [Python-Markdown’s Meta-Data format](https://python-markdown.github.io/extensions/meta_data/).
 
-If you have files that use Pelican's front matter format, there is a script written by [Joseph Reagle](https://github.com/reagle) available that [converts Pelican's front matter to MyST's YAML header format](https://gist.github.com/reagle/5bc44ba9e2f1b961d1aaca9179fb403b).
+For more information on Pelican's default metadata format please visit the link below:
 
-For more information on MyST's YAML metadata block or Pelican's default metadata format please visit the links below:
-
-* [MyST’s YAML metadata blocks](https://myst.org/MANUAL.html#metadata-blocks)
 * [Pelican’s default metadata format](https://docs.getpelican.com/en/stable/content.html#file-metadata)
 
 ### Specifying MyST Options
@@ -84,7 +81,7 @@ PANDOC_ARGS = [
 ]
 ```
 
-In the `PANDOC_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst.org/MANUAL.html#extensions):
+In the `PANDOC_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html):
 
 ```python
 PANDOC_EXTENSIONS = [
@@ -262,5 +259,5 @@ License
 This project is licensed under the AGPL-3.0 license.
 
 [Pelican]: https://getpelican.com
-[MyST’s variant of Markdown]: https://myst.org/MANUAL.html#mysts-markdown
-[MyST default files]: https://myst.org/MANUAL.html#default-files
+[MyST’s variant of Markdown]: https://myst-parser.readthedocs.io/en/latest/using/syntax.html
+[CommonMark]: https://commonmark.org/
