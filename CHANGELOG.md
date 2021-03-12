@@ -4,7 +4,7 @@ CHANGELOG
 1.1.0 - 2021-02-16
 ------------------
 
-Add PANDOC_EXECUTABLE_PATH setting to customize `myst` executable location
+Add MYST_EXECUTABLE_PATH setting to customize `myst` executable location
 
 [nandac](https://github.com/nandac) [PR #19](https://github.com/ashwinvis/myst-reader/pull/19/)
 

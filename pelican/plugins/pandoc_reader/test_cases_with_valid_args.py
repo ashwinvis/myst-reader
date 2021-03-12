@@ -10,8 +10,8 @@ DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 
 # Test settings that will be set in pelicanconf.py by plugin users
-PANDOC_ARGS = ["--mathjax"]
-PANDOC_EXTENSIONS = ["+smart"]
+MYST_ARGS = ["--mathjax"]
+MYST_EXTENSIONS = ["+smart"]
 
 
 class TestValidCasesWithArguments(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestValidCasesWithArguments(unittest.TestCase):
     def test_valid_file(self):
         """Check if we get the appropriate output for valid input."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -43,7 +43,7 @@ class TestValidCasesWithArguments(unittest.TestCase):
     def test_mathjax_content(self):
         """Check if mathematics is rendered correctly."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -66,7 +66,7 @@ class TestValidCasesWithArguments(unittest.TestCase):
     def test_encoded_to_raw_conversion(self):
         """Check if raw paths are left untouched in output returned."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -99,7 +99,7 @@ class TestValidCasesWithArguments(unittest.TestCase):
     def test_valid_content_with_toc_1(self):
         """Check if output returned is valid and table of contents is valid."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS + ["--toc"],
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS + ["--toc"],
         )
 
         myst_reader = MySTReader(settings)
@@ -148,8 +148,8 @@ class TestValidCasesWithArguments(unittest.TestCase):
     def test_valid_content_with_toc_2(self):
         """Check if output returned is valid and table of contents is valid."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS,
-            PANDOC_ARGS=PANDOC_ARGS + ["--table-of-contents"],
+            MYST_EXTENSIONS=MYST_EXTENSIONS,
+            MYST_ARGS=MYST_ARGS + ["--table-of-contents"],
         )
 
         myst_reader = MySTReader(settings)

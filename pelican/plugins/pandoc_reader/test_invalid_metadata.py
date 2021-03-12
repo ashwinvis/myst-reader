@@ -10,8 +10,8 @@ DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 
 # Test settings that will be set in pelicanconf.py by plugin users
-PANDOC_ARGS = ["--mathjax"]
-PANDOC_EXTENSIONS = ["+smart"]
+MYST_ARGS = ["--mathjax"]
+MYST_EXTENSIONS = ["+smart"]
 
 
 class TestInvalidMetadata(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_empty_file(self):
         """Check if a file is empty."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -36,7 +36,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_non_empty_file_no_metadata(self):
         """Check if a file has no metadata."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -52,7 +52,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_metadata_start_with_leading_spaces(self):
         """Check if metadata block starting with leading spaces throws an exception."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -70,7 +70,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_metadata_block_end_with_leading_spaces(self):
         """Check if metadata block ending with leading spaces throws an exception."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -88,7 +88,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_no_metadata_block_end(self):
         """Check if the metadata block ends."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)
@@ -104,7 +104,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_invalid_metadata_block_end(self):
         """Check if the metadata block end is wrong."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
         )
 
         myst_reader = MySTReader(settings)

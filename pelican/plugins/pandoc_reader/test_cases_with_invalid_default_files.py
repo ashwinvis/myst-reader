@@ -20,7 +20,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "standalone_true.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -37,7 +37,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "selfcontained_true.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -54,7 +54,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "no_input_format.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -71,7 +71,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "invalid_reader_input_format.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -88,7 +88,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "invalid_from_input_format.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -105,7 +105,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "from_reader_both_given.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -128,7 +128,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "to_writer_both_given.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -151,7 +151,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "no_output_format.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -168,7 +168,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "invalid_writer_output_format.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
@@ -185,7 +185,7 @@ class TestInvalidCasesWithDefaultFiles(unittest.TestCase):
             os.path.join(TEST_DEFAULT_FILES_PATH, "invalid_to_output_format.yaml")
         ]
 
-        settings = get_settings(PANDOC_DEFAULT_FILES=myst_default_files)
+        settings = get_settings(MYST_DEFAULT_FILES=myst_default_files)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")

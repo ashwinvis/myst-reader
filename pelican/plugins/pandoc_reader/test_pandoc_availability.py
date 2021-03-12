@@ -11,8 +11,8 @@ DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 
 # Test settings that will be set in pelicanconf.py by plugin users
-PANDOC_ARGS = ["--mathjax"]
-PANDOC_EXTENSIONS = ["+smart"]
+MYST_ARGS = ["--mathjax"]
+MYST_EXTENSIONS = ["+smart"]
 
 
 class TestMySTAvailability(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestMySTAvailability(unittest.TestCase):
     def test_myst_availability_one(self):
         """Check if MyST executable is available."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=PANDOC_ARGS,
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS,
         )
 
         myst_reader = MySTReader(settings)
@@ -40,9 +40,9 @@ class TestMySTAvailability(unittest.TestCase):
     def test_myst_availability_two(self):
         """Check if myst executable is available at the given path."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS,
-            PANDOC_ARGS=PANDOC_ARGS,
-            PANDOC_EXECUTABLE_PATH="0.13.5/bin/myst",
+            MYST_EXTENSIONS=MYST_EXTENSIONS,
+            MYST_ARGS=MYST_ARGS,
+            MYST_EXECUTABLE_PATH="0.13.5/bin/myst",
         )
 
         myst_reader = MySTReader(settings)
@@ -57,9 +57,9 @@ class TestMySTAvailability(unittest.TestCase):
     def test_myst_unsupported_major_version(self):
         """Check if the installed myst has a supported major version."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS,
-            PANDOC_ARGS=PANDOC_ARGS,
-            PANDOC_EXECUTABLE_PATH="1.19/bin/myst",
+            MYST_EXTENSIONS=MYST_EXTENSIONS,
+            MYST_ARGS=MYST_ARGS,
+            MYST_EXECUTABLE_PATH="1.19/bin/myst",
         )
 
         myst_reader = MySTReader(settings)
@@ -74,9 +74,9 @@ class TestMySTAvailability(unittest.TestCase):
     def test_myst_unsupported_minor_version(self):
         """Check if the installed myst has a supported minor version."""
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS,
-            PANDOC_ARGS=PANDOC_ARGS,
-            PANDOC_EXECUTABLE_PATH="2.10/bin/myst",
+            MYST_EXTENSIONS=MYST_EXTENSIONS,
+            MYST_ARGS=MYST_ARGS,
+            MYST_EXECUTABLE_PATH="2.10/bin/myst",
         )
 
         myst_reader = MySTReader(settings)

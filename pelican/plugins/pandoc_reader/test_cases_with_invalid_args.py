@@ -10,8 +10,8 @@ DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 
 # Test settings that will be set in pelicanconf.py by plugin users
-PANDOC_ARGS = ["--mathjax"]
-PANDOC_EXTENSIONS = ["+smart"]
+MYST_ARGS = ["--mathjax"]
+MYST_EXTENSIONS = ["+smart"]
 
 
 class TestInvalidCasesWithArguments(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestInvalidCasesWithArguments(unittest.TestCase):
         """Check that specifying --standalone raises an exception."""
         myst_arguments = ["--standalone"]
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=myst_arguments
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=myst_arguments
         )
 
         myst_reader = MySTReader(settings)
@@ -37,7 +37,7 @@ class TestInvalidCasesWithArguments(unittest.TestCase):
         """Check that specifying --self-contained raises an exception."""
         myst_arguments = ["--self-contained"]
         settings = get_settings(
-            PANDOC_EXTENSIONS=PANDOC_EXTENSIONS, PANDOC_ARGS=myst_arguments
+            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=myst_arguments
         )
 
         myst_reader = MySTReader(settings)

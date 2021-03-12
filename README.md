@@ -69,22 +69,22 @@ The plugin supports two **mutually exclusive** methods for passing options to My
 
 The first method involves configuring two settings in your Pelican settings file (e.g., `pelicanconf.py`):
 
-* `PANDOC_ARGS`
-* `PANDOC_EXTENSIONS`
+* `MYST_ARGS`
+* `MYST_EXTENSIONS`
 
-In the `PANDOC_ARGS` setting, you may specify any arguments supported by MyST, as shown below:
+In the `MYST_ARGS` setting, you may specify any arguments supported by MyST, as shown below:
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
     "--mathjax",
     "--citeproc",
 ]
 ```
 
-In the `PANDOC_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html):
+In the `MYST_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html):
 
 ```python
-PANDOC_EXTENSIONS = [
+MYST_EXTENSIONS = [
     "+footnotes",   # Enabled extension
     "-pipe_tables", # Disabled extension
 ]
@@ -94,10 +94,10 @@ PANDOC_EXTENSIONS = [
 
 The second method involves specifying the path(s) to one or more [MyST default files][], with all your preferences written in YAML format.
 
-These paths should be set in your Pelican settings file by using the setting `PANDOC_DEFAULT_FILES`. The paths may be absolute or relative, but relative paths are recommended as they are more portable.
+These paths should be set in your Pelican settings file by using the setting `MYST_DEFAULT_FILES`. The paths may be absolute or relative, but relative paths are recommended as they are more portable.
 
 ```python
-PANDOC_DEFAULT_FILES = [
+MYST_DEFAULT_FILES = [
     "<path/to/default/file_one.yaml>",
     "<path/to/default/file_two.yaml>",
 ]
@@ -118,10 +118,10 @@ Please see [MyST default files][] for a more complete example.
 
 ### Generating a Table of Contents
 
-If you want to create a table of contents (ToC) for posts or pages, you may do so by specifying the `--toc` or `--table-of-contents` argument in the `PANDOC_ARGS` setting, as shown below:
+If you want to create a table of contents (ToC) for posts or pages, you may do so by specifying the `--toc` or `--table-of-contents` argument in the `MYST_ARGS` setting, as shown below:
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
     "--toc",
 ]
 ```
@@ -129,7 +129,7 @@ PANDOC_ARGS = [
 … or …
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
     "--table-of-contents",
 ]
 ```
@@ -146,10 +146,10 @@ The table of contents will be available for use in templates using the `{{ artic
 
 You may enable citations by specifying the `-C` or `--citeproc` option.
 
-Set the `PANDOC_ARGS` and `PANDOC_EXTENSIONS` in your Pelican settings file as shown below:
+Set the `MYST_ARGS` and `MYST_EXTENSIONS` in your Pelican settings file as shown below:
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
     "--citeproc",
 ]
 ```
@@ -157,7 +157,7 @@ PANDOC_ARGS = [
 … or …
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
     "-C",
 ]
 ```
@@ -173,7 +173,7 @@ citeproc: true
 
 Without these settings, citations will not be processed by the plugin.
 
-It is not necessary to specify the `+citations` extension since it is enabled by default. However, if you were to disable citations by specifying `-citations` in `PANDOC_EXTENSIONS` or by setting `reader: markdown-citations` in your default file, citations will **not** work.
+It is not necessary to specify the `+citations` extension since it is enabled by default. However, if you were to disable citations by specifying `-citations` in `MYST_EXTENSIONS` or by setting `reader: markdown-citations` in your default file, citations will **not** work.
 
 You may write your bibliography in any format supported by MyST with the appropriate extensions specified. However, you **must** name the bibliography file the same as your post.
 
@@ -184,7 +184,7 @@ For example, a post with the file name `my-post.md` should have a bibliography f
 If enabling citations with a specific style, you need to specify a CSL (Citation Style Language) file, available from the [Zotero Style Repository](https://www.zotero.org/styles). For example, if you are using `ieee-with-url` style file, it may be specified in your Pelican settings file, as shown below:
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
    "--csl=https://www.zotero.org/styles/ieee-with-url",
 ]
 ```
@@ -200,7 +200,7 @@ Specifying a *remote* (that is, not local) CSL file as shown above dramatically 
 You may then reference it in your Pelican settings file as shown below:
 
 ```python
-PANDOC_ARGS = [
+MYST_ARGS = [
    "--csl=path/to/file/ieee-with-url.csl",
 ]
 ```
@@ -233,10 +233,10 @@ The number of words in a document is calculated using the [Markdown Word Count](
 
 ### Customizing Path for `myst` Executable
 
-If your `myst` executable does not reside on your `PATH`, set the `PANDOC_EXECUTABLE_PATH` in your Pelican settings file to the absolute path of where your `myst` resides as shown below:
+If your `myst` executable does not reside on your `PATH`, set the `MYST_EXECUTABLE_PATH` in your Pelican settings file to the absolute path of where your `myst` resides as shown below:
 
 ```python
-PANDOC_EXECUTABLE_PATH = /path/to/my/myst
+MYST_EXECUTABLE_PATH = /path/to/my/myst
 ```
 
 This setting is useful in cases where the `myst` executable from your hosting provider is not recent enough, and you may need to install a version of MyST—compatible with this plugin—in a non-standard location.

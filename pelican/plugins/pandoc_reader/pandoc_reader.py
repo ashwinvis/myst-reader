@@ -15,7 +15,7 @@ from pelican.utils import pelican_open
 
 DIR_PATH = os.path.dirname(__file__)
 TEMPLATES_PATH = os.path.abspath(os.path.join(DIR_PATH, "templates"))
-PANDOC_READER_HTML_TEMPLATE = "myst-reader-default.html"
+MYST_READER_HTML_TEMPLATE = "myst-reader-default.html"
 DEFAULT_READING_SPEED = 200  # Words per minute
 
 ENCODED_LINKS_TO_RAW_LINKS_MAP = {
@@ -39,9 +39,9 @@ VALID_OUTPUT_FORMATS = ("html", "html5")
 UNSUPPORTED_ARGUMENTS = ("--standalone", "--self-contained")
 VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
 FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd"]
-DEFAULT_PANDOC_EXECUTABLE = "myst"
-PANDOC_SUPPORTED_MAJOR_VERSION = 2
-PANDOC_SUPPORTED_MINOR_VERSION = 11
+DEFAULT_MYST_EXECUTABLE = "myst"
+MYST_SUPPORTED_MAJOR_VERSION = 2
+MYST_SUPPORTED_MINOR_VERSION = 11
 
 
 class MySTReader(BaseReader):
@@ -54,11 +54,11 @@ class MySTReader(BaseReader):
         """Parse MyST Markdown and return HTML5 markup and metadata."""
         # Get the user-defined path to the MyST executable or fall back to default
         myst_executable = self.settings.get(
-            "PANDOC_EXECUTABLE_PATH", DEFAULT_PANDOC_EXECUTABLE
+            "MYST_EXECUTABLE_PATH", DEFAULT_MYST_EXECUTABLE
         )
 
         # If user-defined path, expand and make it absolute in case the path is relative
-        if myst_executable != DEFAULT_PANDOC_EXECUTABLE:
+        if myst_executable != DEFAULT_MYST_EXECUTABLE:
             myst_executable = os.path.abspath(os.path.expanduser(myst_executable))
 
         # Check if myst is installed and is executable
@@ -81,9 +81,9 @@ class MySTReader(BaseReader):
     def _create_html(self, source_path, content, myst_executable):
         """Create HTML5 content."""
         # Get settings set in pelicanconf.py
-        default_files = self.settings.get("PANDOC_DEFAULT_FILES", [])
-        arguments = self.settings.get("PANDOC_ARGS", [])
-        extensions = self.settings.get("PANDOC_EXTENSIONS", [])
+        default_files = self.settings.get("MYST_DEFAULT_FILES", [])
+        arguments = self.settings.get("MYST_ARGS", [])
+        extensions = self.settings.get("MYST_EXTENSIONS", [])
 
         if isinstance(extensions, list):
             extensions = "".join(extensions)
@@ -238,13 +238,13 @@ class MySTReader(BaseReader):
         minor_version = myst_version.split()[1].split(".")[1]
 
         # MyST major version less than 2 are not supported
-        if int(major_version) < PANDOC_SUPPORTED_MAJOR_VERSION:
+        if int(major_version) < MYST_SUPPORTED_MAJOR_VERSION:
             raise Exception("MyST version must be 0.13.5 or higher.")
 
         # MyST major version 2 minor version less than 11 are not supported
         if (
-            int(major_version) == PANDOC_SUPPORTED_MAJOR_VERSION
-            and int(minor_version) < PANDOC_SUPPORTED_MINOR_VERSION
+            int(major_version) == MYST_SUPPORTED_MAJOR_VERSION
+            and int(minor_version) < MYST_SUPPORTED_MINOR_VERSION
         ):
             raise Exception("MyST version must be 0.13.5 or higher.")
 
@@ -282,7 +282,7 @@ class MySTReader(BaseReader):
             myst_executable,
             "--standalone",
             "--template={}".format(
-                os.path.join(TEMPLATES_PATH, PANDOC_READER_HTML_TEMPLATE)
+                os.path.join(TEMPLATES_PATH, MYST_READER_HTML_TEMPLATE)
             ),
         ]
         if not default_files:
