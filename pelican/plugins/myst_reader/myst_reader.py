@@ -125,9 +125,14 @@ class MySTReader(BaseReader):
     def _extract_metadata(self, content):
         tokens = self._run_myst_to_tokens(content)
 
+        if not tokens:
+            raise ValueError("Could not find metadata. File is empty.")
+
         frontmatter = tokens[0]
         if frontmatter.type != "front_matter":
-            raise ValueError("Could not find front-matter metadata")
+            raise ValueError(
+                "Could not find front-matter metadata or invalid formatting."
+            )
 
         # Convert the metadata from string -> dict by treating it as YAML
         regex = re.compile(

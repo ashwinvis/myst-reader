@@ -10,8 +10,7 @@ DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 
 # Test settings that will be set in pelicanconf.py by plugin users
-MYST_ARGS = ["--mathjax"]
-MYST_EXTENSIONS = ["+smart"]
+MYST_EXTENSIONS = []
 
 
 class TestInvalidMetadata(unittest.TestCase):
@@ -20,7 +19,7 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_empty_file(self):
         """Check if a file is empty."""
         settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS
         )
 
         myst_reader = MySTReader(settings)
@@ -36,83 +35,25 @@ class TestInvalidMetadata(unittest.TestCase):
     def test_non_empty_file_no_metadata(self):
         """Check if a file has no metadata."""
         settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
+            MYST_EXTENSIONS=MYST_EXTENSIONS
         )
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "no_metadata.md")
 
-        # If the file is not empty but has no metadata it should fail
-        with self.assertRaises(Exception) as context_manager:
-            myst_reader.read(source_path)
+        for source_md in (
+            "no_metadata.md",
+            "metadata_start_with_leading_spaces.md",
+            "metadata_end_with_leading_spaces.md",
+            "no_metadata_end.md",
+        ):
+            source_path = os.path.join(TEST_CONTENT_PATH, source_md)
 
-        message = str(context_manager.exception)
-        self.assertEqual("Could not find metadata header '---'.", message)
+            # If the file is not empty but has no metadata it should fail
+            with self.assertRaises(Exception) as context_manager:
+                myst_reader.read(source_path)
 
-    def test_metadata_start_with_leading_spaces(self):
-        """Check if metadata block starting with leading spaces throws an exception."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
-        )
-
-        myst_reader = MySTReader(settings)
-        source_path = os.path.join(
-            TEST_CONTENT_PATH, "metadata_start_with_leading_spaces.md"
-        )
-
-        # Metadata staring --- should not have leading spaces
-        with self.assertRaises(Exception) as context_manager:
-            myst_reader.read(source_path)
-
-        message = str(context_manager.exception)
-        self.assertEqual("Could not find metadata header '---'.", message)
-
-    def test_metadata_block_end_with_leading_spaces(self):
-        """Check if metadata block ending with leading spaces throws an exception."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
-        )
-
-        myst_reader = MySTReader(settings)
-        source_path = os.path.join(
-            TEST_CONTENT_PATH, "metadata_end_with_leading_spaces.md"
-        )
-
-        # Metadata end --- or ... should not have leading spaces
-        with self.assertRaises(Exception) as context_manager:
-            myst_reader.read(source_path)
-
-        message = str(context_manager.exception)
-        self.assertEqual("Could not find end of metadata block.", message)
-
-    def test_no_metadata_block_end(self):
-        """Check if the metadata block ends."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
-        )
-
-        myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "no_metadata_end.md")
-
-        # Metadata blocks should end with '___' or '...' if not it should fail
-        with self.assertRaises(Exception) as context_manager:
-            myst_reader.read(source_path)
-
-        message = str(context_manager.exception)
-        self.assertEqual("Could not find end of metadata block.", message)
-
-    def test_invalid_metadata_block_end(self):
-        """Check if the metadata block end is wrong."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
-        )
-
-        myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "no_metadata_end.md")
-
-        # Metadata blocks should end with '___' or '...' if not it should fail
-        with self.assertRaises(Exception) as context_manager:
-            myst_reader.read(source_path)
-
-        message = str(context_manager.exception)
-        self.assertEqual("Could not find end of metadata block.", message)
+            message = str(context_manager.exception)
+            self.assertEqual(
+                "Could not find front-matter metadata or invalid formatting.",
+                message
+            )
