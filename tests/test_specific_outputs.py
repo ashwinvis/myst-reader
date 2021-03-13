@@ -4,14 +4,13 @@ import unittest
 
 from pelican.tests.support import get_settings
 
-from myst_reader import MySTReader
+from pelican.plugins.myst_reader import MySTReader
 
 DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 
 # Test settings that will be set in pelicanconf.py by plugin users
-MYST_ARGS = ["--mathjax"]
-MYST_EXTENSIONS = ["+smart"]
+MYST_EXTENSIONS = []
 CALCULATE_READING_TIME = True
 FORMATTED_FIELDS = ["summary"]
 
@@ -23,7 +22,6 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         """Check if 200 words per minute give us reading time of 1 minute."""
         settings = get_settings(
             MYST_EXTENSIONS=MYST_EXTENSIONS,
-            MYST_ARGS=MYST_ARGS,
             CALCULATE_READING_TIME=CALCULATE_READING_TIME,
         )
 
@@ -37,7 +35,6 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         """Check if 100 words per minute user defined gives us 2 minutes."""
         settings = get_settings(
             MYST_EXTENSIONS=MYST_EXTENSIONS,
-            MYST_ARGS=MYST_ARGS,
             CALCULATE_READING_TIME=CALCULATE_READING_TIME,
             READING_SPEED=100,
         )
@@ -52,7 +49,6 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         """Check if exception is raised if words per minute is not a number."""
         settings = get_settings(
             MYST_EXTENSIONS=MYST_EXTENSIONS,
-            MYST_ARGS=MYST_ARGS,
             CALCULATE_READING_TIME=CALCULATE_READING_TIME,
             READING_SPEED="my words per minute",
         )
@@ -70,7 +66,6 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         """Check if summary output is valid."""
         settings = get_settings(
             MYST_EXTENSIONS=MYST_EXTENSIONS,
-            MYST_ARGS=MYST_ARGS,
             FORMATTED_FIELDS=FORMATTED_FIELDS,
         )
 

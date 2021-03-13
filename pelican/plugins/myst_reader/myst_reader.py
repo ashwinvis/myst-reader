@@ -2,6 +2,7 @@
 import json
 import math
 import os
+import re
 
 import bs4
 from mwc.counter import count_words_in_markdown
@@ -28,16 +29,11 @@ ENCODED_LINKS_TO_RAW_LINKS_MAP = {
 # Update as MyST adds or removes support for formats
 VALID_INPUT_FORMATS = (
     "commonmark",
-    "commonmark_x",
-    "gfm",
     "markdown",
-    "markdown_mmd",
-    "markdown_phpextra",
-    "markdown_strict",
 )
 VALID_OUTPUT_FORMATS = ("html", "html5")
 VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
-FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd"]
+FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd", "myst"]
 DEFAULT_MYST_EXECUTABLE = None
 MYST_SUPPORTED_MAJOR_VERSION = 0
 MYST_SUPPORTED_MINOR_VERSION = 13
@@ -48,7 +44,16 @@ class MySTReader(BaseReader):
 
     enabled = True
     file_extensions = FILE_EXTENSIONS
-    parser_config = main.MdParserConfig()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Get settings set in pelicanconf.py
+        extensions = self.settings.get("MYST_EXTENSIONS", [])
+        self.parser_config = main.MdParserConfig(
+            renderer="html",
+            enable_extensions=extensions
+        )
 
     def read(self, source_path):
         """Parse MyST Markdown and return HTML5 markup and metadata."""
@@ -59,57 +64,27 @@ class MySTReader(BaseReader):
             content = file_content
 
         # Retrieve HTML content and metadata
-        output, metadata = self._create_html(source_path, content)
+        metadata = self._extract_metadata(content)
+        output = self._create_html(source_path, content)
 
         return output, metadata
 
     def _create_html(self, source_path, content):
         """Create HTML5 content."""
-        # Get settings set in pelicanconf.py
-        default_files = self.settings.get("MYST_DEFAULT_FILES", [])
-        extensions = self.settings.get("MYST_EXTENSIONS", [])
-
-        if isinstance(extensions, list):
-            self.parser_config.enable_extensions.extend(extensions)
-
-        # Check if source content has a YAML metadata block
-        self._check_yaml_metadata_block(content)
 
         # Find and add bibliography if citations are specified
-        for bib_file in self._find_bibs(source_path):
-            content += f"""
+        if "{cite}" in content and "{bibliography}" not in content:
+            for bib_file in self._find_bibs(source_path):
+                content += f"""
 
 ```{{bibliography}} {bib_file}
 ```
 
 """
         # Create HTML content using myst-reader-default.html template
-        output = self._run_myst(content)
+        output = self._run_myst_to_html(content)
 
-        # Extract table of contents, text and metadata from HTML output
-        table_of_contents = True
-        output, toc, myst_metadata = self._extract_contents(output, table_of_contents)
-
-        # Replace all occurrences of %7Bstatic%7D to {static},
-        # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
-        # so that static links are resolvable by pelican
-        for encoded_str, raw_str in ENCODED_LINKS_TO_RAW_LINKS_MAP.items():
-            output = output.replace(encoded_str, raw_str)
-
-        # Parse MyST metadata and add it to Pelican
-        metadata = self._process_metadata(myst_metadata)
-
-        if table_of_contents:
-            # Create table of contents and add to metadata
-            metadata["toc"] = self.process_metadata("toc", toc)
-
-        if self.settings.get("CALCULATE_READING_TIME", []):
-            # Calculate reading time and add to metadata
-            metadata["reading_time"] = self.process_metadata(
-                "reading_time", self._calculate_reading_time(content)
-            )
-
-        return output, metadata
+        return output
 
     def _calculate_reading_time(self, content):
         """Calculate time taken to read content."""
@@ -139,74 +114,61 @@ class MySTReader(BaseReader):
                 value = value.strip().strip('"')
 
             # Process the metadata
-            metadata[key] = self.process_metadata(key, value)
+            p_value = self.process_metadata(key, value)
+            # Convert metadata values in markdown, if any: for example summary
+            metadata[key] = (
+                self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
+                if isinstance(p_value, str) else p_value
+            )
         return metadata
 
-    @staticmethod
-    def _check_yaml_metadata_block(content):
-        """Check if the source content has a YAML metadata block."""
-        # Check that the given content is not empty
-        if not content:
-            raise Exception("Could not find metadata. File is empty.")
+    def _extract_metadata(self, content):
+        tokens = self._run_myst_to_tokens(content)
 
-        # Split content into a list of lines
-        content_lines = content.splitlines()
+        frontmatter = tokens[0]
+        if frontmatter.type != "front_matter":
+            raise ValueError("Could not find front-matter metadata")
 
-        # Check that the first line of the file starts with a YAML block
-        if content_lines[0].rstrip() not in ["---"]:
-            raise Exception("Could not find metadata header '---'.")
+        # Convert the metadata from string -> dict by treating it as YAML
+        regex = re.compile(
+            r"""(.+?)  # key, first lazy capture group, one or more character
+                :\s*  # colon separator and arbitary number of whitespace
+                (.*)  # value, next greedy capture group, zero or more character""",
+            re.VERBOSE
+        )
+        metadata_text = frontmatter.content
+        # Parse markdown in frontmatter, if any
+        myst_metadata = dict(regex.findall(metadata_text))
 
-        # Find the end of the YAML block
-        yaml_block_end = ""
-        for line_num, line in enumerate(content_lines[1:]):
-            if line.rstrip() in ["---", "..."]:
-                yaml_block_end = line_num
-                break
+        # Replace all occurrences of %7Bstatic%7D to {static},
+        # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
+        # so that static links are resolvable by pelican
+        # FIXME: remove?
+        #  for encoded_str, raw_str in ENCODED_LINKS_TO_RAW_LINKS_MAP.items():
+        #      output = output.replace(encoded_str, raw_str)
 
-        # Check if the end of the YAML block was found
-        if not yaml_block_end:
-            raise Exception("Could not find end of metadata block.")
+        # Parse MyST metadata and add it to Pelican
+        metadata = self._process_metadata(myst_metadata)
 
-    @classmethod
-    def _run_myst(cls, content):
-        """Execute the given myst command and return output."""
-        return main.to_html(content, config=cls.parser_config)
+        # FIXME:
+        #  if table_of_contents:
+        #      # Create table of contents and add to metadata
+        #      metadata["toc"] = self.process_metadata("toc", toc)
+        #
+        if self.settings.get("CALCULATE_READING_TIME", []):
+            # Calculate reading time and add to metadata
+            metadata["reading_time"] = self.process_metadata(
+                "reading_time", self._calculate_reading_time(content)
+            )
+        return metadata
 
-    @staticmethod
-    def _extract_contents(html_output, table_of_contents):
-        """Extract body html, table of contents and metadata from output."""
-        # Extract myst metadata from html output
-        myst_json_metadata, _, html_output = html_output.partition("\n")
+    def _run_myst_to_tokens(self, content):
+        """Execute the MyST parser and generate the syntax tree / tokens"""
+        return main.to_tokens(content, config=self.parser_config)
 
-        # Convert JSON string to dict
-        myst_metadata = json.loads(myst_json_metadata)
-
-        # Parse HTML output
-        soup = bs4.BeautifulSoup(html_output, "html.parser")
-
-        # Extract the table of contents if one was requested
-        toc = ""
-        if table_of_contents:
-            # Find the table of contents
-            toc = soup.body.find("nav", id="TOC")
-
-            if toc:
-                # Convert it to a string
-                toc = str(toc)
-
-                # Replace id=TOC with class="toc"
-                toc = toc.replace('id="TOC"', 'class="toc"')
-
-                # Remove the table of contents from the HTML output
-                soup.body.find("nav", id="TOC").decompose()
-
-        # Remove body tag around html output
-        soup.body.unwrap()
-
-        # Strip leading and trailing spaces
-        html_output = str(soup).strip()
-
-        return html_output, toc, myst_metadata
+    def _run_myst_to_html(self, content):
+        """Execute the MyST parser and return output."""
+        return main.to_html(content, config=self.parser_config)
 
     @staticmethod
     def _find_bibs(source_path):
