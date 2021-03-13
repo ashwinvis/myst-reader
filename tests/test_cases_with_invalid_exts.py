@@ -18,19 +18,16 @@ class TestInvalidCasesWithExts(unittest.TestCase):
 
     def test_invalid_ext(self):
         """Check that specifying --standalone raises an exception."""
-        myst_exts = ["does_not_exist"]
+        myst_exts = {"does_not_exist"}
         settings = get_settings(
             MYST_EXTENSIONS=myst_exts
         )
 
-        myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
-
         with self.assertRaises(ValueError) as context_manager:
-            myst_reader.read(source_path)
+            myst_reader = MySTReader(settings)
 
         message = str(context_manager.exception)
-        self.assertEqual("myst_enable_extensions not recognised: ", message)
+        self.assertEqual(f"myst_enable_extensions not recognised: {myst_exts}", message)
 
 
 if __name__ == "__main__":
