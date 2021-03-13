@@ -84,6 +84,12 @@ class MySTReader(BaseReader):
         # Create HTML content using myst-reader-default.html template
         output = self._run_myst_to_html(content)
 
+        # Replace all occurrences of %7Bstatic%7D to {static},
+        # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
+        # so that static links are resolvable by pelican
+        for encoded_str, raw_str in ENCODED_LINKS_TO_RAW_LINKS_MAP.items():
+            output = output.replace(encoded_str, raw_str)
+
         return output
 
     def _calculate_reading_time(self, content):
@@ -144,13 +150,6 @@ class MySTReader(BaseReader):
         metadata_text = frontmatter.content
         # Parse markdown in frontmatter, if any
         myst_metadata = dict(regex.findall(metadata_text))
-
-        # Replace all occurrences of %7Bstatic%7D to {static},
-        # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
-        # so that static links are resolvable by pelican
-        # FIXME: remove?
-        #  for encoded_str, raw_str in ENCODED_LINKS_TO_RAW_LINKS_MAP.items():
-        #      output = output.replace(encoded_str, raw_str)
 
         # Parse MyST metadata and add it to Pelican
         metadata = self._process_metadata(myst_metadata)

@@ -192,9 +192,7 @@ e^{i\theta} = \cos\theta + i \sin\theta.
 
     def test_encoded_to_raw_conversion(self):
         """Check if raw paths are left untouched in output returned."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, MYST_ARGS=MYST_ARGS
-        )
+        settings = get_settings()
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_raw_paths.md")
@@ -205,14 +203,14 @@ e^{i\theta} = \cos\theta + i \sin\theta.
 
         self.assertEqual(
             (
-                "<p>This is some valid content that should pass."
+                "\n<p>This is some valid content that should pass."
                 " If it does not pass we will know something is wrong.</p>\n"
                 "<p>Our fictitious internal files are available"
                 ' <a href="{filename}/path/to/file">at</a>:</p>\n'
                 "<p>Our fictitious static files are available"
                 ' <a href="{static}/path/to/file">at</a>:</p>\n'
                 "<p>Our fictitious attachments are available"
-                ' <a href="{attach}path/to/file">at</a>:</p>'
+                ' <a href="{attach}path/to/file">at</a>:</p>\n'
             ),
             output,
         )
