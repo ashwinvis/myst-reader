@@ -221,5 +221,31 @@ e^{i\theta} = \cos\theta + i \sin\theta.
         self.assertEqual("My Author", str(metadata["author"]))
         self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
 
+    def test_img_handling(self):
+        """Check if raw paths are left untouched in output returned."""
+        settings = get_settings()
+
+        myst_reader = MySTReader(settings)
+        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_image.md")
+        output, metadata = myst_reader.read(source_path)
+
+        # Setting this so that assert is able to execute the difference
+        self.maxDiff = None  # pylint: disable=invalid-name
+
+        self.assertEqual(
+"""
+<p>This is file contains a image.</p>
+<p><img src="/path/to/title.png" alt="Image alt title" /></p>
+<p><a href="https://example.com/link.png"><img src="/path/to/link.png" alt="Image with link" /></a></p>
+""",
+                output
+        )
+
+        self.assertEqual(
+            "Valid Content with Image", str(metadata["title"])
+        )
+        self.assertEqual("My Author", str(metadata["author"]))
+        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
+
 if __name__ == "__main__":
     unittest.main()
