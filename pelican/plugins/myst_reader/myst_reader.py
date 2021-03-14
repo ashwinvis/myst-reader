@@ -39,6 +39,7 @@ MYST_SUPPORTED_MAJOR_VERSION = 0
 MYST_SUPPORTED_MINOR_VERSION = 13
 
 
+
 class MySTReader(BaseReader):
     """Convert files written in MyST Markdown to HTML 5."""
 
@@ -172,7 +173,16 @@ class MySTReader(BaseReader):
 
     def _run_myst_to_html(self, content):
         """Execute the MyST parser and return output."""
-        return main.to_html(content, config=self.parser_config)
+        # return main.to_html(content, config=self.parser_config)
+        sphinx_conf = dict(
+            extensions=["myst_parser", "sphinxcontrib.bibtex"],
+        )
+        return main.to_docutils(
+            content,
+            parser_config=self.parser_config,
+            conf=sphinx_conf,
+            in_sphinx_env=True
+        )
 
     @staticmethod
     def _find_bibs(source_path):

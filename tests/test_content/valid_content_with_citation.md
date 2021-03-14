@@ -13,3 +13,6 @@ imagination, judging by the popular explanations that abound on the Web
 {cite}`mann2019`, {cite}`wood2019, jones2020`. And whether string theory is or is not
 science, Popper notwithstanding, is an issue that is still up for debate
 {cite}`siegel2015; castelvecchi2016; alves2017; francis2019`.
+
+```{bibliography} valid_content_with_citation.bib
+```
