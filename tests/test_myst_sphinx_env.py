@@ -1,3 +1,4 @@
+import pytest
 from myst_parser.sphinx_renderer import mock_sphinx_env
 from myst_parser.docutils_renderer import make_document
 
@@ -9,7 +10,9 @@ def test_myst_mock_sphinx_env():
     requested_extensions = set(conf.get("extensions"))
     with mock_sphinx_env(
         conf=conf, srcdir=".", with_builder="html", document=make_document()
-    ) as app:
+    ) as app, pytest.xfail(
+        reason="See https://github.com/executablebooks/MyST-Parser/issues/327"
+    ):
         app_exts = sorted(app.extensions)
         assert (
             requested_extensions.intersection(app_exts) == requested_extensions
@@ -17,7 +20,7 @@ def test_myst_mock_sphinx_env():
 
 
 def test_myst_mock_sphinx_env_compat():
-    conf = {"extensions": ["sphinxcontrib.bibtex"]}
+    conf = {"extensions": ["sphinxcontrib.bibtex"], "bibtex_bibfiles": ["test.bib"]}
     requested_extensions = set(conf.get("extensions"))
     with mock_sphinx_env_compat(
         conf=conf, srcdir=".", with_builder="html", document=make_document()
