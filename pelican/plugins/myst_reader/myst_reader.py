@@ -14,6 +14,9 @@ from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
+from ._sphinx_renderer import to_sphinx
+
+
 DIR_PATH = os.path.dirname(__file__)
 TEMPLATES_PATH = os.path.abspath(os.path.join(DIR_PATH, "templates"))
 MYST_READER_HTML_TEMPLATE = "myst-reader-default.html"
@@ -74,8 +77,9 @@ class MySTReader(BaseReader):
         """Create HTML5 content."""
 
         # Find and add bibliography if citations are specified
+        bib_files = self._find_bibs(source_path)
         if "{cite}" in content and "{bibliography}" not in content:
-            for bib_file in self._find_bibs(source_path):
+            for bib_file in bib_files:
                 content += f"""
 
 ```{{bibliography}} {bib_file}
@@ -83,7 +87,7 @@ class MySTReader(BaseReader):
 
 """
         # Create HTML content using myst-reader-default.html template
-        output = self._run_myst_to_html(content)
+        output = self._run_myst_to_html(content, source_path, bib_files)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
         # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
@@ -171,18 +175,27 @@ class MySTReader(BaseReader):
         """Execute the MyST parser and generate the syntax tree / tokens"""
         return main.to_tokens(content, config=self.parser_config)
 
-    def _run_myst_to_html(self, content):
+    def _run_myst_to_html(self, content, source_path=None, bib_files=None):
         """Execute the MyST parser and return output."""
-        # return main.to_html(content, config=self.parser_config)
-        sphinx_conf = dict(
-            extensions=["myst_parser", "sphinxcontrib.bibtex"],
-        )
-        return main.to_docutils(
-            content,
-            parser_config=self.parser_config,
-            conf=sphinx_conf,
-            in_sphinx_env=True
-        )
+        if not bib_files:
+            return main.to_html(content, config=self.parser_config)
+        else:
+            sphinx_conf = dict(
+                extensions=["myst_parser", "sphinxcontrib.bibtex"],
+                bibtex_bibfiles=bib_files,
+                master_doc=os.path.basename(source_path).split(".")[0],
+                myst_enable_extensions=self.parser_config.enable_extensions,
+            )
+            # FIXME: See https://github.com/executablebooks/MyST-Parser/issues/327
+            # return main.to_docutils(
+            #    in_sphinx_env=True,
+
+            return to_sphinx(
+                source_path,
+                parser_config=self.parser_config,
+                conf=sphinx_conf,
+                srcdir=os.path.dirname(source_path),
+            )
 
     @staticmethod
     def _find_bibs(source_path):

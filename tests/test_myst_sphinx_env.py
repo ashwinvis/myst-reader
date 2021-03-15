@@ -9,7 +9,7 @@ def test_myst_mock_sphinx_env():
     conf = {"extensions": ["sphinxcontrib.bibtex"]}
     requested_extensions = set(conf.get("extensions"))
     with mock_sphinx_env(
-        conf=conf, srcdir=".", with_builder="html", document=make_document()
+        conf=conf, srcdir=".", with_builder=True, document=make_document()
     ) as app, pytest.xfail(
         reason="See https://github.com/executablebooks/MyST-Parser/issues/327"
     ):
