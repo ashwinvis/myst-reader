@@ -1,25 +1,27 @@
-CHANGELOG
-=========
+# Changelog
 
-1.1.0 - 2021-02-16
-------------------
+All notable changes to this project will be documented in this file.
 
-Add MYST_EXECUTABLE_PATH setting to customize `myst` executable location
-
-[nandac](https://github.com/nandac) [PR #19](https://github.com/ashwinvis/myst-reader/pull/19/)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-1.0.1 - 2021-02-05
-------------------
+## [Unreleased]
 
-* Raise exception for metadata with leading or trailing whitespace
-* Remove citations extension check since MyST now enables it by default
+## [1.1.1b0] - 2021-03-15
 
-1.0.0 - 2020-12-04
-------------------
+### Changed
 
-* Convert to namespace plugin
-* Add support for citations, table of contents generation, and reading time calculation
-* Add support for MyST default files
-* Add support for specifying `citeproc` as a filter
+- Forked `pelican-pandoc-reader` and replaced Pandoc with MyST parser
 
+## [1.1.0] - 2021-02 16
+
+## [1.0.1] - 2021-02-05
+
+## [1.0.0] - 2020-12-04
+
+[1.1.1b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.1b0...HEAD
+[1.1.1b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.0...1.1.1b0
+[1.1.0]: https://github.com/ashwinvis/myst-reader/releases/tag/1.1.0
+[1.0.1]: https://github.com/ashwinvis/myst-reader/releases/tag/1.0.1
+[1.0.0]: https://github.com/ashwinvis/myst-reader/releases/tag/1.0.0
