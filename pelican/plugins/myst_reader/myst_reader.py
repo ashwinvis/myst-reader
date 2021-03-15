@@ -12,9 +12,6 @@ from pelican.utils import pelican_open
 
 from ._sphinx_renderer import to_sphinx
 
-DIR_PATH = os.path.dirname(__file__)
-TEMPLATES_PATH = os.path.abspath(os.path.join(DIR_PATH, "templates"))
-MYST_READER_HTML_TEMPLATE = "myst-reader-default.html"
 DEFAULT_READING_SPEED = 200  # Words per minute
 
 ENCODED_LINKS_TO_RAW_LINKS_MAP = {
@@ -25,16 +22,8 @@ ENCODED_LINKS_TO_RAW_LINKS_MAP = {
 
 # Markdown variants supported in default files
 # Update as MyST adds or removes support for formats
-VALID_INPUT_FORMATS = (
-    "commonmark",
-    "markdown",
-)
-VALID_OUTPUT_FORMATS = ("html", "html5")
 VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
 FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd", "myst"]
-DEFAULT_MYST_EXECUTABLE = None
-MYST_SUPPORTED_MAJOR_VERSION = 0
-MYST_SUPPORTED_MINOR_VERSION = 13
 
 
 class MySTReader(BaseReader):
@@ -203,64 +192,6 @@ class MySTReader(BaseReader):
                 if bib_name in files:
                     bib_files.append(os.path.join(root, bib_name))
         return bib_files
-
-    @staticmethod
-    def _check_input_format(defaults):
-        """Check if the input format given is a Markdown variant."""
-        reader = ""
-        reader_input = defaults.get("reader", "")
-        from_input = defaults.get("from", "")
-
-        # Case where no input format is specified
-        if not reader_input and not from_input:
-            raise ValueError("No input format specified.")
-
-        # Case where both reader and from are specified which is not supported
-        if reader_input and from_input:
-            raise ValueError(
-                (
-                    "Specifying both from and reader is not supported."
-                    " Please specify just one."
-                )
-            )
-
-        if reader_input or from_input:
-            if reader_input:
-                reader = reader_input
-            elif from_input:
-                reader = from_input
-
-            reader_prefix = reader.replace("+", "-").split("-")[0]
-
-            # Check to see if the reader_prefix matches a valid input format
-            if reader_prefix not in VALID_INPUT_FORMATS:
-                raise ValueError("Input type has to be a Markdown variant.")
-        return reader
-
-    @staticmethod
-    def _check_output_format(defaults):
-        """Check if the output format is HTML or HTML5."""
-        writer_output = defaults.get("writer", "")
-        to_output = defaults.get("to", "")
-
-        # Case where both writer and to are specified which is not supported
-        if writer_output and to_output:
-            raise ValueError(
-                (
-                    "Specifying both to and writer is not supported."
-                    " Please specify just one."
-                )
-            )
-
-        # Case where neither writer nor to value is set to html
-        if (
-            writer_output not in VALID_OUTPUT_FORMATS
-            and to_output not in VALID_OUTPUT_FORMATS
-        ):
-            output_formats = " or ".join(VALID_OUTPUT_FORMATS)
-            raise ValueError(
-                "Output format type must be either {}.".format(output_formats)
-            )
 
 
 def add_reader(readers):
