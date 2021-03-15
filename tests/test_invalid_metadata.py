@@ -17,9 +17,7 @@ class TestInvalidMetadata(unittest.TestCase):
 
     def test_empty_file(self):
         """Check if a file is empty."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS
-        )
+        settings = get_settings(MYST_EXTENSIONS=MYST_EXTENSIONS)
 
         myst_reader = MySTReader(settings)
         source_path = os.path.join(TEST_CONTENT_PATH, "empty.md")
@@ -33,9 +31,7 @@ class TestInvalidMetadata(unittest.TestCase):
 
     def test_non_empty_file_no_metadata(self):
         """Check if a file has no metadata."""
-        settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS
-        )
+        settings = get_settings(MYST_EXTENSIONS=MYST_EXTENSIONS)
 
         myst_reader = MySTReader(settings)
 
@@ -53,6 +49,5 @@ class TestInvalidMetadata(unittest.TestCase):
 
             message = str(context_manager.exception)
             self.assertEqual(
-                "Could not find front-matter metadata or invalid formatting.",
-                message
+                "Could not find front-matter metadata or invalid formatting.", message
             )

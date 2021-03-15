@@ -64,8 +64,7 @@ class TestReadingTimeAndSummary(unittest.TestCase):
     def test_summary(self):
         """Check if summary output is valid."""
         settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS,
-            FORMATTED_FIELDS=FORMATTED_FIELDS,
+            MYST_EXTENSIONS=MYST_EXTENSIONS, FORMATTED_FIELDS=FORMATTED_FIELDS,
         )
 
         myst_reader = MySTReader(settings)
