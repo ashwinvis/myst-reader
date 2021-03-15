@@ -1,13 +1,9 @@
 """Reader that processes MyST Markdown and returns HTML5."""
-import json
 import math
 import os
 import re
 
-import bs4
 from mwc.counter import count_words_in_markdown
-from yaml import safe_load
-
 from myst_parser import main
 
 from pelican import signals
@@ -15,7 +11,6 @@ from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
 from ._sphinx_renderer import to_sphinx
-
 
 DIR_PATH = os.path.dirname(__file__)
 TEMPLATES_PATH = os.path.abspath(os.path.join(DIR_PATH, "templates"))
@@ -42,7 +37,6 @@ MYST_SUPPORTED_MAJOR_VERSION = 0
 MYST_SUPPORTED_MINOR_VERSION = 13
 
 
-
 class MySTReader(BaseReader):
     """Convert files written in MyST Markdown to HTML 5."""
 
@@ -55,8 +49,7 @@ class MySTReader(BaseReader):
         # Get settings set in pelicanconf.py
         extensions = self.settings.get("MYST_EXTENSIONS", [])
         self.parser_config = main.MdParserConfig(
-            renderer="html",
-            enable_extensions=extensions
+            renderer="html", enable_extensions=extensions
         )
 
     def read(self, source_path):
@@ -129,7 +122,8 @@ class MySTReader(BaseReader):
             # Convert metadata values in markdown, if any: for example summary
             metadata[key] = (
                 self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
-                if isinstance(p_value, str) else p_value
+                if isinstance(p_value, str)
+                else p_value
             )
         return metadata
 
@@ -150,7 +144,7 @@ class MySTReader(BaseReader):
             r"""(.+?)  # key, first lazy capture group, one or more character
                 :\s*  # colon separator and arbitary number of whitespace
                 (.*)  # value, next greedy capture group, zero or more character""",
-            re.VERBOSE
+            re.VERBOSE,
         )
         metadata_text = frontmatter.content
         # Parse markdown in frontmatter, if any

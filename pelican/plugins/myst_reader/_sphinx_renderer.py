@@ -16,11 +16,7 @@ from myst_parser.main import default_parser, MdParserConfig
 
 @contextmanager
 def mock_sphinx_env_compat(
-    conf=None,
-    srcdir=None,
-    document=None,
-    with_builder=False,
-    raise_on_warning=False,
+    conf=None, srcdir=None, document=None, with_builder=False, raise_on_warning=False,
 ):
     """Set up an environment, to parse sphinx roles/directives,
     outside of a `sphinx-build`.
@@ -54,6 +50,7 @@ def mock_sphinx_env_compat(
             yield app
         finally:
             import os
+
             os.listdir(tempdir)
             # revert directive/role function (ee
             # `sphinx.util.docutils.sphinx_domains`)
