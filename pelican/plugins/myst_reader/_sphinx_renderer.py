@@ -2,8 +2,8 @@
 :module:`myst_parser.main` which does not monkey-patch Sphinx.
 
 """
-import copy
 from contextlib import contextmanager
+import copy
 from pathlib import Path
 import tempfile
 from typing import Iterable, Optional

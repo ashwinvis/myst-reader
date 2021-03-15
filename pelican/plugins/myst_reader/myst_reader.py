@@ -94,7 +94,7 @@ class MySTReader(BaseReader):
 
     def _process_metadata(self, myst_metadata):
         """Process MyST metadata and add it to Pelican."""
-        formatted_fields = self.settings['FORMATTED_FIELDS']
+        formatted_fields = self.settings["FORMATTED_FIELDS"]
 
         # Cycle through the metadata and process them
         metadata = {}
