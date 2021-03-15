@@ -1,6 +1,6 @@
-import pytest
-from myst_parser.sphinx_renderer import mock_sphinx_env
 from myst_parser.docutils_renderer import make_document
+from myst_parser.sphinx_renderer import mock_sphinx_env
+import pytest
 
 from pelican.plugins.myst_reader._sphinx_renderer import mock_sphinx_env_compat
 

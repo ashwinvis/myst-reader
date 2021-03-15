@@ -3,15 +3,15 @@
 
 """
 
-import tempfile
-from pathlib import Path
-from typing import Optional, Iterable
 from contextlib import contextmanager
+from pathlib import Path
+import tempfile
+from typing import Iterable, Optional
 
 from bs4 import BeautifulSoup
-from sphinx.application import Sphinx
+from myst_parser.main import MdParserConfig, default_parser
 from myst_parser.sphinx_renderer import sphinx_domains
-from myst_parser.main import default_parser, MdParserConfig
+from sphinx.application import Sphinx
 
 
 @contextmanager

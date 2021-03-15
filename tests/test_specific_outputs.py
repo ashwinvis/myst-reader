@@ -2,9 +2,8 @@
 import os
 import unittest
 
-from pelican.tests.support import get_settings
-
 from pelican.plugins.myst_reader import MySTReader
+from pelican.tests.support import get_settings
 
 DIR_PATH = os.path.dirname(__file__)
 TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
