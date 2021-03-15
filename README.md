@@ -45,6 +45,10 @@ date: "<date>"
 ---
 ```
 
+If the values of the metadata can include MyST syntax, in which case, the field
+name should be added to the `FORMATTED_FIELDS` list variable in
+`pelicanconf.py`.
+
 > ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to MyST
 > for specifying content metadata. This maybe different from Pelican’s
 > front-matter format. If you ever decide to stop using this plugin and switch

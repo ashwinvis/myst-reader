@@ -94,21 +94,25 @@ class MySTReader(BaseReader):
 
     def _process_metadata(self, myst_metadata):
         """Process MyST metadata and add it to Pelican."""
+        formatted_fields = self.settings['FORMATTED_FIELDS']
+
         # Cycle through the metadata and process them
         metadata = {}
+
         for key, value in myst_metadata.items():
             key = key.lower()
             if value and isinstance(value, str):
-                value = value.strip().strip('"')
+                metadata[key] = value = value.strip().strip('"')
 
-            # Process the metadata
-            p_value = self.process_metadata(key, value)
-            # Convert metadata values in markdown, if any: for example summary
-            metadata[key] = (
-                self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
-                if isinstance(p_value, str)
-                else p_value
-            )
+            if key in formatted_fields:
+                # Process the metadata
+                p_value = self.process_metadata(key, value)
+                # Convert metadata values in markdown, if any: for example summary
+                metadata[key] = (
+                    self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
+                    if isinstance(p_value, str)
+                    else p_value
+                )
         return metadata
 
     def _extract_metadata(self, content):
