@@ -41,21 +41,16 @@ The plugin expects all Markdown files to start with a YAML-formatted content hea
 ---
 title: "<post-title>"
 author: "<author-name>"
-data: "<date>"
----
-```
-
-… or …
-
-```yaml
----
-title: "<post-title>"
-author: "<author-name>"
 date: "<date>"
-...
+---
 ```
 
-> ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to MyST for specifying content metadata. This is different from Pelican’s front-matter format. If you ever decide to stop using this plugin and switch to Pelican’s default Markdown handling, you may need to switch your front-matter metadata to [Python-Markdown’s Meta-Data format](https://python-markdown.github.io/extensions/meta_data/).
+> ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to MyST
+> for specifying content metadata. This maybe different from Pelican’s
+> front-matter format. If you ever decide to stop using this plugin and switch
+> to Pelican’s default Markdown handling, you may need to switch your
+> front-matter metadata to [Python-Markdown’s Meta-Data
+> format](https://python-markdown.github.io/extensions/meta_data/).
 
 For more information on Pelican's default metadata format please visit the link below:
 
@@ -63,152 +58,19 @@ For more information on Pelican's default metadata format please visit the link 
 
 ### Specifying MyST Options
 
-The plugin supports two **mutually exclusive** methods for passing options to MyST.
+The plugin supports passing options to MyST. This is done by
+configuring your Pelican settings file (e.g.,
+`pelicanconf.py`):
 
-#### Method One: Via Pelican Settings
-
-The first method involves configuring two settings in your Pelican settings file (e.g., `pelicanconf.py`):
-
-* `MYST_ARGS`
 * `MYST_EXTENSIONS`
-
-In the `MYST_ARGS` setting, you may specify any arguments supported by MyST, as shown below:
-
-```python
-MYST_ARGS = [
-    "--mathjax",
-    "--citeproc",
-]
-```
 
 In the `MYST_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html):
 
 ```python
 MYST_EXTENSIONS = [
-    "+footnotes",   # Enabled extension
-    "-pipe_tables", # Disabled extension
+    "amsmath",
+    "dollarmath",
 ]
-```
-
-#### Method Two: Using MyST Default Files
-
-The second method involves specifying the path(s) to one or more [MyST default files][], with all your preferences written in YAML format.
-
-These paths should be set in your Pelican settings file by using the setting `MYST_DEFAULT_FILES`. The paths may be absolute or relative, but relative paths are recommended as they are more portable.
-
-```python
-MYST_DEFAULT_FILES = [
-    "<path/to/default/file_one.yaml>",
-    "<path/to/default/file_two.yaml>",
-]
-```
-
-Here is a minimal example of content that should be available in a MyST default file:
-
-```yaml
-reader: markdown
-writer: html5
-```
-
-Using default files has the added benefit of allowing you to use other Markdown variants supported by MyST, such as [CommonMark](https://commonmark.org/) and [GitHub-Flavored Markdown](https://docs.github.com/en/free-pro-team@latest/github/writing-on-github).
-
-Please see [MyST default files][] for a more complete example.
-
-> ⚠️ **Note:** Neither method supports the `--standalone` or `--self-contained` arguments, which will yield an error if invoked.
-
-### Generating a Table of Contents
-
-If you want to create a table of contents (ToC) for posts or pages, you may do so by specifying the `--toc` or `--table-of-contents` argument in the `MYST_ARGS` setting, as shown below:
-
-```python
-MYST_ARGS = [
-    "--toc",
-]
-```
-
-… or …
-
-```python
-MYST_ARGS = [
-    "--table-of-contents",
-]
-```
-
-To add a ToC via a MyST default file, use the syntax below:
-
-```yaml
-table-of-contents: true
-```
-
-The table of contents will be available for use in templates using the `{{ article.toc }}` or `{{ page.toc }}` Jinja template variables.
-
-### Enabling Citations
-
-You may enable citations by specifying the `-C` or `--citeproc` option.
-
-Set the `MYST_ARGS` and `MYST_EXTENSIONS` in your Pelican settings file as shown below:
-
-```python
-MYST_ARGS = [
-    "--citeproc",
-]
-```
-
-… or …
-
-```python
-MYST_ARGS = [
-    "-C",
-]
-```
-
-If you are using a MyST default file, you need the following as a bare minimum to enable citations:
-
-```yaml
-reader: markdown
-writer: html5
-
-citeproc: true
-```
-
-Without these settings, citations will not be processed by the plugin.
-
-It is not necessary to specify the `+citations` extension since it is enabled by default. However, if you were to disable citations by specifying `-citations` in `MYST_EXTENSIONS` or by setting `reader: markdown-citations` in your default file, citations will **not** work.
-
-You may write your bibliography in any format supported by MyST with the appropriate extensions specified. However, you **must** name the bibliography file the same as your post.
-
-For example, a post with the file name `my-post.md` should have a bibliography file called `my-post.bib`, `my-post.json`, `my-post.yaml` or `my-post.bibtex` in the same directory as your post, or in a subdirectory of the directory that your blog resides in. Failure to do so will prevent the references from being picked up.
-
-#### Known Issues with Citations
-
-If enabling citations with a specific style, you need to specify a CSL (Citation Style Language) file, available from the [Zotero Style Repository](https://www.zotero.org/styles). For example, if you are using `ieee-with-url` style file, it may be specified in your Pelican settings file, as shown below:
-
-```python
-MYST_ARGS = [
-   "--csl=https://www.zotero.org/styles/ieee-with-url",
-]
-```
-
-Or in a MyST default file:
-
-```yaml
-csl: "https://www.zotero.org/styles/ieee-with-url"
-```
-
-Specifying a *remote* (that is, not local) CSL file as shown above dramatically increases the time taken to process Markdown content. To improve processing speed, it is _highly_ recommended that you use a local copy of the CSL file downloaded from Zotero.
-
-You may then reference it in your Pelican settings file as shown below:
-
-```python
-MYST_ARGS = [
-   "--csl=path/to/file/ieee-with-url.csl",
-]
-```
-
-Or in a MyST default file:
-
-```yaml
-csl: "path/to/file/ieee-with-url.csl"
 ```
 
 ### Calculating and Displaying Reading Time
@@ -230,16 +92,6 @@ READING_SPEED = <words-per-minute>
 ```
 
 The number of words in a document is calculated using the [Markdown Word Count](https://github.com/gandreadis/markdown-word-count) package.
-
-### Customizing Path for `myst` Executable
-
-If your `myst` executable does not reside on your `PATH`, set the `MYST_EXECUTABLE_PATH` in your Pelican settings file to the absolute path of where your `myst` resides as shown below:
-
-```python
-MYST_EXECUTABLE_PATH = /path/to/my/myst
-```
-
-This setting is useful in cases where the `myst` executable from your hosting provider is not recent enough, and you may need to install a version of MyST—compatible with this plugin—in a non-standard location.
 
 Contributing
 ------------
