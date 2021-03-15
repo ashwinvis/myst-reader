@@ -102,17 +102,15 @@ class MySTReader(BaseReader):
         for key, value in myst_metadata.items():
             key = key.lower()
             if value and isinstance(value, str):
-                metadata[key] = value = value.strip().strip('"')
+                value = value.strip().strip('"')
 
-            if key in formatted_fields:
-                # Process the metadata
-                p_value = self.process_metadata(key, value)
+            # Process the metadata
+            metadata[key] = p_value = self.process_metadata(key, value)
+
+            if key in formatted_fields and isinstance(p_value, str):
                 # Convert metadata values in markdown, if any: for example summary
-                metadata[key] = (
-                    self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
-                    if isinstance(p_value, str)
-                    else p_value
-                )
+                metadata[key] = self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
+
         return metadata
 
     def _extract_metadata(self, content):

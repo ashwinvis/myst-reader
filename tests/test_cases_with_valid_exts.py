@@ -31,7 +31,7 @@ class TestValidCasesWithDefaults(unittest.TestCase):
 
         self.assertEqual("Valid Content", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16", str(metadata["date"]))
+        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
 
     def test_mathjax_with_valid_defaults(self):
         """Check if mathematics is rendered correctly with defaults."""
@@ -56,7 +56,7 @@ e^{i\theta} = \cos\theta + i \sin\theta.
 
         self.assertEqual("MathJax Content", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16", str(metadata["date"]))
+        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
 
     def test_citations(self):
         """Check if output, citations are valid using citeproc filter."""
@@ -268,7 +268,7 @@ science, Popper notwithstanding, is an issue that is still up for debate
 
         self.assertEqual("Valid Content With Citation", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16", str(metadata["date"]))
+        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
 
         # Read twice to see if warnings are emitted by the logger
         try:
@@ -313,7 +313,7 @@ science, Popper notwithstanding, is an issue that is still up for debate
             "Valid Content with Fictitious Raw Paths", str(metadata["title"])
         )
         self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16", str(metadata["date"]))
+        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
 
     def test_img_handling(self):
         """Check if raw paths are left untouched in output returned."""
@@ -337,7 +337,7 @@ science, Popper notwithstanding, is an issue that is still up for debate
 
         self.assertEqual("Valid Content with Image", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16", str(metadata["date"]))
+        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
 
 
 if __name__ == "__main__":
