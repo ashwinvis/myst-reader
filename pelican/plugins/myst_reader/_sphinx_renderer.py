@@ -2,16 +2,17 @@
 :module:`myst_parser.main` which does not monkey-patch Sphinx.
 
 """
-
 from contextlib import contextmanager
+import copy
 from pathlib import Path
 import tempfile
 from typing import Iterable, Optional
 
 from bs4 import BeautifulSoup
+from docutils.parsers.rst import directives, roles
 from myst_parser.main import MdParserConfig, default_parser
-from myst_parser.sphinx_renderer import sphinx_domains
 from sphinx.application import Sphinx
+from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_node
 
 
 @contextmanager
@@ -29,6 +30,10 @@ def mock_sphinx_env_compat(
     and `sphinx.util.docutils.sphinx_domains`.
     """
     with tempfile.TemporaryDirectory() as tempdir:
+        # store currently loaded roles/directives, so we can revert on exit
+        _directives = copy.copy(directives._directives)
+        _roles = copy.copy(roles._roles)
+
         # creating a builder attempts to make the doctreedir
         app = Sphinx(
             srcdir=srcdir,
@@ -49,6 +54,17 @@ def mock_sphinx_env_compat(
         try:
             yield app
         finally:
+            # NOTE: the following cleanup is to avoid warnings while creating a Sphinx
+            # Application multiple times
+
+            # revert loaded roles/directives
+            directives._directives = _directives
+            roles._roles = _roles
+
+            for node in list(additional_nodes):
+                unregister_node(node)
+                additional_nodes.discard(node)
+
             # revert directive/role function (ee
             # `sphinx.util.docutils.sphinx_domains`)
             _sphinx_domains.disable()

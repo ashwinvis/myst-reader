@@ -59,16 +59,11 @@ class MySTReader(BaseReader):
         """Create HTML5 content."""
 
         # Find and add bibliography if citations are specified
-        bib_files = self._find_bibs(source_path)
-        if "{cite}" in content and "{bibliography}" not in content:
-            for bib_file in bib_files:
-                content += f"""
+        if "{cite}" in content:
+            bib_files = self._find_bibs(source_path)
+        else:
+            bib_files = ()
 
-```{{bibliography}} {bib_file}
-```
-
-"""
-        # Create HTML content using myst-reader-default.html template
         output = self._run_myst_to_html(content, source_path, bib_files)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
@@ -99,21 +94,25 @@ class MySTReader(BaseReader):
 
     def _process_metadata(self, myst_metadata):
         """Process MyST metadata and add it to Pelican."""
+        formatted_fields = self.settings["FORMATTED_FIELDS"]
+
         # Cycle through the metadata and process them
         metadata = {}
+
         for key, value in myst_metadata.items():
             key = key.lower()
             if value and isinstance(value, str):
-                value = value.strip().strip('"')
+                metadata[key] = value = value.strip().strip('"')
 
-            # Process the metadata
-            p_value = self.process_metadata(key, value)
-            # Convert metadata values in markdown, if any: for example summary
-            metadata[key] = (
-                self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
-                if isinstance(p_value, str)
-                else p_value
-            )
+            if key in formatted_fields:
+                # Process the metadata
+                p_value = self.process_metadata(key, value)
+                # Convert metadata values in markdown, if any: for example summary
+                metadata[key] = (
+                    self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
+                    if isinstance(p_value, str)
+                    else p_value
+                )
         return metadata
 
     def _extract_metadata(self, content):
