@@ -49,9 +49,6 @@ def mock_sphinx_env_compat(
         try:
             yield app
         finally:
-            import os
-
-            os.listdir(tempdir)
             # revert directive/role function (ee
             # `sphinx.util.docutils.sphinx_domains`)
             _sphinx_domains.disable()
