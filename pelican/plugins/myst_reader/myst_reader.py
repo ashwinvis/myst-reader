@@ -59,16 +59,11 @@ class MySTReader(BaseReader):
         """Create HTML5 content."""
 
         # Find and add bibliography if citations are specified
-        bib_files = self._find_bibs(source_path)
-        if "{cite}" in content and "{bibliography}" not in content:
-            for bib_file in bib_files:
-                content += f"""
+        if "{cite}" in content:
+            bib_files = self._find_bibs(source_path)
+        else:
+            bib_files = ()
 
-```{{bibliography}} {bib_file}
-```
-
-"""
-        # Create HTML content using myst-reader-default.html template
         output = self._run_myst_to_html(content, source_path, bib_files)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
