@@ -36,9 +36,10 @@ class MySTReader(BaseReader):
         super().__init__(*args, **kwargs)
 
         # Get settings set in pelicanconf.py
-        extensions = self.settings.get("MYST_EXTENSIONS", [])
+        extensions = self.settings.get("MYST_EXTENSIONS", ["dollarmath"])
         self.parser_config = main.MdParserConfig(
-            renderer="html", enable_extensions=extensions
+            # renderer="docutils",
+            enable_extensions=extensions
         )
 
     def read(self, source_path):
@@ -158,7 +159,8 @@ class MySTReader(BaseReader):
     def _run_myst_to_html(self, content, source_path=None, bib_files=None):
         """Execute the MyST parser and return output."""
         if not bib_files:
-            return main.to_html(content, config=self.parser_config)
+            # return main.to_html(content, config=self.parser_config)
+            return main.to_docutils(content, parser_config=self.parser_config)
         else:
             sphinx_conf = dict(
                 extensions=["myst_parser", "sphinxcontrib.bibtex"],
