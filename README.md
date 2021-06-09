@@ -90,6 +90,16 @@ MYST_EXTENSIONS = [
 ]
 ```
 
+- `MYST_FORCE_SPHINX`
+
+The Sphinx renderer is automatically used if any math extension is enabled or
+BibTeX files are found. This setting would force Sphinx rendering for all cases
+which is slightly slower but has more features.
+
+```py
+MYST_FORCE_SPHINX = True
+```
+
 ### Calculating and Displaying Reading Time
 
 This plugin may be used to calculate the estimated reading time of articles and pages by setting `CALCULATE_READING_TIME` to `True` in your Pelican settings file:

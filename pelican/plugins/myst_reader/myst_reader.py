@@ -46,6 +46,7 @@ class MySTReader(BaseReader):
 
         # Get settings set in pelicanconf.py
         extensions = self.settings.get("MYST_EXTENSIONS", [])
+        self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
         self.parser_config = main.MdParserConfig(
             # renderer="docutils",
             enable_extensions=extensions
@@ -170,7 +171,8 @@ class MySTReader(BaseReader):
     def _run_myst_to_html(self, content, source_path=None, bib_files=None):
         """Execute the MyST parser and return output."""
         if source_path and (
-            bib_files
+            self.force_sphinx
+            or bib_files
             or any(
                 ext in ("dollarmath", "amsmath")
                 for ext in self.parser_config.enable_extensions
