@@ -44,11 +44,17 @@ class TestValidCasesWithDefaults(unittest.TestCase):
 
         self.assertEqual(
             (
-                r"""<section>
-<eqn>
+                r"""<div class="documentwrapper">
+ <div class="bodywrapper">
+  <div class="body" role="main">
+   <div class="math notranslate nohighlight">
+    \[
 e^{i\theta} = \cos\theta + i \sin\theta.
-</eqn>
-</section>
+\]
+   </div>
+  </div>
+ </div>
+</div>
 """
             ),
             output,
@@ -282,7 +288,9 @@ science, Popper notwithstanding, is an issue that is still up for debate
                     "is already registered, its visitors will be overridden",
                     warning_msg,
                 )
-                self.assertNotIn("is already registered, it will be overridden", warning_msg)
+                self.assertNotIn(
+                    "is already registered, it will be overridden", warning_msg
+                )
 
     def test_encoded_to_raw_conversion(self):
         """Check if raw paths are left untouched in output returned."""

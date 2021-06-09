@@ -33,7 +33,7 @@ pelican = "^4.5"
 markdown = {version = "^3.2.2", optional = true}
 markdown-word-count = "^0.0.1"
 beautifulsoup4 = "^4.9.3"
-myst-parser = "^0.13.5"
+myst-parser = "^0.14.0"
 sphinxcontrib-bibtex = "~2.1.0"
 
 [tool.poetry.dev-dependencies]

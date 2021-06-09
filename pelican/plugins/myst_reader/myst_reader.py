@@ -23,7 +23,16 @@ ENCODED_LINKS_TO_RAW_LINKS_MAP = {
 # Markdown variants supported in default files
 # Update as MyST adds or removes support for formats
 VALID_BIB_EXTENSIONS = ["bibtex", "bib"]
-FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd", "myst"]
+FILE_EXTENSIONS = [
+    "md",
+    "mkd",
+    "mkdn",
+    "mdwn",
+    "mdown",
+    "markdown",
+    "Rmd",
+    "myst",
+]
 
 
 class MySTReader(BaseReader):
@@ -36,7 +45,7 @@ class MySTReader(BaseReader):
         super().__init__(*args, **kwargs)
 
         # Get settings set in pelicanconf.py
-        extensions = self.settings.get("MYST_EXTENSIONS", ["dollarmath"])
+        extensions = self.settings.get("MYST_EXTENSIONS", [])
         self.parser_config = main.MdParserConfig(
             # renderer="docutils",
             enable_extensions=extensions
@@ -160,12 +169,20 @@ class MySTReader(BaseReader):
 
     def _run_myst_to_html(self, content, source_path=None, bib_files=None):
         """Execute the MyST parser and return output."""
-        if not bib_files:
-            # return main.to_html(content, config=self.parser_config)
-            return main.to_docutils(content, parser_config=self.parser_config)
-        else:
+        if source_path and (
+            bib_files
+            or any(
+                ext in ("dollarmath", "amsmath")
+                for ext in self.parser_config.enable_extensions
+            )
+        ):
             sphinx_conf = dict(
-                extensions=["myst_parser", "sphinxcontrib.bibtex"],
+                extensions=[
+                    "myst_parser",
+                    "sphinx.ext.autosectionlabel",
+                    "sphinx.ext.mathjax",
+                    "sphinxcontrib.bibtex",
+                ],
                 bibtex_bibfiles=bib_files,
                 master_doc=os.path.basename(source_path).split(".")[0],
                 myst_enable_extensions=self.parser_config.enable_extensions,
@@ -180,6 +197,9 @@ class MySTReader(BaseReader):
                 conf=sphinx_conf,
                 srcdir=os.path.dirname(source_path),
             )
+        else:
+            # return main.to_html(content, config=self.parser_config)
+            return main.to_docutils(content, parser_config=self.parser_config)
 
     @staticmethod
     def _find_bibs(source_path):
