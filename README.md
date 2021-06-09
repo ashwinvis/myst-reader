@@ -56,7 +56,7 @@ name should be added to the `FORMATTED_FIELDS` list variable in
 > front-matter metadata to [Python-Markdown’s Meta-Data
 > format](https://python-markdown.github.io/extensions/meta_data/).
 
-As an compromise and in order to support both metadata formats (although this
+As a compromise and in order to support both metadata formats (although this
 means deviating away from MyST standard), title case headers are acceptable.
 The advantage is that files are compatible with both MyST reader and Pelican's
 Markdown reader.
