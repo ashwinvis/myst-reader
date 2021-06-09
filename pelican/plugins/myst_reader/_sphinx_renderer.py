@@ -17,7 +17,11 @@ from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_no
 
 @contextmanager
 def mock_sphinx_env_compat(
-    conf=None, srcdir=None, document=None, with_builder=False, raise_on_warning=False,
+    conf=None,
+    srcdir=None,
+    document=None,
+    with_builder=False,
+    raise_on_warning=False,
 ):
     """Set up an environment, to parse sphinx roles/directives,
     outside of a `sphinx-build`.

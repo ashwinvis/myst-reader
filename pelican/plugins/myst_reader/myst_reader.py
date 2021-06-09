@@ -110,7 +110,9 @@ class MySTReader(BaseReader):
 
             if key in formatted_fields and isinstance(p_value, str):
                 # Convert metadata values in markdown, if any: for example summary
-                metadata[key] = self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
+                metadata[key] = (
+                    self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
+                )
 
         return metadata
 
