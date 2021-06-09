@@ -74,7 +74,7 @@ e^{i\theta} = \cos\theta + i \sin\theta.
 <div class="documentwrapper">
  <div class="bodywrapper">
   <div class="body" role="main">
-   <div class="section" id="string-theory">
+   <section id="string-theory">
     <h1>
      String Theory
      <a class="headerlink" href="#string-theory" title="Permalink to this headline">
@@ -257,7 +257,7 @@ science, Popper notwithstanding, is an issue that is still up for debate
       </dd>
      </dl>
     </p>
-   </div>
+   </section>
   </div>
  </div>
 </div>
