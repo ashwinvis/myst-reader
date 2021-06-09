@@ -22,7 +22,7 @@ ENCODED_LINKS_TO_RAW_LINKS_MAP = {
 
 # Markdown variants supported in default files
 # Update as MyST adds or removes support for formats
-VALID_BIB_EXTENSIONS = ["json", "yaml", "bibtex", "bib"]
+VALID_BIB_EXTENSIONS = ["bibtex", "bib"]
 FILE_EXTENSIONS = ["md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "Rmd", "myst"]
 
 
