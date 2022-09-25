@@ -3,14 +3,21 @@ import math
 import os
 import re
 
+from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
+
 from mwc.counter import count_words_in_markdown
-from myst_parser import main
+from myst_parser.config import main
+from myst_parser.docutils_ import Parser as DocutilsParser
+from myst_parser.sphinx_ import Parser as SphinxParser
+from myst_parser.parsers.mdit import create_md_parser
+from markdown_it.renderer import RendererHTML
 
 from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
-from ._sphinx_renderer import to_sphinx
+from ._sphinx_renderer import via_sphinx
+from ._docutils_renderer import via_docutils
 
 DEFAULT_READING_SPEED = 200  # Words per minute
 
@@ -47,6 +54,11 @@ class MySTReader(BaseReader):
         # Get settings set in pelicanconf.py
         extensions = self.settings.get("MYST_EXTENSIONS", [])
         self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
+        if self.force_sphinx:
+            self.parser = SphinxParser()
+        else:
+            self.parser = DocutilsParser()
+
         self.parser_config = main.MdParserConfig(
             # renderer="docutils",
             enable_extensions=extensions
@@ -166,9 +178,12 @@ class MySTReader(BaseReader):
 
     def _run_myst_to_tokens(self, content):
         """Execute the MyST parser and generate the syntax tree / tokens"""
-        return main.to_tokens(content, config=self.parser_config)
+        # tokens = Lexer(content, "", "none")
+        # return tokens
+        md = create_md_parser(self.parser_config, RendererHTML)
+        return md.parse(content)
 
-    def _run_myst_to_html(self, content, source_path=None, bib_files=None):
+    def _run_myst_to_html(self, content, source_path=None, bib_files=None) -> str:
         """Execute the MyST parser and return output."""
         if source_path and (
             self.force_sphinx
@@ -193,15 +208,15 @@ class MySTReader(BaseReader):
             # return main.to_docutils(
             #    in_sphinx_env=True,
 
-            return to_sphinx(
-                source_path,
-                parser_config=self.parser_config,
-                conf=sphinx_conf,
-                srcdir=os.path.dirname(source_path),
+            return via_sphinx(
+                content,
+                self.parser_config.enable_extensions,
+                self.parser,
+                # conf=sphinx_conf,
+                # srcdir=os.path.dirname(source_path),
             )
         else:
-            # return main.to_html(content, config=self.parser_config)
-            return main.to_docutils(content, parser_config=self.parser_config)
+            return via_docutils(content, self.parser_config.enable_extensions, self.parser)
 
     @staticmethod
     def _find_bibs(source_path):
