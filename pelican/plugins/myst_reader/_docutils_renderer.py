@@ -5,7 +5,6 @@ from myst_parser.docutils_ import Parser
 from myst_parser.config.main import MdParserConfig
 
 
-
 def via_docutils(
     source: str,
     extensions: tuple[str],
@@ -21,4 +20,4 @@ def via_docutils(
         },
         parser=parser,
     )
-    return output.decode('utf-8')
+    return output.decode("utf-8")

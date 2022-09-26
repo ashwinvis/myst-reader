@@ -1,12 +1,13 @@
 """Tests using valid default files for myst-reader plugin."""
 import os
 import unittest
+from pathlib import Path
 
 from pelican.plugins.myst_reader import MySTReader
 from pelican.tests.support import get_settings
 
-DIR_PATH = os.path.dirname(__file__)
-TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
+DIR_PATH = Path(__file__).parent.resolve()
+TEST_CONTENT_PATH = DIR_PATH / "test_content"
 
 
 class TestValidCasesWithDefaults(unittest.TestCase):
@@ -18,14 +19,12 @@ class TestValidCasesWithDefaults(unittest.TestCase):
 
         myst_reader = MySTReader(settings)
 
-        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content.md")
+        source_path = TEST_CONTENT_PATH / "valid_content.md"
         output, metadata = myst_reader.read(source_path)
+        expected = (TEST_CONTENT_PATH / "valid_content.html").read_text().strip()
 
         self.assertEqual(
-            (
-                "\n<p>This is some valid content that should pass."
-                " If it does not pass we will know something is wrong.</p>\n"
-            ),
+            expected,
             output,
         )
 

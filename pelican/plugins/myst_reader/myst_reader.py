@@ -4,6 +4,7 @@ import os
 import re
 
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
+from bs4 import BeautifulSoup, element
 
 from mwc.counter import count_words_in_markdown
 from myst_parser.config import main
@@ -16,8 +17,8 @@ from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
-from ._sphinx_renderer import via_sphinx
-from ._docutils_renderer import via_docutils
+from docutils.core import publish_parts
+
 
 DEFAULT_READING_SPEED = 200  # Words per minute
 
@@ -40,6 +41,26 @@ FILE_EXTENSIONS = [
     "Rmd",
     "myst",
 ]
+
+
+def publish(
+    source: str,
+    extensions: tuple[str],
+    parser: "Parser",
+):
+    """Public API in https://myst-parser.readthedocs.io/en/v0.18.0/docutils.html"""
+    parts = publish_parts(
+        source=source,
+        writer_name="html5",
+        settings_overrides={
+            "myst_enable_extensions": extensions,
+            "embed_stylesheet": False,
+        },
+        parser=parser,
+    )
+    output = parts["body"]
+    return output.strip()
+
 
 
 class MySTReader(BaseReader):
@@ -132,13 +153,24 @@ class MySTReader(BaseReader):
 
             if key in formatted_fields and isinstance(p_value, str):
                 # Convert metadata values in markdown, if any: for example summary
-                metadata[key] = (
-                    self._run_myst_to_html(p_value).strip().strip("<p>").strip("</p>")
-                )
+                metadata[key] = self._run_myst_to_html(p_value)
 
         return metadata
 
+    @staticmethod
+    def _extract_contents(html_output):
+        """Extracts contents inside a <main> ... </main> tag"""
+        soup = BeautifulSoup(html_output, "html.parser")
+        main = soup.find("main")
+        # Contents inside the main tag
+        return " ".join(
+            str(tag)
+            for tag in main.children
+            if isinstance(tag, element.Tag)
+        )
+
     def _extract_metadata(self, content):
+        """Extract metadata from MyST markdown content"""
         tokens = self._run_myst_to_tokens(content)
 
         if not tokens:
@@ -208,7 +240,7 @@ class MySTReader(BaseReader):
             # return main.to_docutils(
             #    in_sphinx_env=True,
 
-            return via_sphinx(
+            return publish(
                 content,
                 self.parser_config.enable_extensions,
                 self.parser,
@@ -216,7 +248,9 @@ class MySTReader(BaseReader):
                 # srcdir=os.path.dirname(source_path),
             )
         else:
-            return via_docutils(content, self.parser_config.enable_extensions, self.parser)
+            return publish(
+                content, self.parser_config.enable_extensions, self.parser
+            )
 
     @staticmethod
     def _find_bibs(source_path):

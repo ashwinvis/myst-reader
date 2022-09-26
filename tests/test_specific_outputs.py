@@ -73,10 +73,10 @@ class TestReadingTimeAndSummary(unittest.TestCase):
 
         self.assertEqual(
             (
-                "But this foundational principle of science has now been"
+                "<p>But this foundational principle of science has now been"
                 " called into question by"
-                ' <a href="https://www.britannica.com/science/string-theory">'
-                "String Theory</a>."
+                ' <a class="reference external" href="https://www.britannica.com/science/string-theory">'
+                "String Theory</a>.</p>"
             ),
             str(metadata["summary"]),
         )
