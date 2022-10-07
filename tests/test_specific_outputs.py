@@ -1,12 +1,12 @@
 """Tests reading time and summary output from myst-reader plugin."""
-import os
+from pathlib import Path
 import unittest
 
 from pelican.plugins.myst_reader import MySTReader
 from pelican.tests.support import get_settings
 
-DIR_PATH = os.path.dirname(__file__)
-TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
+DIR_PATH = Path(__file__).absolute().parent
+TEST_CONTENT_PATH = DIR_PATH / "test_content"
 
 # Test settings that will be set in pelicanconf.py by plugin users
 MYST_EXTENSIONS = []
@@ -25,7 +25,7 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         )
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "reading_time_content.md")
+        source_path = TEST_CONTENT_PATH / "reading_time_content.md"
         _, metadata = myst_reader.read(source_path)
 
         self.assertEqual("1 minute", str(metadata["reading_time"]))
@@ -39,7 +39,7 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         )
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "reading_time_content.md")
+        source_path = TEST_CONTENT_PATH / "reading_time_content.md"
         _, metadata = myst_reader.read(source_path)
 
         self.assertEqual("2 minutes", str(metadata["reading_time"]))
@@ -53,7 +53,7 @@ class TestReadingTimeAndSummary(unittest.TestCase):
         )
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "reading_time_content.md")
+        source_path = TEST_CONTENT_PATH / "reading_time_content.md"
 
         with self.assertRaises(ValueError) as context_manager:
             myst_reader.read(source_path)
@@ -64,11 +64,12 @@ class TestReadingTimeAndSummary(unittest.TestCase):
     def test_summary(self):
         """Check if summary output is valid."""
         settings = get_settings(
-            MYST_EXTENSIONS=MYST_EXTENSIONS, FORMATTED_FIELDS=FORMATTED_FIELDS,
+            MYST_EXTENSIONS=MYST_EXTENSIONS,
+            FORMATTED_FIELDS=FORMATTED_FIELDS,
         )
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
+        source_path = TEST_CONTENT_PATH / "valid_content_citations.md"
         _, metadata = myst_reader.read(source_path)
 
         self.assertEqual(

@@ -14,5 +14,5 @@ imagination, judging by the popular explanations that abound on the Web
 science, Popper notwithstanding, is an issue that is still up for debate
 {cite}`siegel2015, castelvecchi2016, alves2017, francis2019`.
 
-```{bibliography} valid_content_with_citation.bib
+```{bibliography} valid_content_citations.bib
 ```

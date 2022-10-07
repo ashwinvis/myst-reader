@@ -19,7 +19,8 @@ from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
-from ._sphinx_renderer import myst2html
+from ._sphinx_renderer import myst2html as myst2html_with_sphinx
+from ._docutils_renderer import myst2html as myst2html_with_docutils
 
 DEFAULT_READING_SPEED = 200  # Words per minute
 
@@ -44,26 +45,6 @@ FILE_EXTENSIONS = [
 ]
 
 
-def publish(
-    source: str,
-    extensions: tuple[str],
-    parser: "Parser",
-):
-    """Public API in https://myst-parser.readthedocs.io/en/v0.18.0/docutils.html"""
-    parts = publish_parts(
-        source=source,
-        writer_name="html5",
-        settings_overrides={
-            "myst_enable_extensions": extensions,
-            "embed_stylesheet": False,
-        },
-        parser=parser,
-    )
-    output = parts["body"]
-    return output.strip()
-
-
-
 class MySTReader(BaseReader):
     """Convert files written in MyST Markdown to HTML 5."""
 
@@ -79,11 +60,11 @@ class MySTReader(BaseReader):
             # renderer="docutils",
             enable_extensions=extensions
         )
-        # TODO: fix that...
-        self.force_sphinx = True # self.settings.get("MYST_FORCE_SPHINX", False)
-        if self.force_sphinx:
-            self.parser = SphinxParser()
-        else:
+        self.md_parser = create_md_parser(self.parser_config, RendererHTML)
+        self.myst_extensions = self.parser_config.enable_extensions
+
+        self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
+        if not self.force_sphinx:
             self.parser = DocutilsParser()
 
     def read(self, source_path):
@@ -104,12 +85,12 @@ class MySTReader(BaseReader):
         """Create HTML5 content."""
 
         # Find and add bibliography if citations are specified
-        if "{cite}" in content:
+        if "{cite" in content:
             bib_files = self._find_bibs(source_path)
         else:
             bib_files = ()
 
-        output = self._run_myst_to_html(content, source_path, bib_files)
+        output = self._run_myst_to_html(content, bib_files=bib_files)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
         # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
@@ -165,9 +146,7 @@ class MySTReader(BaseReader):
         main = soup.find("main")
         # Contents inside the main tag
         return " ".join(
-            str(tag)
-            for tag in main.children
-            if isinstance(tag, element.Tag)
+            str(tag) for tag in main.children if isinstance(tag, element.Tag)
         )
 
     def _extract_metadata(self, content):
@@ -211,48 +190,30 @@ class MySTReader(BaseReader):
 
     def _run_myst_to_tokens(self, content):
         """Execute the MyST parser and generate the syntax tree / tokens"""
-        # tokens = Lexer(content, "", "none")
-        # return tokens
-        md = create_md_parser(self.parser_config, RendererHTML)
-        return md.parse(content)
+        return self.md_parser.parse(content)
 
-    def _run_myst_to_html(self, content, source_path=None, bib_files=None) -> str:
+    def _run_myst_to_html(self, content, bib_files=None) -> str:
         """Execute the MyST parser and return output."""
-        if source_path and (
+        if (
             self.force_sphinx
             or bib_files
             or any(
-                ext in ("dollarmath", "amsmath")
-                for ext in self.parser_config.enable_extensions
+                ext in ("dollarmath", "amsmath") for ext in self.myst_extensions
+            )
+            or any(
+                syntax in content
+                for syntax in ("{filename}", "{static}", "{attach}")
             )
         ):
-            sphinx_conf = dict(
-                extensions=[
-                    "myst_parser",
-                    "sphinx.ext.autosectionlabel",
-                    "sphinx.ext.mathjax",
-                    "sphinxcontrib.bibtex",
-                ],
-                # bibtex_bibfiles=bib_files,
-                # master_doc=os.path.basename(source_path).split(".")[0],
-                myst_enable_extensions=self.parser_config.enable_extensions,
+            return myst2html_with_sphinx(
+                content,
+                bib_files=bib_files,
+                myst_extensions=self.myst_extensions,
+                sphinx_extensions=["sphinx.ext.autosectionlabel"],
             )
-            # FIXME: See https://github.com/executablebooks/MyST-Parser/issues/327
-            # return main.to_docutils(
-            #    in_sphinx_env=True,
-
-            return myst2html(content, sphinx_conf=sphinx_conf)
-
-            # return publish(
-            #     content,
-            #     self.parser_config.enable_extensions,
-            #     self.parser,
-            #     # conf=sphinx_conf,
-            #     # srcdir=os.path.dirname(source_path),
-            # )
         else:
-            return publish(
-                content, self.parser_config.enable_extensions, self.parser
+            return myst2html_with_docutils(
+                content, self.myst_extensions, self.parser
             )
 
     @staticmethod
