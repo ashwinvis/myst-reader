@@ -4,29 +4,49 @@ import unittest
 from pathlib import Path
 
 from pelican.plugins.myst_reader import MySTReader
-from pelican.tests.support import get_settings
+from pelican.tests.support import get_settings as pelican_get_settings
 
 DIR_PATH = Path(__file__).parent.resolve()
 TEST_CONTENT_PATH = DIR_PATH / "test_content"
-
+PATH_DIR_EXPECTED = TEST_CONTENT_PATH / "expected"
+CWD = Path.cwd()
 
 class TestValidCasesWithDefaults(unittest.TestCase):
     """Valid test cases using default files."""
 
-    def test_valid_file_with_valid_defaults(self):
-        """Check if we get the appropriate output specifying defaults."""
-        settings = get_settings()
+    def _test_valid(self, name, MYST_EXTENSIONS=None):
+
+        kwargs = {}
+        if MYST_EXTENSIONS:
+            kwargs["MYST_EXTENSIONS"] = MYST_EXTENSIONS
+
+        settings = pelican_get_settings(**kwargs)
 
         myst_reader = MySTReader(settings)
 
-        source_path = TEST_CONTENT_PATH / "valid_content.md"
+        source_path = TEST_CONTENT_PATH / (name + ".md")
         output, metadata = myst_reader.read(source_path)
-        expected = (TEST_CONTENT_PATH / "valid_content.html").read_text().strip()
+        path_expected = PATH_DIR_EXPECTED / (name + ".html")
+        expected = path_expected.read_text().strip()
+
+        path_save_wrong = path_expected.with_stem(path_expected.stem + "_wrong")
+
+        if expected != output:
+            with open(path_save_wrong, "w") as file:
+                file.write(expected)
 
         self.assertEqual(
             expected,
             output,
+            msg=f"Compare {path_expected.relative_to(CWD)} with {path_save_wrong.relative_to(CWD)}",
         )
+
+        return output, metadata
+
+    def test_valid_simple(self):
+        """Check if we get the appropriate output specifying defaults."""
+
+        output, metadata = self._test_valid("valid_content_minimal")
 
         self.assertEqual("Valid Content", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
@@ -38,7 +58,7 @@ class TestValidCasesWithDefaults(unittest.TestCase):
 
         myst_reader = MySTReader(settings)
 
-        source_path = os.path.join(TEST_CONTENT_PATH, "mathjax_content.md")
+        source_path = TEST_CONTENT_PATH / "mathjax_content.md"
         output, metadata = myst_reader.read(source_path)
 
         self.assertEqual(
@@ -69,7 +89,7 @@ e^{i\theta} = \cos\theta + i \sin\theta.
 
         myst_reader = MySTReader(settings)
 
-        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_citation.md")
+        source_path = TEST_CONTENT_PATH / "valid_content_with_citation.md"
         output, metadata = myst_reader.read(source_path)
         self.maxDiff = None  # pylint: disable=invalid-name
 
@@ -277,7 +297,9 @@ science, Popper notwithstanding, is an issue that is still up for debate
 
         # Read twice to see if warnings are emitted by the logger
         try:
-            with self.assertLogs("sphinx.sphinx.application", level="WARNING") as cm:
+            with self.assertLogs(
+                "sphinx.sphinx.application", level="WARNING"
+            ) as cm:
                 output, metadata = myst_reader.read(source_path)
         except AssertionError:
             pass
@@ -296,7 +318,7 @@ science, Popper notwithstanding, is an issue that is still up for debate
         settings = get_settings()
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_raw_paths.md")
+        source_path = TEST_CONTENT_PATH / "valid_content_with_raw_paths.md"
         output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference
@@ -327,7 +349,7 @@ science, Popper notwithstanding, is an issue that is still up for debate
         settings = get_settings()
 
         myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "valid_content_with_image.md")
+        source_path = TEST_CONTENT_PATH / "valid_content_with_image.md"
         output, metadata = myst_reader.read(source_path)
 
         # Setting this so that assert is able to execute the difference

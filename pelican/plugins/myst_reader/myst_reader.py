@@ -19,6 +19,8 @@ from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
+from ._sphinx_renderer import myst2html
+
 DEFAULT_READING_SPEED = 200  # Words per minute
 
 ENCODED_LINKS_TO_RAW_LINKS_MAP = {
@@ -73,16 +75,16 @@ class MySTReader(BaseReader):
 
         # Get settings set in pelicanconf.py
         extensions = self.settings.get("MYST_EXTENSIONS", [])
-        self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
-        if self.force_sphinx:
-            self.parser = SphinxParser()
-        else:
-            self.parser = DocutilsParser()
-
         self.parser_config = main.MdParserConfig(
             # renderer="docutils",
             enable_extensions=extensions
         )
+        # TODO: fix that...
+        self.force_sphinx = True # self.settings.get("MYST_FORCE_SPHINX", False)
+        if self.force_sphinx:
+            self.parser = SphinxParser()
+        else:
+            self.parser = DocutilsParser()
 
     def read(self, source_path):
         """Parse MyST Markdown and return HTML5 markup and metadata."""
@@ -231,21 +233,23 @@ class MySTReader(BaseReader):
                     "sphinx.ext.mathjax",
                     "sphinxcontrib.bibtex",
                 ],
-                bibtex_bibfiles=bib_files,
-                master_doc=os.path.basename(source_path).split(".")[0],
+                # bibtex_bibfiles=bib_files,
+                # master_doc=os.path.basename(source_path).split(".")[0],
                 myst_enable_extensions=self.parser_config.enable_extensions,
             )
             # FIXME: See https://github.com/executablebooks/MyST-Parser/issues/327
             # return main.to_docutils(
             #    in_sphinx_env=True,
 
-            return publish(
-                content,
-                self.parser_config.enable_extensions,
-                self.parser,
-                # conf=sphinx_conf,
-                # srcdir=os.path.dirname(source_path),
-            )
+            return myst2html(content, sphinx_conf=sphinx_conf)
+
+            # return publish(
+            #     content,
+            #     self.parser_config.enable_extensions,
+            #     self.parser,
+            #     # conf=sphinx_conf,
+            #     # srcdir=os.path.dirname(source_path),
+            # )
         else:
             return publish(
                 content, self.parser_config.enable_extensions, self.parser

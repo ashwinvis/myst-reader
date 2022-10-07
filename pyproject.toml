@@ -34,7 +34,7 @@ markdown = {version = "^3.2.2", optional = true}
 markdown-word-count = "^0.0.1"
 beautifulsoup4 = "^4.9.3"
 myst-parser = "^0.18.0"
-docutils = "^0.18.0"
+docutils = ">=0.17.0,<=0.18"
 sphinxcontrib-bibtex = "~2.5.0"
 
 [tool.poetry.dev-dependencies]
