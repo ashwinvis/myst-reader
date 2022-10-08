@@ -11,42 +11,42 @@ PATH_DIR_EXPECTED = TEST_CONTENT_PATH / "expected"
 CWD = Path.cwd()
 
 
+def _test_valid(name, MYST_EXTENSIONS=None):
+
+    kwargs = {}
+    if MYST_EXTENSIONS:
+        kwargs["MYST_EXTENSIONS"] = MYST_EXTENSIONS
+
+    settings = pelican_get_settings(**kwargs)
+
+    myst_reader = MySTReader(settings)
+
+    source_path = TEST_CONTENT_PATH / (name + ".md")
+    output, metadata = myst_reader.read(source_path)
+    path_expected = PATH_DIR_EXPECTED / (name + ".html")
+    expected = path_expected.read_text().strip()
+
+    path_save_wrong = path_expected.with_stem(path_expected.stem + "_wrong")
+
+    if expected != output:
+        with open(path_save_wrong, "w") as file:
+            file.write(output)
+
+    assert expected == output, (
+        f"Compare with meld {path_expected.relative_to(CWD)} "
+        f"{path_save_wrong.relative_to(CWD)}"
+    )
+
+    return output, metadata
+
+
 class TestValidCases(unittest.TestCase):
     """Valid test cases using default files."""
-
-    def _test_valid(self, name, MYST_EXTENSIONS=None):
-
-        kwargs = {}
-        if MYST_EXTENSIONS:
-            kwargs["MYST_EXTENSIONS"] = MYST_EXTENSIONS
-
-        settings = pelican_get_settings(**kwargs)
-
-        myst_reader = MySTReader(settings)
-
-        source_path = TEST_CONTENT_PATH / (name + ".md")
-        output, metadata = myst_reader.read(source_path)
-        path_expected = PATH_DIR_EXPECTED / (name + ".html")
-        expected = path_expected.read_text().strip()
-
-        path_save_wrong = path_expected.with_stem(path_expected.stem + "_wrong")
-
-        if expected != output:
-            with open(path_save_wrong, "w") as file:
-                file.write(output)
-
-        self.assertEqual(
-            expected,
-            output,
-            msg=f"Compare with meld {path_expected.relative_to(CWD)} {path_save_wrong.relative_to(CWD)}",
-        )
-
-        return output, metadata
 
     def test_minimal(self):
         """Check if we get the appropriate output specifying defaults."""
 
-        output, metadata = self._test_valid("valid_content_minimal")
+        output, metadata = _test_valid("valid_content_minimal")
 
         self.assertEqual("Valid Content", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
@@ -55,7 +55,7 @@ class TestValidCases(unittest.TestCase):
     def test_mathjax(self):
         """Check if mathematics is rendered correctly with defaults."""
 
-        output, metadata = self._test_valid(
+        output, metadata = _test_valid(
             "valid_content_mathjax", MYST_EXTENSIONS=["dollarmath", "amsmath"]
         )
 
@@ -66,7 +66,7 @@ class TestValidCases(unittest.TestCase):
     def test_citations(self):
         """Check if output, citations are valid using citeproc filter."""
 
-        output, metadata = self._test_valid("valid_content_citations")
+        output, metadata = _test_valid("valid_content_citations")
 
         self.assertEqual("Valid Content With Citation", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
@@ -93,7 +93,7 @@ class TestValidCases(unittest.TestCase):
     def test_links(self):
         """Check if raw paths are left untouched in output returned."""
 
-        output, metadata = self._test_valid("valid_content_links")
+        output, metadata = _test_valid("valid_content_links")
 
         self.assertEqual(
             "Valid Content with Fictitious Paths", str(metadata["title"])
@@ -104,7 +104,7 @@ class TestValidCases(unittest.TestCase):
     def test_images(self):
         """Check with images."""
 
-        output, metadata = self._test_valid("valid_content_images")
+        output, metadata = _test_valid("valid_content_images")
 
         self.assertEqual("Valid Content with Image", str(metadata["title"]))
         self.assertEqual("My Author", str(metadata["author"]))
