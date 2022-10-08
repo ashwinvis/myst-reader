@@ -1,5 +1,5 @@
 """Tests using valid default files for myst-reader plugin."""
-import unittest
+
 from pathlib import Path
 
 from pelican.plugins.myst_reader import MySTReader
@@ -40,76 +40,72 @@ def _test_valid(name, MYST_EXTENSIONS=None):
     return output, metadata
 
 
-class TestValidCases(unittest.TestCase):
-    """Valid test cases using default files."""
+def test_minimal():
+    """Check if we get the appropriate output specifying defaults."""
 
-    def test_minimal(self):
-        """Check if we get the appropriate output specifying defaults."""
+    output, metadata = _test_valid("valid_content_minimal")
 
-        output, metadata = _test_valid("valid_content_minimal")
-
-        self.assertEqual("Valid Content", str(metadata["title"]))
-        self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
-
-    def test_mathjax(self):
-        """Check if mathematics is rendered correctly with defaults."""
-
-        output, metadata = _test_valid(
-            "valid_content_mathjax", MYST_EXTENSIONS=["dollarmath", "amsmath"]
-        )
-
-        self.assertEqual("MathJax Content", str(metadata["title"]))
-        self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
-
-    def test_citations(self):
-        """Check if output, citations are valid using citeproc filter."""
-
-        output, metadata = _test_valid("valid_content_citations")
-
-        self.assertEqual("Valid Content With Citation", str(metadata["title"]))
-        self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
-
-        # Read twice to see if warnings are emitted by the logger
-        # try:
-        #     with self.assertLogs(
-        #         "sphinx.sphinx.application", level="WARNING"
-        #     ) as cm:
-        #         output, metadata = myst_reader.read(source_path)
-        # except AssertionError:
-        #     pass
-        # else:
-        #     for warning_msg in cm.output:
-        #         self.assertNotIn(
-        #             "is already registered, its visitors will be overridden",
-        #             warning_msg,
-        #         )
-        #         self.assertNotIn(
-        #             "is already registered, it will be overridden", warning_msg
-        #         )
-
-    def test_links(self):
-        """Check if raw paths are left untouched in output returned."""
-
-        output, metadata = _test_valid("valid_content_links")
-
-        self.assertEqual(
-            "Valid Content with Fictitious Paths", str(metadata["title"])
-        )
-        self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
-
-    def test_images(self):
-        """Check with images."""
-
-        output, metadata = _test_valid("valid_content_images")
-
-        self.assertEqual("Valid Content with Image", str(metadata["title"]))
-        self.assertEqual("My Author", str(metadata["author"]))
-        self.assertEqual("2020-10-16 00:00:00", str(metadata["date"]))
+    assert "Valid Content" == str(metadata["title"])
+    assert "My Author" == str(metadata["author"])
+    assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_mathjax():
+    """Check if mathematics is rendered correctly with defaults."""
+
+    output, metadata = _test_valid(
+        "valid_content_mathjax", MYST_EXTENSIONS=["dollarmath", "amsmath"]
+    )
+
+    assert "MathJax Content" == str(metadata["title"])
+    assert "My Author" == str(metadata["author"])
+    assert "2020-10-16 00:00:00" == str(metadata["date"])
+
+
+def test_citations():
+    """Check if output, citations are valid using citeproc filter."""
+
+    output, metadata = _test_valid("valid_content_citations")
+
+    assert "Valid Content With Citation" == str(metadata["title"])
+    assert "My Author" == str(metadata["author"])
+    assert "2020-10-16 00:00:00" == str(metadata["date"])
+
+    # Read twice to see if warnings are emitted by the logger
+    # try:
+    #     with self.assertLogs(
+    #         "sphinx.sphinx.application", level="WARNING"
+    #     ) as cm:
+    #         output, metadata = myst_reader.read(source_path)
+    # except AssertionError:
+    #     pass
+    # else:
+    #     for warning_msg in cm.output:
+    #         self.assertNotIn(
+    #             "is already registered, its visitors will be overridden",
+    #             warning_msg,
+    #         )
+    #         self.assertNotIn(
+    #             "is already registered, it will be overridden", warning_msg
+    #         )
+
+
+def test_links():
+    """Check if raw paths are left untouched in output returned."""
+
+    output, metadata = _test_valid("valid_content_links")
+
+    assert "Valid Content with Fictitious Paths" == str(metadata["title"])
+
+    assert "My Author" == str(metadata["author"])
+    assert "2020-10-16 00:00:00" == str(metadata["date"])
+
+
+def test_images():
+    """Check with images."""
+
+    output, metadata = _test_valid("valid_content_images")
+
+    assert "Valid Content with Image" == str(metadata["title"])
+    assert "My Author" == str(metadata["author"])
+    assert "2020-10-16 00:00:00" == str(metadata["date"])
