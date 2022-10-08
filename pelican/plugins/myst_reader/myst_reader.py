@@ -4,6 +4,7 @@ from __future__ import annotations
 import math
 import os
 import re
+from pathlib import Path
 
 from bs4 import BeautifulSoup, element
 from markdown_it.renderer import RendererHTML
@@ -87,7 +88,8 @@ class MySTReader(BaseReader):
         else:
             bib_files = ()
 
-        output = self._run_myst_to_html(content, bib_files=bib_files)
+        stem = Path(source_path).stem
+        output = self._run_myst_to_html(content, bib_files=bib_files, tempdir_suffix=stem)
 
         # Replace all occurrences of %7Bstatic%7D to {static},
         # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
@@ -189,7 +191,7 @@ class MySTReader(BaseReader):
         """Execute the MyST parser and generate the syntax tree / tokens"""
         return self.md_parser.parse(content)
 
-    def _run_myst_to_html(self, content, bib_files=None) -> str:
+    def _run_myst_to_html(self, content, bib_files=None, tempdir_suffix=None) -> str:
         """Execute the MyST parser and return output."""
         if (
             self.force_sphinx
@@ -207,6 +209,7 @@ class MySTReader(BaseReader):
                 bib_files=bib_files,
                 myst_extensions=self.myst_extensions,
                 sphinx_extensions=["sphinx.ext.autosectionlabel"],
+            tempdir_suffix = tempdir_suffix,
             )
         else:
             return myst2html_with_docutils(

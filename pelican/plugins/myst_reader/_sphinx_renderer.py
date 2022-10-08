@@ -28,6 +28,7 @@ def myst2html(
     sphinx_extensions=None,
     myst_extensions=None,
     bib_files=None,
+    tempdir_suffix=None,
 ):
 
     conf = dict(
@@ -63,7 +64,7 @@ def myst2html(
             if ext not in myst_enable_extensions:
                 myst_enable_extensions.append(ext)
 
-    with tempfile.TemporaryDirectory() as tempdir:
+    with tempfile.TemporaryDirectory(suffix=tempdir_suffix) as tempdir:
 
         tempdir = Path(tempdir)
 
@@ -74,17 +75,14 @@ def myst2html(
             for key, value in conf.items():
                 file.write(f"{key} = {repr(value)}\n")
 
-        with open(tempdir / "conf.py") as file:
-            print(file.read())
+        if bib_files is not None:
+            for path in bib_files:
+                copyfile(path, tempdir / path.name)
 
-        for path in bib_files:
-            copyfile(path, tempdir / path.name)
-
-
-        subprocess.run(
-            "sphinx-build . -b html _build".split(), cwd=tempdir, check=True
+        completed_process = subprocess.run(
+            "sphinx-build . -b html _build".split(), cwd=tempdir, capture_output=True, text=True
         )
-
+        completed_process.check_returncode()
 
         with open(tempdir / "_build/index.html") as file:
             content = file.read()
