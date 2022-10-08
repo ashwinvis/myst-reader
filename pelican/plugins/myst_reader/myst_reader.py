@@ -6,14 +6,11 @@ import os
 import re
 
 from bs4 import BeautifulSoup, element
-from docutils.core import publish_parts
-from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it.renderer import RendererHTML
 from mwc.counter import count_words_in_markdown
 from myst_parser.config import main
 from myst_parser.docutils_ import Parser as DocutilsParser
 from myst_parser.parsers.mdit import create_md_parser
-from myst_parser.sphinx_ import Parser as SphinxParser
 
 from pelican import signals
 from pelican.readers import BaseReader
