@@ -80,7 +80,10 @@ def myst2html(
                 copyfile(path, tempdir / path.name)
 
         completed_process = subprocess.run(
-            "sphinx-build . -b html _build".split(), cwd=tempdir, capture_output=True, text=True
+            "sphinx-build . -b html _build".split(),
+            cwd=tempdir,
+            capture_output=True,
+            text=True,
         )
         completed_process.check_returncode()
 

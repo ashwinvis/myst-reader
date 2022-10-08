@@ -89,7 +89,9 @@ class MySTReader(BaseReader):
             bib_files = ()
 
         stem = Path(source_path).stem
-        output = self._run_myst_to_html(content, bib_files=bib_files, tempdir_suffix=stem)
+        output = self._run_myst_to_html(
+            content, bib_files=bib_files, tempdir_suffix=stem
+        )
 
         # Replace all occurrences of %7Bstatic%7D to {static},
         # %7Battach%7D to {attach} and %7Bfilename%7D to {filename}
@@ -195,12 +197,9 @@ class MySTReader(BaseReader):
         if (
             self.force_sphinx
             or bib_files
+            or any(ext in ("dollarmath", "amsmath") for ext in self.myst_extensions)
             or any(
-                ext in ("dollarmath", "amsmath") for ext in self.myst_extensions
-            )
-            or any(
-                syntax in content
-                for syntax in ("{filename}", "{static}", "{attach}")
+                syntax in content for syntax in ("{filename}", "{static}", "{attach}")
             )
         ):
             return myst2html_with_sphinx(
@@ -208,12 +207,10 @@ class MySTReader(BaseReader):
                 bib_files=bib_files,
                 myst_extensions=self.myst_extensions,
                 sphinx_extensions=["sphinx.ext.autosectionlabel"],
-            tempdir_suffix = tempdir_suffix,
+                tempdir_suffix=tempdir_suffix,
             )
         else:
-            return myst2html_with_docutils(
-                content, self.myst_extensions, self.parser
-            )
+            return myst2html_with_docutils(content, self.myst_extensions, self.parser)
 
     @staticmethod
     def _find_bibs(source_path):
