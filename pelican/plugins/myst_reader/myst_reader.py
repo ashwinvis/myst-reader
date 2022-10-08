@@ -17,8 +17,8 @@ from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
-from ._sphinx_renderer import myst2html as myst2html_with_sphinx
 from ._docutils_renderer import myst2html as myst2html_with_docutils
+from ._sphinx_renderer import myst2html as myst2html_with_sphinx
 
 DEFAULT_READING_SPEED = 200  # Words per minute
 

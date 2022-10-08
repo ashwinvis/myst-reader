@@ -2,9 +2,9 @@
 
 """
 from pathlib import Path
-import tempfile
-import subprocess
 from shutil import copyfile
+import subprocess
+import tempfile
 
 from bs4 import BeautifulSoup
 

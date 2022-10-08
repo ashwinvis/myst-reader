@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from docutils.core import publish_parts
 from myst_parser.docutils_ import Parser
 
