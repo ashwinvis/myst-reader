@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import math
 import os
-import re
 from pathlib import Path
 
 from bs4 import BeautifulSoup, element
@@ -12,6 +11,7 @@ from mwc.counter import count_words_in_markdown
 from myst_parser.config import main
 from myst_parser.docutils_ import Parser as DocutilsParser
 from myst_parser.parsers.mdit import create_md_parser
+import yaml
 
 from pelican import signals
 from pelican.readers import BaseReader
@@ -161,16 +161,15 @@ class MySTReader(BaseReader):
                 "Could not find front-matter metadata or invalid formatting."
             )
 
-        # Convert the metadata from string -> dict by treating it as YAML
-        regex = re.compile(
-            r"""(.+?)  # key, first lazy capture group, one or more character
-                :\s*  # colon separator and arbitary number of whitespace
-                (.*)  # value, next greedy capture group, zero or more character""",
-            re.VERBOSE,
-        )
         metadata_text = frontmatter.content
         # Parse markdown in frontmatter, if any
-        myst_metadata = dict(regex.findall(metadata_text))
+        myst_metadata = yaml.safe_load(metadata_text)
+
+        for key in ["date", "modified", "Date", "Modified"]:
+            try:
+                myst_metadata[key] = myst_metadata[key].strftime("%Y-%m-%d")
+            except (AttributeError, KeyError):
+                pass
 
         # Parse MyST metadata and add it to Pelican
         metadata = self._process_metadata(myst_metadata)

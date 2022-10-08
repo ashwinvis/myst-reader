@@ -1,7 +1,7 @@
 ---
 title: Valid Content with Image
 author: My Author
-date: 2020-10-16
+Date: 2020-10-16
 ---
 This is file contains a image.
 

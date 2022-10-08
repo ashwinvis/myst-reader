@@ -1,5 +1,4 @@
-MyST Reader: A Plugin for Pelican
-===================================
+# MyST Reader: A Plugin for Pelican
 
 [![Build Status](https://img.shields.io/github/workflow/status/ashwinvis/myst-reader/build)](https://github.com/ashwinvis/myst-reader/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-myst-reader)](https://pypi.org/project/pelican-myst-reader/)
@@ -7,17 +6,13 @@ MyST Reader: A Plugin for Pelican
 
 MyST Reader is a [Pelican][] plugin that converts documents written in [MyST’s variant of Markdown][] into HTML.
 
-Requirements
-------------
+## Requirements
 
 This plugin requires:
 
-* Python 3.7 or higher
+- Python 3.9 or higher
 
-By default, the plugin looks for a `myst` executable on your `PATH`. If you wish, [you can specify an alternative location for your `myst` executable](#customizing-path-for-myst-executable).
-
-Installation
-------------
+## Installation
 
 This plugin can be installed via:
 
@@ -25,8 +20,7 @@ This plugin can be installed via:
 python -m pip install pelican-myst-reader
 ```
 
-Configuration
--------------
+## Configuration
 
 This plugin converts [MyST’s variant of Markdown][] into HTML. MyST being a
 superset of [CommonMark][CommonMark] should cover most Markdown variants, but
@@ -42,6 +36,8 @@ The plugin expects all Markdown files to start with a YAML-formatted content hea
 title: "<post-title>"
 author: "<author-name>"
 date: "<date>"
+summary: |
+  The summary (can be on more than one line)...
 ---
 ```
 
@@ -71,7 +67,7 @@ Date: "<date>"
 
 For more information on Pelican's default metadata format please visit the link below:
 
-* [Pelican’s default metadata format](https://docs.getpelican.com/en/stable/content.html#file-metadata)
+- [Pelican’s default metadata format](https://docs.getpelican.com/en/stable/content.html#file-metadata)
 
 ### Specifying MyST Options
 
@@ -79,7 +75,7 @@ The plugin supports passing options to MyST. This is done by
 configuring your Pelican settings file (e.g.,
 `pelicanconf.py`):
 
-* `MYST_EXTENSIONS`
+- `MYST_EXTENSIONS`
 
 In the `MYST_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html):
 
@@ -120,8 +116,7 @@ READING_SPEED = <words-per-minute>
 
 The number of words in a document is calculated using the [Markdown Word Count](https://github.com/gandreadis/markdown-word-count) package.
 
-Contributing
-------------
+## Contributing
 
 Contributions are welcome and much appreciated. Every little bit helps. You can contribute by improving the documentation, adding missing features, and fixing bugs. You can also help out by reviewing and commenting on [existing issues][].
 
@@ -132,8 +127,7 @@ Special thanks to [Justin Mayer](https://justinmayer.com), [Erwin Janssen](https
 [existing issues]: https://github.com/ashwinvis/myst-reader/issues
 [Contributing to Pelican]: https://docs.getpelican.com/en/latest/contribute.html
 
-License
--------
+## License
 
 This project is licensed under the AGPL-3.0 license.
 
