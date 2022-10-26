@@ -83,7 +83,7 @@ class MySTReader(BaseReader):
         """Create HTML5 content."""
 
         # Find and add bibliography if citations are specified
-        if "{cite}" in content:
+        if "{cite" in content:
             bib_files = self._find_bibs(source_path)
         else:
             bib_files = ()
