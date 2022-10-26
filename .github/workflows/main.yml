@@ -1,6 +1,11 @@
 name: build
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - published
 
 env:
   PYTEST_ADDOPTS: "--color=yes"
@@ -76,7 +81,7 @@ jobs:
     name: Deploy
     needs: [test, lint]
     runs-on: ubuntu-latest
-    if: ${{ github.ref=='refs/heads/main' && github.event_name!='pull_request' }}
+    if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
       - uses: actions/checkout@v2
