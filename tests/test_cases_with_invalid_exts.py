@@ -24,7 +24,9 @@ class TestInvalidCasesWithExts(unittest.TestCase):
             _ = MySTReader(settings)
 
         message = str(context_manager.exception)
-        self.assertEqual(f"'enable_extensions' items not recognised: {myst_exts}", message)
+        self.assertEqual(
+            f"'enable_extensions' items not recognised: {myst_exts}", message
+        )
 
 
 if __name__ == "__main__":

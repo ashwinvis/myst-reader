@@ -1,6 +1,7 @@
 """Tests using valid default files for myst-reader plugin."""
 
 from pathlib import Path
+import sys
 
 from pelican.plugins.myst_reader import MySTReader
 from pelican.tests.support import get_settings as pelican_get_settings
@@ -8,7 +9,32 @@ from pelican.tests.support import get_settings as pelican_get_settings
 DIR_PATH = Path(__file__).parent.resolve()
 TEST_CONTENT_PATH = DIR_PATH / "test_content"
 PATH_DIR_EXPECTED = TEST_CONTENT_PATH / "expected"
+PATH_DIR_FAILED = TEST_CONTENT_PATH / "failed"
 CWD = Path.cwd()
+
+
+def _is_not_empty(path_dir):
+    return path_dir.exists() and tuple(path_dir.iterdir())
+
+
+def setup_module(module):
+    if _is_not_empty(PATH_DIR_FAILED):
+        print(
+            "Directory",
+            PATH_DIR_FAILED,
+            "seems to contain previous failures",
+            file=sys.stderr,
+        )
+    PATH_DIR_FAILED.mkdir(exist_ok=True)
+
+
+def teardown_module(module):
+    if _is_not_empty(PATH_DIR_FAILED):
+        print(
+            "Not removing", PATH_DIR_FAILED, "since it is not empty.", file=sys.stderr
+        )
+    else:
+        PATH_DIR_FAILED.rmdir()
 
 
 def _test_valid(name, MYST_EXTENSIONS=None):
@@ -26,15 +52,13 @@ def _test_valid(name, MYST_EXTENSIONS=None):
     path_expected = PATH_DIR_EXPECTED / (name + ".html")
     expected = path_expected.read_text().strip()
 
-    path_save_wrong = path_expected.with_stem(path_expected.stem + "_wrong")
-
+    path_failed = PATH_DIR_FAILED / path_expected.name
     if expected != output:
-        with open(path_save_wrong, "w") as file:
-            file.write(output)
+        path_failed.write_text(output)
 
     assert expected == output, (
         f"Compare with meld {path_expected.relative_to(CWD)} "
-        f"{path_save_wrong.relative_to(CWD)}"
+        f"{path_failed.relative_to(CWD)}"
     )
 
     return output, metadata

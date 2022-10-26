@@ -1,3 +1,4 @@
 poetry.lock
 __pycache__
-tests/test_content/expected/*_wrong.html
+tests/test_content/failed_tests/*.html
+.coverage

@@ -19,9 +19,10 @@ PRECOMMIT = (
 
 
 @task
-def tests(c):
+def tests(c, cov=False):
     """Run the test suite"""
-    c.run(f"{VENV}/bin/pytest", pty=True)
+    cov_flag = "--cov --cov-report=term-missing --no-cov-on-fail" if cov else ""
+    c.run(f"{VENV}/bin/pytest {cov_flag}", pty=True)
 
 
 @task
@@ -32,7 +33,7 @@ def black(c, check=False, diff=False):
         check_flag = "--check"
     if diff:
         diff_flag = "--diff"
-    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} {PKG_PATH} tasks.py")
+    c.run(f"{VENV}/bin/black {check_flag} {diff_flag} {PKG_PATH} tests tasks.py")
 
 
 @task
@@ -47,7 +48,7 @@ def isort(c, check=False, diff=False):
 
 @task
 def flake8(c):
-    c.run(f"{VENV}/bin/flake8 {PKG_PATH} tasks.py")
+    c.run(f"{VENV}/bin/flake8 {PKG_PATH} tests tasks.py")
 
 
 @task
