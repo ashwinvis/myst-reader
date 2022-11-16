@@ -30,10 +30,12 @@ else:
     PACKAGE_SPEC = "setup.cfg"
 
 TEST_ENV_VARS = {}
+if os.getenv("CI"):
+    TEST_ENV_VARS["PYTEST_ADDOPTS"] = "--color=yes"
 
 
 no_venv_session = partial(nox.session, venv_backend="none")
-nox.options.sessions = ["sync", "tests"]
+nox.options.sessions = ["tests"]
 
 
 def run_ext(session, cmd):
@@ -191,10 +193,18 @@ def coverage_html(session, nox=False):
 
 
 @no_venv_session(name="format")
-def format_lint(session):
+def format_(session):
     """Run pre-commit hooks on all files to set and lint code-format"""
     run_ext(session, "pre-commit install")
     run_ext(session, "pre-commit run --all-files")
+
+
+@nox.session
+def lint(session):
+    """Run pre-commit hooks on files which differ in the current branch from origin/HEAD."""
+    session.install("pre-commit")
+    session.run("pre-commit", "install")
+    session.run("pre-commit", "run", "--from-ref", "origin/HEAD", "--to-ref", "HEAD")
 
 
 def _prepare_docs_session(session):
@@ -242,7 +252,7 @@ def testpypi(session):
     """Release clean, build, upload to TestPyPI"""
     session.notify("release-clean")
     session.notify("release-build")
-    session.notify("release-upload")
+    session.notify("release-upload", ["--repository", "testpypi"])
 
 
 @no_venv_session

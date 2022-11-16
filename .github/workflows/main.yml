@@ -2,9 +2,10 @@ name: build
 
 on:
   push:
-    branches: main
-    tags: "*"
+    branches: [ main ]
+    tags: ['*']
   pull_request:
+    branches: [ main ]
   release:
     types:
       - published
@@ -13,100 +14,85 @@ env:
   PYTEST_ADDOPTS: "--color=yes"
 
 jobs:
-
-  test:
-    name: Test - ${{ matrix.python-version }}
+  tests:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 5
       matrix:
         python-version: ["3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Set up Pip cache
-        uses: actions/cache@v2
-        id: pip-cache
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('**/pyproject.toml') }}
-      - name: Upgrade Pip
-        run: python -m pip install --upgrade pip
-      - name: Install Poetry
-        run: python -m pip install poetry
-      - name: Set up Poetry cache
-        uses: actions/cache@v2
-        id: poetry-cache
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        run: |
-          poetry run pip install --upgrade pip
-          poetry install
-      - name: Run tests
-        run: poetry run invoke tests
+    - name: Checkout
+      uses: actions/checkout@v3
 
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "poetry"
+
+    - name: Verify Python environment
+      run: |
+        pip list
+        pip cache list
+        pip check
+
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip nox
+
+    - name: Run tests
+      run: nox --session tests-cov -- -v
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Set Poetry cache
-        uses: actions/cache@v2
-        id: poetry-cache
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
-      - name: Upgrade Pip
-        run: python -m pip install --upgrade pip
-      - name: Install Poetry
-        run: python -m pip install poetry
-      - name: Install dependencies
-        run: |
-          poetry run pip install --upgrade pip
-          poetry install
-      - name: Run linters
-        run: poetry run invoke lint
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+        cache: "pip"
+
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip nox
+
+    - name: Run lint
+      run: nox --session lint
 
 
   deploy:
     name: Deploy
     needs: [test, lint]
     runs-on: ubuntu-latest
-    # if:  github.event_name == 'release' && github.event.action == 'published'
-    if: startsWith(github.ref, 'refs/tags/')
+    strategy:
+      fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Check release
-        id: check_release
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry githubrelease httpx==0.16.1 autopub
-          echo "##[set-output name=release;]$(autopub check)"
-      - name: Publish
-        if: ${{ steps.check_release.outputs.release=='' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          git remote set-url origin https://$GITHUB_TOKEN@github.com/${{ github.repository }}
-          autopub prepare
-          poetry build
-          autopub commit
-          autopub githubrelease
-          poetry publish -u __token__ -p $PYPI_PASSWORD
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+        cache: "pip"
+
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip nox
+
+    - name: Package
+      run: nox --session release-build
+
+    - name: Publish package
+      if: |
+        (
+          (github.event_name == 'release' && github.event.action == 'published') ||
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        )
+      env:
+        TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
+      run: nox --session release-upload -- --repository testpypi
