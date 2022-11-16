@@ -150,19 +150,20 @@ def pip_compile(session, extra):
 def install_with_tests(session):
     if BUILD_SYSTEM == "poetry":
         session.install("poetry")
-        poetry_install(session, "--with=tests")
+        session.run("python", "-m", "poetry", "install", "--with=tests")
+        session.run("python", "-m", "poetry", "env", "info")
+        return "python", "-m", "poetry", "run", "pytest"
     else:
         session.install("-r", "requirements/tests.txt")
+        return "python", "-m", "pytest"
 
 
 @nox.session
 def tests(session):
     """Execute unit-tests using pytest"""
-    install_with_tests(session)
+    pytest_cmd = install_with_tests(session)
     session.run(
-        "python",
-        "-m",
-        "pytest",
+        *pytest_cmd,
         *session.posargs,
         env=TEST_ENV_VARS,
     )
@@ -171,17 +172,15 @@ def tests(session):
 @nox.session(name="tests-cov")
 def tests_cov(session):
     """Execute unit-tests using pytest+pytest-cov"""
-    install_with_tests(session)
-    session.run(
-        "python",
-        "-m",
-        "pytest",
-        "--cov",
-        "--cov-config=pyproject.toml",
-        "--no-cov-on-fail",
-        "--cov-report=term-missing",
-        *session.posargs,
-        env=TEST_ENV_VARS,
+    session.notify(
+        "tests",
+        [
+            "--cov",
+            "--cov-config=pyproject.toml",
+            "--no-cov-on-fail",
+            "--cov-report=term-missing",
+            *session.posargs,
+        ],
     )
 
 
