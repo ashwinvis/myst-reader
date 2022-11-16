@@ -50,7 +50,7 @@ def rmdir(path_dir: str):
 
 def poetry_install(session, *args):
     """Install with dependencies pinned in pyproject.toml"""
-    run_ext(session, "poetry install " + " ".join(args))
+    run_ext(session, "python -m poetry install " + " ".join(args))
 
 
 def pip_install(session, filename):
@@ -94,7 +94,7 @@ def sync(session):
 def requires(session):
     """Pin dependencies"""
     if BUILD_SYSTEM == "poetry":
-        run_ext(session, "poetry lock --no-update")
+        run_ext(session, "python -m poetry lock --no-update")
     else:
         session.notify("pip-compile")
 
@@ -160,6 +160,8 @@ def tests(session):
     """Execute unit-tests using pytest"""
     install_with_tests(session)
     session.run(
+        "python",
+        "-m",
         "pytest",
         *session.posargs,
         env=TEST_ENV_VARS,
@@ -171,6 +173,8 @@ def tests_cov(session):
     """Execute unit-tests using pytest+pytest-cov"""
     install_with_tests(session)
     session.run(
+        "python",
+        "-m",
         "pytest",
         "--cov",
         "--cov-config=pyproject.toml",
