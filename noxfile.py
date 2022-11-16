@@ -206,9 +206,10 @@ def format_(session):
 @nox.session
 def lint(session):
     """Run pre-commit hooks on files which differ in the current branch from origin/HEAD."""
+    remote = "origin/HEAD" if not session.posargs else session.posargs[0]
     session.install("pre-commit")
     session.run("pre-commit", "install")
-    session.run("pre-commit", "run", "--from-ref", "origin/HEAD", "--to-ref", "HEAD")
+    session.run("pre-commit", "run", "--from-ref", remote, "--to-ref", "HEAD")
 
 
 def _prepare_docs_session(session):
