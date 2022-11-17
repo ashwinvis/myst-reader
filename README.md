@@ -1,6 +1,7 @@
 # MyST Reader: A Plugin for Pelican
 
 [![Build Status](https://img.shields.io/github/workflow/status/ashwinvis/myst-reader/build)](https://github.com/ashwinvis/myst-reader/actions)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ashwinvis/myst-reader/main.svg)](https://results.pre-commit.ci/latest/github/ashwinvis/myst-reader/main)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-myst-reader)](https://pypi.org/project/pelican-myst-reader/)
 ![License](https://img.shields.io/pypi/l/pelican-myst-reader?color=blue)
 
