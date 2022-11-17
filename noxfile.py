@@ -147,14 +147,14 @@ def pip_compile(session, extra):
     out_file.write_text(rel_path_packages)
 
 
-def install_with_tests(session):
+def install_with_tests(session, args=()):
     if BUILD_SYSTEM == "poetry":
         session.install("poetry")
-        session.run("python", "-m", "poetry", "install", "--with=tests")
+        session.run("python", "-m", "poetry", "install", "--with=tests", *args)
         session.run("python", "-m", "poetry", "env", "info")
         return "python", "-m", "poetry", "run", "pytest"
     else:
-        session.install("-r", "requirements/tests.txt")
+        session.install("-r", "requirements/tests.txt", *args)
         return "python", "-m", "pytest"
 
 
@@ -306,9 +306,32 @@ def download_testpypi(session):
 @nox.session(name="release-tests")
 def release_tests(session):
     """Execute test suite with build / downloaded package in ./dist"""
+
+    if BUILD_SYSTEM == "poetry":
+        poetry_conf = CWD / "poetry.toml"
+        assert (
+            not poetry_conf.exists()
+        ), "Poetry local configuration exists. Please remove to continue"
+        session.install("poetry")
+        session.run(
+            "python", "-m", "poetry", "config", "--local", "virtualenvs.create", "false"
+        )
+        pytest_cmd = install_with_tests(session, ["--no-root"])
+    else:
+        pytest_cmd = install_with_tests(session)
+
     packages = [str(p) for p in Path("./dist").iterdir()]
     session.install(*packages)
-    tests(session)
+
+    try:
+        session.run(
+            *pytest_cmd,
+            *session.posargs,
+            env=TEST_ENV_VARS,
+        )
+    finally:
+        if BUILD_SYSTEM == "poetry":
+            poetry_conf.unlink()
 
 
 @no_venv_session(name="release-clean")
