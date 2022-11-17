@@ -67,6 +67,11 @@ git-username = "botpub"
 git-email = "botpub@autopub.rocks"
 append-github-contributor = true
 
+[tool.coverage.run]
+omit = [
+    "*/conf.py",
+]
+
 [tool.isort]
 # Maintain compatibility with Black
 combine_as_imports = true

@@ -169,7 +169,7 @@ def tests(session):
     )
 
 
-@nox.session(name="tests-cov")
+@no_venv_session(name="tests-cov")
 def tests_cov(session):
     """Execute unit-tests using pytest+pytest-cov"""
     session.notify(
