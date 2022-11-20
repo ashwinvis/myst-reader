@@ -260,21 +260,23 @@ def testpypi(session):
 
 
 @no_venv_session
-@nox.parametrize("dist_type", ["no-binary", "only-binary"])
-def pypi(session, dist_type):
+def pypi(session):
     """Release clean, download from TestPyPI, test, upload to PyPI"""
     session.notify("release-clean")
-    session.notify("download-testpypi", [dist_type])
-    session.notify("release-tests", [dist_type])
+    # NOTE: parametrizing dist_type ends up in erraneous deduplication of sessions
+    # by nox
+    for dist_type in ("no-binary", "only-binary"):
+        session.notify(f"download-testpypi(dist_type='{dist_type}')")
+        session.notify(f"release-tests(dist_type='{dist_type}')")
     session.notify("release-upload", ["--repository", "pypi"])
 
 
 @nox.session(name="download-testpypi")
-def download_testpypi(session):
+@nox.parametrize("dist_type", ["no-binary", "only-binary"])
+def download_testpypi(session, dist_type):
     """Download from TestPyPI and run tests"""
-    (Path.cwd() / "dist").mkdir()
+    (Path.cwd() / "dist").mkdir(exist_ok=True)
     session.chdir("./dist")
-    dist_type = session.posargs[0]
 
     git_tags = subprocess.check_output(
         ["git", "tag", "--list", "--sort=version:refname"], text=True
@@ -308,9 +310,9 @@ def download_testpypi(session):
 
 
 @nox.session(name="release-tests")
-def release_tests(session):
+@nox.parametrize("dist_type", ["no-binary", "only-binary"])
+def release_tests(session, dist_type):
     """Execute test suite with build / downloaded package in ./dist"""
-    dist_type = session.posargs[0]
     if dist_type == "only-binary":
         pattern = "*.whl"
     else:
@@ -364,7 +366,7 @@ def release_upload(session):
 
     """
     session.install("twine")
-    session.run("twine", "check", "dist/*")
+    session.run("twine", "check", "--strict", "dist/*")
     args = session.posargs
 
     # See
