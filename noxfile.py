@@ -260,11 +260,12 @@ def testpypi(session):
 
 
 @no_venv_session
-def pypi(session):
+@nox.parametrize("dist_type", ["no-binary", "only-binary"])
+def pypi(session, dist_type):
     """Release clean, download from TestPyPI, test, upload to PyPI"""
     session.notify("release-clean")
-    session.notify("download-testpypi")
-    session.notify("release-tests")
+    session.notify("download-testpypi", [dist_type])
+    session.notify("release-tests", [dist_type])
     session.notify("release-upload", ["--repository", "pypi"])
 
 
@@ -273,6 +274,7 @@ def download_testpypi(session):
     """Download from TestPyPI and run tests"""
     (Path.cwd() / "dist").mkdir()
     session.chdir("./dist")
+    dist_type = session.posargs[0]
 
     git_tags = subprocess.check_output(
         ["git", "tag", "--list", "--sort=version:refname"], text=True
@@ -299,6 +301,8 @@ def download_testpypi(session):
         "https://test.pypi.org/simple",
         "--pre",
         "--no-deps",
+        f"--{dist_type}",
+        ":all:",
         spec,
     )
 
@@ -306,6 +310,11 @@ def download_testpypi(session):
 @nox.session(name="release-tests")
 def release_tests(session):
     """Execute test suite with build / downloaded package in ./dist"""
+    dist_type = session.posargs[0]
+    if dist_type == "only-binary":
+        pattern = "*.whl"
+    else:
+        pattern = "*.tar.gz"
 
     if BUILD_SYSTEM == "poetry":
         poetry_conf = CWD / "poetry.toml"
@@ -320,13 +329,12 @@ def release_tests(session):
     else:
         pytest_cmd = install_with_tests(session)
 
-    packages = [str(p) for p in Path("./dist").iterdir()]
-    session.install(*packages)
+    dist_packages = [str(p) for p in Path("./dist").glob(pattern)]
+    session.install(*dist_packages)
 
     try:
         session.run(
             *pytest_cmd,
-            *session.posargs,
             env=TEST_ENV_VARS,
         )
     finally:
