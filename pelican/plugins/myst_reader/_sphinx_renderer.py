@@ -30,7 +30,6 @@ def myst2html(
     bib_files=None,
     tempdir_suffix=None,
 ):
-
     conf = dict(
         project="myst2html",
         author="pelican-myst-reader",
@@ -65,7 +64,6 @@ def myst2html(
                 myst_enable_extensions.append(ext)
 
     with tempfile.TemporaryDirectory(suffix=tempdir_suffix) as tempdir:
-
         tempdir = Path(tempdir)
 
         with open(tempdir / "index.md", "w") as file:

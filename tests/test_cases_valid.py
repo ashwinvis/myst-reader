@@ -38,7 +38,6 @@ def teardown_module(module):
 
 
 def _test_valid(name, MYST_EXTENSIONS=None):
-
     kwargs = {}
     if MYST_EXTENSIONS:
         kwargs["MYST_EXTENSIONS"] = MYST_EXTENSIONS
