@@ -14,7 +14,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 2ddea293a88919650266472186620a98a4a8bb37  # frozen: 22.12.0
+    rev: bf7a16254ec96b084a6caf3d435ec18f0f245cc7  # frozen: 23.3.0
     hooks:
       - id: black
 
