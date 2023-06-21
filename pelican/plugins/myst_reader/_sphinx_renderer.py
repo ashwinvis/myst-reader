@@ -1,15 +1,18 @@
+"""Implementation of a Sphinx-based renderer for MyST documents.
 """
 
-"""
+from __future__ import annotations
+
 from pathlib import Path
 from shutil import copyfile
 import subprocess
 import tempfile
+from typing import Any, Iterable
 
 from bs4 import BeautifulSoup
 
 
-def get_div_body(html_output):
+def get_div_body(html_output: str) -> str:
     soup = BeautifulSoup(html_output, "html.parser")
     div = soup.findAll("div", {"class": "body"})[0]
     parts = []
@@ -22,60 +25,37 @@ def get_div_body(html_output):
     return "\n".join(parts).strip()
 
 
-def myst2html(
-    source,
-    sphinx_conf=None,
-    sphinx_extensions=None,
-    myst_extensions=None,
-    bib_files=None,
-    tempdir_suffix=None,
-):
-    conf = dict(
-        project="myst2html",
-        author="pelican-myst-reader",
-        myst_all_links_external=True,
-    )
-
-    if sphinx_conf is not None:
-        conf.update(sphinx_conf)
-
-    if sphinx_extensions is None:
-        sphinx_extensions = []
-
-    extensions = conf.setdefault("extensions", [])
-    for ext in sphinx_extensions + ["myst_parser", "sphinx.ext.mathjax"]:
-        if ext not in extensions:
-            extensions.append(ext)
-
-    if bib_files is not None:
-        bib_files = [Path(path) for path in bib_files]
-        conf["bibtex_bibfiles"] = [path.name for path in bib_files]
-        if "sphinxcontrib.bibtex" not in conf["extensions"]:
-            conf["extensions"].append("sphinxcontrib.bibtex")
-
-    myst_enable_extensions = conf.setdefault("myst_enable_extensions", [])
-
-    if myst_extensions is None:
-        myst_extensions = set()
-    else:
-        myst_extensions = set(myst_extensions)
-    myst_extensions.update(["amsmath", "colon_fence", "deflist", "dollarmath"])
-    if myst_extensions is not None:
-        for ext in myst_extensions:
-            if ext not in myst_enable_extensions:
-                myst_enable_extensions.append(ext)
+def sphinx_renderer(
+    content: str,
+    conf: dict[str, Any],
+    bib_files: Iterable[str | Path] | None = None,
+    tempdir_suffix: str | None = None,
+) -> str:
+    """Builds a Sphinx project from a MyST ``content`` string and returns the HTML body."""
+    # Do not modify the original configuration dictionary in place.
+    local_conf = conf.copy()
+    # Dynamiccaly add the bibtex files to the Sphinx configuration.
+    if bib_files:
+        bib_files = {Path(path) for path in bib_files}
+        local_conf["bibtex_bibfiles"].extend(path.name for path in bib_files)
+        # Only activate the bibtex extension if bib_files are provided.
+        local_conf["extensions"].add("sphinxcontrib.bibtex")
 
     with tempfile.TemporaryDirectory(suffix=tempdir_suffix) as tempdir:
         tempdir = Path(tempdir)
 
+        # Saves the MyST content to a temporary index.md file.
         with open(tempdir / "index.md", "w") as file:
-            file.write(source)
+            file.write(content)
 
+        # Generates a Sphinx conf.py file from the configuration dictionary.
         with open(tempdir / "conf.py", "w") as file:
-            for key, value in conf.items():
+            for key, value in local_conf.items():
+                if isinstance(value, set):
+                    value = sorted(value)
                 file.write(f"{key} = {repr(value)}\n")
 
-        if bib_files is not None:
+        if bib_files:
             for path in bib_files:
                 copyfile(path, tempdir / path.name)
 

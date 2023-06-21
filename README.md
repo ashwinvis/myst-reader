@@ -5,7 +5,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-myst-reader)](https://pypi.org/project/pelican-myst-reader/)
 ![License](https://img.shields.io/pypi/l/pelican-myst-reader?color=blue)
 
-MyST Reader is a [Pelican][] plugin that converts documents written in [MyST’s variant of Markdown][] into HTML.
+*MyST Reader* is a [Pelican][] plugin that converts documents written in [MyST’s variant of Markdown][] into HTML.
 
 ## Requirements
 
@@ -21,14 +21,16 @@ This plugin can be installed via:
 python -m pip install pelican-myst-reader
 ```
 
-## Configuration
+As soon as the plugin is installed, it will automatically be used by Pelican to parse and render all Markdown files with the MyST syntax.
 
-This plugin converts [MyST’s variant of Markdown][] into HTML. MyST being a
-superset of [CommonMark][CommonMark] should cover most Markdown variants, but
-strictly speaking, conversion from other Markdown variants is unsupported.
-Converting to output formats other than HTML is also unsupported.
+## Writting MyST content
 
-### Specifying File Metadata
+MyST syntax is a superset of [CommonMark][]. So if you feed your Pelican site with
+non-MyST Markdown files or other variants, most of them will probably renders as they were with this plugin.
+
+You can then augment your plain Markdown with [MyST syntax](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html) to get access to more features. You can play with the [MyST live preview](https://myst-parser.readthedocs.io/en/latest/live-preview.html) to see what is possible.
+
+### File Metadata
 
 The plugin expects all Markdown files to start with a YAML-formatted content header, as shown below.
 
@@ -43,7 +45,7 @@ summary: |
 ```
 
 If the values of the metadata can include MyST syntax, in which case, the field
-name should be added to the `FORMATTED_FIELDS` list variable in
+name should be added to the [`FORMATTED_FIELDS`](https://docs.getpelican.com/en/latest/settings.html#basic-settings) list variable in
 `pelicanconf.py`.
 
 > ⚠️ **Note:** The YAML-formatted header shown above is syntax specific to MyST
@@ -70,34 +72,106 @@ For more information on Pelican's default metadata format please visit the link 
 
 - [Pelican’s default metadata format](https://docs.getpelican.com/en/stable/content.html#file-metadata)
 
-### Specifying MyST Options
+## Configuration
 
-The plugin supports passing options to MyST. This is done by
-configuring your Pelican settings file (e.g.,
-`pelicanconf.py`):
+The plugin supports passing options to influence how MyST is parsed and renderered. This is done by
+configuring your Pelican settings file (e.g., `pelicanconf.py`):
 
-- `MYST_EXTENSIONS`
+### Docutils Renderer
 
-In the `MYST_EXTENSIONS` setting, you may enable/disable any number of the supported [MyST extensions](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html):
+By default MyST rely on [Docutils](https://docutils.sourceforge.io/) to parse and render its syntax. That's [because MyST primarily targets Sphinx](https://myst-parser.readthedocs.io/en/latest/develop/background.html#the-relationship-between-myst-restructuredtext-and-sphinx).
+
+To produce HTML for Pelican, *MyST Reader* uses Docutils too (and more precisely its [HTML5 Writer](https://docutils.sourceforge.io/docs/user/config.html#html5-writer)).
+
+This plugin setup Docutils with good settings by defaults. But you can still influence it
+with the `MYST_DOCUTILS_SETTINGS` setting.
+
+Here is an example of configuration in `pelicanconf.py`:
 
 ```python
-MYST_EXTENSIONS = [
-    "amsmath",
-    "dollarmath",
-]
+MYST_DOCUTILS_SETTINGS = {
+    ### Docutils settings ###
+    "strip_comments": True,
+
+    ### MyST settings ###
+    "myst_gfm_only": True,
+    "myst_substitutions": {
+        "key1": "I'm a **substitution**",
+    },
+    "myst_enable_extensions": {
+        "amsmath",
+        "dollarmath",
+    },
+}
 ```
 
-- `MYST_FORCE_SPHINX`
+See how the `MYST_DOCUTILS_SETTINGS` setting is used to pass both:
+- [Docutils configuration](https://docutils.sourceforge.io/docs/user/config.html)
+- [MyST parser configuration](https://myst-parser.readthedocs.io/en/latest/configuration.html#docutils-configuration), including
 
-The Sphinx renderer is automatically used if any math extension is enabled or
-BibTeX files are found. This setting would force Sphinx rendering for all cases
-which is slightly slower but has more features.
+Also notice how:
+- MyST-specific settings are prefixed with `myst_`
+- the list of additional [MyST extensions](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html) to activate is set with `myst_enable_extensions`
 
-```py
+> ⚠️ **Note:** `MYST_DOCUTILS_SETTINGS` accepts the same parameters as [Pelican’s `DOCUTILS_SETTINGS`](https://docs.getpelican.com/en/latest/settings.html#basic-settings). We could have reused them but we [decided to keep them separate](https://github.com/ashwinvis/myst-reader/pull/14#discussion_r1240757130) for clarity.
+
+### Sphinx Renderer
+
+*MyST Reader* also supports an alternative rendering mode using [Sphinx](https://www.sphinx-doc.org).
+
+You can force this rendering mode for all files with:
+
+```python
 MYST_FORCE_SPHINX = True
 ```
 
-### Calculating and Displaying Reading Time
+> ⚠️ **Note:** Sphinx rendering is way slower (~2.5x on my machine), as it setups behind the scene a standalone Sphinx project and sequentially run a full build for each page.
+
+If set to `False`, which is the default, an heuristic is used to determine for each file if Sphinx should be used instead of the default Docutils renderer from the section above.
+
+This heuristic activates the Sphinx renderer if any of the following rule is met:
+- a math extension from MyST
+is enabled ([`dollarmath` or `amsmath`](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#math-shortcuts)) in `MYST_SPHINX_SETTINGS`
+- BibTeX files are found
+
+Now this rendering mode also has its own dedicated configuration setting: `MYST_SPHINX_SETTINGS`. It is a dictionary that will be used to build a `conf.py` file to be passed to the Sphinx builder.
+
+Here is an example of configuration in `pelicanconf.py`:
+```python
+MYST_SPHINX_SETTINGS = {
+    ### Sphinx settings ###
+    "nitpicky": True,
+    "keep_warnings": True,
+
+    ### MyST settings ###
+    "myst_gfm_only": True,
+    "myst_substitutions": {
+        "key1": "I'm a **substitution**",
+    },
+    "myst_enable_extensions": {
+        "amsmath",
+        "dollarmath",
+    },
+}
+```
+
+Like the previous renderer, it supports both settings:
+- [Sphinx configuration](https://www.sphinx-doc.org/en/master/usage/configuration.html)
+- [MyST parser configuration](https://myst-parser.readthedocs.io/en/latest/configuration.html#global-configuration)
+
+And again:
+- MyST-specific settings are prefixed with `myst_`
+- the list of additional [MyST extensions](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html) to activate is set with `myst_enable_extensions`
+
+### Deprecated `MYST_EXTENSIONS`
+
+There is a dedicated `MYST_EXTENSIONS` setting to activate MyST extensions. But it is deprecated in favor of the `MYST_DOCUTILS_SETTINGS["myst_enable_extensions"]` and `MYST_SPHINX_SETTINGS["myst_enable_extensions"]` settings.
+
+It is still loaded up by *MyST Reader* for backward compatibility but will be ignored in a future release.
+
+If `MYST_EXTENSIONS` is set, it will be used to populate `MYST_DOCUTILS_SETTINGS["myst_enable_extensions"]` and `MYST_SPHINX_SETTINGS["myst_enable_extensions"]`.
+
+### Reading Time
 
 This plugin may be used to calculate the estimated reading time of articles and pages by setting `CALCULATE_READING_TIME` to `True` in your Pelican settings file:
 
@@ -116,6 +190,14 @@ READING_SPEED = <words-per-minute>
 ```
 
 The number of words in a document is calculated using the [Markdown Word Count](https://github.com/gandreadis/markdown-word-count) package.
+
+## Limitations
+
+This plugin converts [MyST’s variant of Markdown][] into HTML for Pelican. MyST being a
+superset of [CommonMark][CommonMark] should cover most Markdown variants. But
+strictly speaking, conversion from other Markdown variants is unsupported.
+
+Converting to output formats other than HTML is also unsupported.
 
 ## Contributing
 

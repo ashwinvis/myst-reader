@@ -8,9 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New `MYST_DOCUTILS_SETTINGS` and `MYST_SPHINX_SETTINGS` to configure each renderer and MyST parser.
+- Documents the new configuration settings.
+- Adds typing to some methods.
+
 ### Changed
 
-- Upgrade to myst-parser v2.
+- Upgrade to myst-parser v2.0.0.
+- Cleans up the merge of users and default settings.
+
+### Deprecated
+
+- Deprecates `MYST_EXTENSIONS` settings.
+- Feed `MYST_EXTENSIONS` to `MYST_DOCUTILS_SETTINGS` and `MYST_SPHINX_SETTINGS` in the mean time.
+
+### Fixed
+
+- Forces initial header level to `<h2>` instead of `<h1>`, since Pelican will use the title field in the front-matter as the `<h1>` header of the page.
 
 ## [1.2.0b1] - 2022-10-26
 

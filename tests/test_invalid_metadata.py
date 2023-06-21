@@ -35,11 +35,16 @@ class TestInvalidMetadata(unittest.TestCase):
 
         myst_reader = MySTReader(settings)
 
-        for source_md in (
-            "no_metadata.md",
-            "metadata_start_with_leading_spaces.md",
-            "metadata_end_with_leading_spaces.md",
-            "no_metadata_end.md",
+        msg1 = "Could not find front-matter metadata or invalid formatting."
+        msg2 = (
+            "<string>:1: (ERROR/3) Document or section may not begin with a transition."
+        )
+
+        for source_md, expected_msg in (
+            ("no_metadata.md", msg1),
+            ("metadata_start_with_leading_spaces.md", msg1),
+            ("metadata_end_with_leading_spaces.md", msg2),
+            ("no_metadata_end.md", msg2),
         ):
             source_path = os.path.join(TEST_CONTENT_PATH, source_md)
 
@@ -48,6 +53,4 @@ class TestInvalidMetadata(unittest.TestCase):
                 myst_reader.read(source_path)
 
             message = str(context_manager.exception)
-            self.assertEqual(
-                "Could not find front-matter metadata or invalid formatting.", message
-            )
+            self.assertEqual(expected_msg, message)

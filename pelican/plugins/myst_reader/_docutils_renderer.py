@@ -1,22 +1,26 @@
+"""Implementation of a Docutils-based renderer for MyST documents.
+
+See Docutils docs at: https://docutils.sourceforge.io
+"""
+
 from __future__ import annotations
+
+from typing import Any
 
 from docutils.core import publish_parts
 from myst_parser.docutils_ import Parser
 
 
-def myst2html(
-    source: str,
-    myst_extensions: tuple[str],
+def docutils_renderer(
+    content: str,
+    conf: dict[str, Any],
     parser: Parser,
 ):
-    """Public API in https://myst-parser.readthedocs.io/en/v0.18.0/docutils.html"""
+    """Use the HTML5 writer: https://docutils.sourceforge.io/docs/user/config.html#html5-writer"""
     parts = publish_parts(
-        source=source,
+        source=content,
         writer_name="html5",
-        settings_overrides={
-            "myst_enable_extensions": myst_extensions,
-            "embed_stylesheet": False,
-        },
+        settings_overrides=conf,
         parser=parser,
     )
     output = parts["body"]
