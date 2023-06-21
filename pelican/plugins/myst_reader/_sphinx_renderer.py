@@ -56,8 +56,10 @@ def myst2html(
     myst_enable_extensions = conf.setdefault("myst_enable_extensions", [])
 
     if myst_extensions is None:
-        myst_extensions = []
-    myst_extensions.extend(["amsmath", "colon_fence", "deflist", "dollarmath"])
+        myst_extensions = set()
+    else:
+        myst_extensions = set(myst_extensions)
+    myst_extensions.update(["amsmath", "colon_fence", "deflist", "dollarmath"])
     if myst_extensions is not None:
         for ext in myst_extensions:
             if ext not in myst_enable_extensions:
