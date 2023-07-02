@@ -142,7 +142,8 @@ def test_comments(strip_comments):
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
-    assert "standalone comment" in output is not strip_comments
+    expected_comment = not strip_comments
+    assert ("standalone comment" in output) is expected_comment
 
 
 def test_links():
