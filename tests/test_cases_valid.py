@@ -3,6 +3,8 @@
 from pathlib import Path
 import sys
 
+import pytest
+
 from pelican.plugins.myst_reader import MySTReader
 from pelican.tests.support import get_settings as pelican_get_settings
 
@@ -37,21 +39,27 @@ def teardown_module(module):
         PATH_DIR_FAILED.rmdir()
 
 
-def _test_valid(name, MYST_EXTENSIONS=None):
-    kwargs = {}
-    if MYST_EXTENSIONS:
-        kwargs["MYST_EXTENSIONS"] = MYST_EXTENSIONS
-
-    settings = pelican_get_settings(**kwargs)
+def _test_valid(name, expected_name="", **pelicanconf):
+    settings = pelican_get_settings(**pelicanconf)
 
     myst_reader = MySTReader(settings)
 
     source_path = TEST_CONTENT_PATH / (name + ".md")
     output, metadata = myst_reader.read(source_path)
-    path_expected = PATH_DIR_EXPECTED / (name + ".html")
-    expected = path_expected.read_text().strip()
-
+    path_expected = PATH_DIR_EXPECTED / ((expected_name or name) + ".html")
     path_failed = PATH_DIR_FAILED / path_expected.name
+
+    if path_expected.exists():
+        expected = path_expected.read_text().strip()
+    else:
+        import warnings
+
+        warnings.warn(
+            f"test_cases_valid: {path_expected.relative_to(CWD)=} does not exist. "
+            f"Generating {path_failed.relative_to(CWD)=} anyways."
+        )
+        expected = ""
+
     if expected != output:
         path_failed.write_text(output)
 
@@ -73,12 +81,18 @@ def test_minimal():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-def test_mathjax():
+@pytest.mark.parametrize("in_var", ["MYST_EXTENSIONS", "MYST_SPHINX_SETTINGS"])
+def test_mathjax(in_var):
     """Check if mathematics is rendered correctly with defaults."""
 
-    output, metadata = _test_valid(
-        "valid_content_mathjax", MYST_EXTENSIONS=["dollarmath", "amsmath"]
-    )
+    if in_var == "MYST_EXTENSIONS":
+        pelicanconf = dict(MYST_EXTENSIONS=["dollarmath", "amsmath"])
+    else:
+        pelicanconf = dict(
+            MYST_SPHINX_SETTINGS={"myst_enable_extensions": ["dollarmath", "amsmath"]}
+        )
+
+    output, metadata = _test_valid("valid_content_mathjax", **pelicanconf)
 
     assert "MathJax Content" == str(metadata["title"])
     assert "My Author" == str(metadata["author"])
@@ -111,6 +125,24 @@ def test_citations():
     #         self.assertNotIn(
     #             "is already registered, it will be overridden", warning_msg
     #         )
+
+
+@pytest.mark.parametrize("strip_comments", [True, False])
+def test_comments(strip_comments):
+    """Check if comments are stripped or not by docutils parser."""
+
+    output, metadata = _test_valid(
+        "valid_content_comments",
+        expected_name=f"valid_content_comments_{strip_comments=}",
+        MYST_DOCUTILS_SETTINGS={"strip_comments": strip_comments},
+    )
+
+    assert "Valid Content with Comments" == str(metadata["title"])
+
+    assert "My Author" == str(metadata["author"])
+    assert "2020-10-16 00:00:00" == str(metadata["date"])
+
+    assert "standalone comment" in output is not strip_comments
 
 
 def test_links():
