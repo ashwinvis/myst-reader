@@ -1,6 +1,6 @@
 # MyST Reader: A Plugin for Pelican
 
-[![Build Status](https://img.shields.io/github/workflow/status/ashwinvis/myst-reader/build)](https://github.com/ashwinvis/myst-reader/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/ashwinvis/myst-reader/build.yaml?branch=main)](https://github.com/ashwinvis/myst-reader/actions)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ashwinvis/myst-reader/main.svg)](https://results.pre-commit.ci/latest/github/ashwinvis/myst-reader/main)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-myst-reader)](https://pypi.org/project/pelican-myst-reader/)
 ![License](https://img.shields.io/pypi/l/pelican-myst-reader?color=blue)
@@ -23,7 +23,7 @@ python -m pip install pelican-myst-reader
 
 As soon as the plugin is installed, it will automatically be used by Pelican to parse and render all Markdown files with the MyST syntax.
 
-## Writting MyST content
+## Writing MyST content
 
 MyST syntax is a superset of [CommonMark][]. So if you feed your Pelican site with
 non-MyST Markdown files or other variants, most of them will probably renders as they were with this plugin.
