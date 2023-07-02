@@ -205,7 +205,11 @@ Contributions are welcome and much appreciated. Every little bit helps. You can 
 
 To start contributing to this plugin, review the [Contributing to Pelican][] documentation, beginning with the **Contributing Code** section.
 
-Special thanks to [Justin Mayer](https://justinmayer.com), [Erwin Janssen](https://github.com/ErwinJanssen), [Joseph Reagle](https://github.com/reagle) and [Deniz Turgut](https://github.com/avaris) for their improvements and feedback on this plugin.
+Special thanks to
+- [Kevin Deldycke](https://kevin.deldycke.com/)
+- [Pierre Augier](http://legi.grenoble-inp.fr/people/Pierre.Augier/)
+
+for their improvements and feedback on this plugin. Kudos to the [pelican-pandoc-reader](https://pypi.org/project/pelican-pandoc-reader/) plugin which provided the foundation to build this plugin on.
 
 [existing issues]: https://github.com/ashwinvis/myst-reader/issues
 [Contributing to Pelican]: https://docs.getpelican.com/en/latest/contribute.html
