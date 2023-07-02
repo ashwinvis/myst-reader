@@ -7,3 +7,15 @@ To start contributing to this plugin, review the [Contributing to Pelican][] doc
 
 [existing issues]: https://github.com/ashwinvis/myst-reader/issues
 [Contributing to Pelican]: https://docs.getpelican.com/en/latest/contribute.html
+
+
+## Releasing
+
+- Update [changelog](./CHANGELOG.md). Ensure the headings and the links match.
+- Bump version in [pyproject.toml](./pyproject.toml)
+- Switch to a new branch `git switch -c rel/<VERSION>`
+- Make a commit `git commit -am "Prepare for <VERSION>"`
+- Make an annotated tag `git tag <VERSION> -am <MESSAGE>`.
+- Push the changes `git push --follow-tags` and GH actions should deploy the package to *Test PyPI*.
+- Merge the branch
+- Run the manual deploy workflow to copy the release to the main PyPI.

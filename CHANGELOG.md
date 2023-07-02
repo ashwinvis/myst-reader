@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.3.0b0] - 2023-07-02
+## [1.3.0b1] - 2023-07-02
 
 ### Added
 
@@ -61,8 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2020-12-04
 
-[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b0...HEAD
-[1.3.0b0]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...1.3.0b0
+[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b1...HEAD
+[1.3.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...1.3.0b1
 [1.2.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b0...1.2.0b1
 [1.2.0b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.2b0...1.2.0b0
 [1.1.2b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.1b0...1.1.2b0

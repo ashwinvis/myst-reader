@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pelican-myst-reader"
-version = "1.3.0b0"
+version = "1.3.0b1"
 description = "Pelican plugin for converting MyST's Markdown variant to HTML."
 authors = ["Ashwin Vishnu <dev@fluid.quest>"]
 license = "AGPL-3.0"
