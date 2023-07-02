@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0b0] - 2023-07-02
+
 ### Added
 
 - New `MYST_DOCUTILS_SETTINGS` and `MYST_SPHINX_SETTINGS` to configure each renderer and MyST parser.
+- New {exception}`pelican.plugins.myst_reader.MystReaderContentError` to differentiate content related issues.
 - Documents the new configuration settings.
 - Adds typing to some methods.
 
@@ -58,7 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2020-12-04
 
-[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...HEAD
+[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b0...HEAD
+[1.2.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...1.3.0b0
 [1.2.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b0...1.2.0b1
 [1.2.0b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.2b0...1.2.0b0
 [1.1.2b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.1b0...1.1.2b0
