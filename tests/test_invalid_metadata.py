@@ -3,6 +3,7 @@ import os
 import unittest
 
 from pelican.plugins.myst_reader import MySTReader
+from pelican.plugins.myst_reader.exceptions import MystReaderContentError
 from pelican.tests.support import get_settings
 
 DIR_PATH = os.path.dirname(__file__)
@@ -36,9 +37,7 @@ class TestInvalidMetadata(unittest.TestCase):
         myst_reader = MySTReader(settings)
 
         msg1 = "Could not find front-matter metadata or invalid formatting."
-        msg2 = (
-            "<string>:1: (ERROR/3) Document or section may not begin with a transition."
-        )
+        msg2 = "Malformed content or front-matter metadata"
 
         for source_md, expected_msg in (
             ("no_metadata.md", msg1),
@@ -49,7 +48,7 @@ class TestInvalidMetadata(unittest.TestCase):
             source_path = os.path.join(TEST_CONTENT_PATH, source_md)
 
             # If the file is not empty but has no metadata it should fail
-            with self.assertRaises(Exception) as context_manager:
+            with self.assertRaises(MystReaderContentError) as context_manager:
                 myst_reader.read(source_path)
 
             message = str(context_manager.exception)

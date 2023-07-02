@@ -11,6 +11,7 @@ from typing import Any, Iterable
 import warnings
 
 from bs4 import BeautifulSoup, element
+import docutils
 from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
 from mwc.counter import count_words_in_markdown
@@ -25,6 +26,7 @@ from pelican.utils import pelican_open
 
 from ._docutils_renderer import docutils_renderer
 from ._sphinx_renderer import sphinx_renderer
+from .exceptions import MystReaderContentError
 
 DEFAULT_READING_SPEED = 200  # Words per minute
 
@@ -273,11 +275,11 @@ class MySTReader(BaseReader):
         tokens = self._run_myst_to_tokens(content, renderer)
 
         if not tokens:
-            raise ValueError("Could not find metadata. File is empty.")
+            raise MystReaderContentError("Could not find metadata. File is empty.")
 
         frontmatter = tokens[0]
         if frontmatter.type != "front_matter":
-            raise ValueError(
+            raise MystReaderContentError(
                 "Could not find front-matter metadata or invalid formatting."
             )
 
@@ -349,14 +351,19 @@ class MySTReader(BaseReader):
                 RENDERER.SPHINX,
             )
         else:
-            return (
-                docutils_renderer(
-                    content,
-                    conf=self.docutils_settings,
-                    parser=self.docutils_parser,
-                ),
-                RENDERER.DOCUTILS,
-            )
+            try:
+                return (
+                    docutils_renderer(
+                        content,
+                        conf=self.docutils_settings,
+                        parser=self.docutils_parser,
+                    ),
+                    RENDERER.DOCUTILS,
+                )
+            except docutils.utils.SystemMessage as err:
+                raise MystReaderContentError(
+                    "Malformed content or front-matter metadata"
+                ) from err
 
     @staticmethod
     def _find_bibs(source_path: str) -> list[str]:
