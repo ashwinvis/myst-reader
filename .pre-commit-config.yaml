@@ -1,7 +1,7 @@
 # See https://pre-commit.com/hooks.html for info on hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: f71fa2c1f9cf5cb705f73dffe4b21f7c61470ba9  # frozen: v4.4.0
+    rev: c4a0b883114b00d8d76b479c820ce7950211c99b  # frozen: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
