@@ -14,7 +14,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 2a1c67e0b2f81df602ec1f6e7aeb030b9709dc7c  # frozen: 23.11.0
+    rev: d9ad09a32b0e0481bb4fef548d35b7a49cc03c5d  # frozen: 23.12.0
     hooks:
       - id: black
 
@@ -25,6 +25,6 @@ repos:
         args: [--max-line-length=88]
 
   - repo: https://github.com/PyCQA/isort
-    rev: dbf82f2dd09ae41d9355bcd7ab69187a19e6bf2f  # frozen: 5.12.0
+    rev: c235f5e450b4b84e58d114ed4c589cbf454175a3  # frozen: 5.13.2
     hooks:
       - id: isort
