@@ -1,4 +1,5 @@
 """Reader that processes MyST Markdown and returns HTML5."""
+
 from __future__ import annotations
 
 from copy import deepcopy

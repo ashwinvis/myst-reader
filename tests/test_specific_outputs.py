@@ -1,4 +1,5 @@
 """Tests reading time and summary output from myst-reader plugin."""
+
 from pathlib import Path
 import unittest
 
