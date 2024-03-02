@@ -1,4 +1,5 @@
 """Tests using invalid metadata for myst-reader plugin."""
+
 import os
 import unittest
 
