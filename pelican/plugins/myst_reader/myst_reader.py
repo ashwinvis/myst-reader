@@ -363,7 +363,7 @@ class MySTReader(BaseReader):
                 )
             except docutils.utils.SystemMessage as err:
                 raise MystReaderContentError(
-                    "Malformed content or front-matter metadata"
+                    f"Malformed content or front-matter metadata:\n{err}"
                 ) from err
 
     @staticmethod
