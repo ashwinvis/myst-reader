@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2024-05-01
+
+It is time to move this out of beta.
+
+### Fixed
+
+- Clearer error messages which includes Docutils error on invalid content (by @AlxCzl in #27).
+
 ## [1.3.0b1] - 2023-07-02
 
 ### Added
@@ -61,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2020-12-04
 
-[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b1...HEAD
+[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.3.0...HEAD
+[1.3.0]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b1...1.3.0
 [1.3.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...1.3.0b1
 [1.2.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b0...1.2.0b1
 [1.2.0b0]: https://github.com/ashwinvis/myst-reader/compare/1.1.2b0...1.2.0b0
