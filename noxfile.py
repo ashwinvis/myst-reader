@@ -280,7 +280,7 @@ def get_latest_version():
 
     try:
         print("Parsing pyproject.toml...")
-        pyproject = tomllib.loads(Path("pyproject.toml").read_text())
+        pyproject = tomllib.loads((CWD / "pyproject.toml").read_text())
         if "project" in pyproject:
             latest_version = pyproject["project"]["version"]
         elif "poetry" in pyproject.get("tool"):
