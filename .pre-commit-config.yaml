@@ -13,8 +13,8 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  - repo: https://github.com/psf/black
-    rev: 3702ba224ecffbcec30af640c149f231d90aebdb  # frozen: 24.4.2
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: b02c62619ac9bb0031c1211d03fbe2802c02ce19  # frozen: 24.4.2
     hooks:
       - id: black
 
