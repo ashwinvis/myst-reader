@@ -18,4 +18,4 @@ To start contributing to this plugin, review the [Contributing to Pelican][] doc
 - Make an annotated tag `git tag <VERSION> -am <MESSAGE>`.
 - Push the changes `git push --follow-tags` and GH actions should deploy the package to *Test PyPI*.
 - Merge the branch
-- Run the manual deploy workflow to copy the release to the main PyPI.
+- Run the [manual deploy workflow (see the "Run workflow" button)](https://github.com/ashwinvis/myst-reader/actions/workflows/deploy.yaml) to copy the release to the main PyPI.

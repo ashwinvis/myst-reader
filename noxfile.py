@@ -272,12 +272,7 @@ def pypi(session):
     session.notify("release-upload", ["--repository", "pypi"])
 
 
-def get_latest_version():
-    try:
-        import tomllib
-    except ImportError:
-        import tomli as tomllib
-
+def get_latest_version(tomllib):
     try:
         print("Parsing pyproject.toml...")
         pyproject = tomllib.loads(Path("pyproject.toml").read_text())
@@ -304,7 +299,13 @@ def download_testpypi(session, dist_type):
     (Path.cwd() / "dist").mkdir(exist_ok=True)
     session.chdir("./dist")
 
-    latest_version = get_latest_version()
+    try:
+        import tomllib
+    except ImportError:
+        session.install("tomli")
+        import tomli as tomllib
+
+    latest_version = get_latest_version(tomllib)
     spec = f"{PACKAGE}=={latest_version}"
     session.run(
         "python",
