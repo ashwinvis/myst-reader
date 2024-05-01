@@ -287,7 +287,7 @@ def get_latest_version():
             latest_version = pyproject["tool"]["poetry"]["version"]
         else:
             raise LookupError
-    except Exception:
+    except KeyError:
         print("Parsing git tags...")
         git_tags = subprocess.check_output(
             ["git", "tag", "--list", "--sort=version:refname"], text=True
