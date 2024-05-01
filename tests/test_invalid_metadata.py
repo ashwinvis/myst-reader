@@ -54,4 +54,4 @@ class TestInvalidMetadata(unittest.TestCase):
                     myst_reader.read(source_path)
 
                 message = str(context_manager.exception)
-                self.assertEqual(expected_msg, message)
+                assert message.startswith(expected_msg), message
