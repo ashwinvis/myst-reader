@@ -39,10 +39,11 @@ sphinxcontrib-bibtex = "~2.5.0"
 pyyaml = "^6.0"
 
 [tool.poetry.group.tests.dependencies]
-pytest = "^6.0"
+pytest = "^7.0"
 pytest-cov = "^2.8"
 pytest-pythonpath = "^0.7.3"
 pytest-sugar = "^0.9.4"
+pytest-subtests = "^0.12.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"

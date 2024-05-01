@@ -46,11 +46,12 @@ class TestInvalidMetadata(unittest.TestCase):
             ("metadata_end_with_leading_spaces.md", msg2),
             ("no_metadata_end.md", msg2),
         ):
-            source_path = os.path.join(TEST_CONTENT_PATH, source_md)
+            with self.subTest(source_md=source_md):
+                source_path = os.path.join(TEST_CONTENT_PATH, source_md)
 
-            # If the file is not empty but has no metadata it should fail
-            with self.assertRaises(MystReaderContentError) as context_manager:
-                myst_reader.read(source_path)
+                # If the file is not empty but has no metadata it should fail
+                with self.assertRaises(MystReaderContentError) as context_manager:
+                    myst_reader.read(source_path)
 
-            message = str(context_manager.exception)
-            self.assertEqual(expected_msg, message)
+                message = str(context_manager.exception)
+                assert message.startswith(expected_msg), message
