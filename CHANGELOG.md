@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade to myst-parser 4.0.0.
+- Bump minimal requirement to Sphinx 8.0.
+- Bump minimal requirement to docutils 0.19.
+- Bump minimal requirement to Python 3.10.
+
 ## [1.3.0] - 2024-05-01
 
 It is time to move this out of beta.
