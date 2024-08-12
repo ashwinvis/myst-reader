@@ -14,7 +14,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: b02c62619ac9bb0031c1211d03fbe2802c02ce19  # frozen: 24.4.2
+    rev: f7aa1f9a50202a2cd7cef269f8d83f5ac91b2915  # frozen: 24.8.0
     hooks:
       - id: black
 
