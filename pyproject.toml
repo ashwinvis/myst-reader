@@ -38,8 +38,7 @@ docutils = ">=0.19"
 # XXX Waiting for new releases of both sphinxcontrib-bibtex (> 2.6.2) and pybtex (> 0.24.0):
 # https://github.com/mcmtroffaes/sphinxcontrib-bibtex/issues/345
 # https://bitbucket.org/pybtex-devs/pybtex/issues/169/replace-pkg_resources-with
-sphinxcontrib-bibtex = { git = "https://github.com/mcmtroffaes/sphinxcontrib-bibtex.git", rev = "73afc2329ef4ecc3e4b24fd9ee85461b3336c809" }
-pybtex = { git = "https://bitbucket.org/pybtex-devs/pybtex.git", rev = "7066984c8776e3115ae8c78c22c695a184233ef5" }
+sphinxcontrib-bibtex = { url = "https://test-files.pythonhosted.org/packages/d2/a0/d4ee08099653bac0e45a8909500ee1cdde099981cebe45e8006c9b256585/sphinxcontrib_bibtex-2.6.3a4-py3-none-any.whl" }
 pyyaml = "^6.0"
 
 [tool.poetry.group.tests.dependencies]

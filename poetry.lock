@@ -1591,23 +1591,19 @@ name = "pybtex"
 version = "0.24.0"
 description = "A BibTeX-compatible bibliography processor in Python"
 optional = false
-python-versions = ">=3.6"
-files = []
-develop = false
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*"
+files = [
+    {file = "pybtex-0.24.0-py2.py3-none-any.whl", hash = "sha256:e1e0c8c69998452fea90e9179aa2a98ab103f3eed894405b7264e517cc2fcc0f"},
+    {file = "pybtex-0.24.0.tar.gz", hash = "sha256:818eae35b61733e5c007c3fcd2cfb75ed1bc8b4173c1f70b56cc4c0802d34755"},
+]
 
 [package.dependencies]
 latexcodec = ">=1.0.4"
 PyYAML = ">=3.01"
+six = "*"
 
 [package.extras]
-doc = ["sphinx"]
 test = ["pytest"]
-
-[package.source]
-type = "git"
-url = "https://bitbucket.org/pybtex-devs/pybtex.git"
-reference = "7066984c8776e3115ae8c78c22c695a184233ef5"
-resolved_reference = "7066984c8776e3115ae8c78c22c695a184233ef5"
 
 [[package]]
 name = "pybtex-docutils"
@@ -2105,6 +2101,26 @@ cryptography = ">=2.0"
 jeepney = ">=0.6"
 
 [[package]]
+name = "setuptools"
+version = "74.1.2"
+description = "Easily download, build, install, upgrade, and uninstall Python packages"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "setuptools-74.1.2-py3-none-any.whl", hash = "sha256:5f4c08aa4d3ebcb57a50c33b1b07e94315d7fc7230f7115e47fc99776c8ce308"},
+    {file = "setuptools-74.1.2.tar.gz", hash = "sha256:95b40ed940a1c67eb70fc099094bd6e99c6ee7c23aa2306f4d2697ba7916f9c6"},
+]
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.5.2)"]
+core = ["importlib-metadata (>=6)", "importlib-resources (>=5.10.2)", "jaraco.text (>=3.7)", "more-itertools (>=8.8)", "packaging (>=24)", "platformdirs (>=2.6.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
+type = ["importlib-metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.11.*)", "pytest-mypy"]
+
+[[package]]
 name = "shellingham"
 version = "1.5.4"
 description = "Tool to Detect Surrounding Shell"
@@ -2212,24 +2228,27 @@ test = ["pytest"]
 
 [[package]]
 name = "sphinxcontrib-bibtex"
-version = "2.6.3a1"
+version = "2.6.3a4"
 description = "Sphinx extension for BibTeX style citations."
 optional = false
 python-versions = ">=3.7"
-files = []
-develop = false
+files = [
+    {file = "sphinxcontrib_bibtex-2.6.3a4-py3-none-any.whl", hash = "sha256:3432c5b9304ef9fba4204303017da1e94993241fa85a468a40f22d8cb8a83461"},
+]
 
 [package.dependencies]
 docutils = ">=0.8,<0.18.dev0 || >=0.20.dev0"
 pybtex = ">=0.24"
 pybtex-docutils = ">=1.0.0"
+setuptools = {version = "*", markers = "python_version >= \"3.12\""}
 Sphinx = ">=3.5"
 
+[package.extras]
+test = ["pytest", "pytest-cov"]
+
 [package.source]
-type = "git"
-url = "https://github.com/mcmtroffaes/sphinxcontrib-bibtex.git"
-reference = "73afc2329ef4ecc3e4b24fd9ee85461b3336c809"
-resolved_reference = "73afc2329ef4ecc3e4b24fd9ee85461b3336c809"
+type = "url"
+url = "https://test-files.pythonhosted.org/packages/d2/a0/d4ee08099653bac0e45a8909500ee1cdde099981cebe45e8006c9b256585/sphinxcontrib_bibtex-2.6.3a4-py3-none-any.whl"
 
 [[package]]
 name = "sphinxcontrib-devhelp"
@@ -2743,4 +2762,4 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "325127ef9143de843dc10e9675a8bc81f3abe7bd2a90e1c46c6c2b03e56980b7"
+content-hash = "89d59948b63604a49c01dc39c15052af0ee599ac221cc372f781fc95b404681d"
