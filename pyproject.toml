@@ -35,10 +35,9 @@ markdown-word-count = "^0.1.0"
 beautifulsoup4 = "^4.9.3"
 myst-parser = "^4.0.0"
 docutils = ">=0.19"
-# XXX Waiting for new releases of both sphinxcontrib-bibtex (> 2.6.2) and pybtex (> 0.24.0):
-# https://github.com/mcmtroffaes/sphinxcontrib-bibtex/issues/345
+# XXX Waiting for new release of pybtex (> 0.24.0):
 # https://bitbucket.org/pybtex-devs/pybtex/issues/169/replace-pkg_resources-with
-sphinxcontrib-bibtex = { url = "https://test-files.pythonhosted.org/packages/d2/a0/d4ee08099653bac0e45a8909500ee1cdde099981cebe45e8006c9b256585/sphinxcontrib_bibtex-2.6.3a4-py3-none-any.whl" }
+sphinxcontrib-bibtex = "^2.6.3"
 pyyaml = "^6.0"
 
 [tool.poetry.group.tests.dependencies]
