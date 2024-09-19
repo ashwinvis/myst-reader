@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2024-09-19
+
 ### Changed
 
 - Upgrade to myst-parser 4.0.0.
@@ -76,7 +78,8 @@ It is time to move this out of beta.
 
 ## [1.0.0] - 2020-12-04
 
-[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.3.0...HEAD
+[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.4.0...HEAD
+[1.4.0]: https://github.com/ashwinvis/myst-reader/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b1...1.3.0
 [1.3.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...1.3.0b1
 [1.2.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b0...1.2.0b1
