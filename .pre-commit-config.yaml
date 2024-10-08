@@ -1,7 +1,7 @@
 # See https://pre-commit.com/hooks.html for info on hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c  # frozen: v4.6.0
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -14,7 +14,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: f7aa1f9a50202a2cd7cef269f8d83f5ac91b2915  # frozen: 24.8.0
+    rev: c53240a7f974b3707e13eac6710542cc96a2d61a  # frozen: 24.10.0
     hooks:
       - id: black
 
