@@ -170,6 +170,33 @@ def test_images():
 def test_image_attrs_inline():
     """Check if using attrs_inline extension generates the correct
     image tag."""
-    output, metadata = _test_valid(
+    # Deprecated syntax
+    output1, _ = _test_valid(
         "image_attrs_inline", MYST_EXTENSIONS=["attrs_inline"], STATIC_PATHS=["_static"]
     )
+
+    # New syntax w/ docutils. Does not work!
+    # output2, _ = _test_valid(
+    #     "image_attrs_inline",
+    #     MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
+    #     STATIC_PATHS=["_static"],
+    # )
+    # -------------
+    # Image is rendered as follows with docutils. The extension seems to require
+    # sphinx at some level
+    # <p>
+    # <img alt="fishy" src="img/fun-fish.png"/>
+    # {.bg-warning w=100px align=center}
+    # </p>
+
+    # New syntax w/ sphinx
+    output3, _ = _test_valid(
+        "image_attrs_inline",
+        MYST_FORCE_SPHINX=True,
+        MYST_SPHINX_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
+        STATIC_PATHS=["_static"],
+    )
+
+    assert 'style="width: 100px;"' in output1
+    # assert 'style="width: 100px;"' in output2
+    assert 'style="width: 100px;"' in output3
