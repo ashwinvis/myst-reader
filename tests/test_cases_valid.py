@@ -165,3 +165,11 @@ def test_images():
     assert "Valid Content with Image" == str(metadata["title"])
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
+
+
+def test_image_attrs_inline():
+    """Check if using attrs_inline extension generates the correct
+    image tag."""
+    output, metadata = _test_valid(
+        "image_attrs_inline", MYST_EXTENSIONS=["attrs_inline"], STATIC_PATHS=["_static"]
+    )

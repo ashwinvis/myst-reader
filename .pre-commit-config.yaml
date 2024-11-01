@@ -1,3 +1,5 @@
+exclude: '^tests/test_content/expected/.*\.html$'
+
 # See https://pre-commit.com/hooks.html for info on hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
