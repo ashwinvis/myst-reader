@@ -1,15 +1,26 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+authors = [{ name = "Ashwin Vishnu", email = "dev@fluid.quest" }]
+license = { text = "AGPL-3.0" }
+requires-python = "<4.0,>=3.10"
+dependencies = [
+    "pelican<5.0,>=4.5",
+    "markdown-word-count<1.0.0,>=0.1.0",
+    "beautifulsoup4<5.0.0,>=4.9.3",
+    "myst-parser<5.0.0,>=4.0.0",
+    "docutils>=0.19",
+    "pybtex<1.0.0,>=0.25.1",
+    "sphinxcontrib-bibtex<3.0.0,>=2.6.3",
+    "pyyaml<7.0,>=6.0",
+]
 name = "pelican-myst-reader"
 version = "1.4.0"
 description = "Pelican plugin for converting MyST's Markdown variant to HTML."
-authors = ["Ashwin Vishnu <dev@fluid.quest>"]
-license = "AGPL-3.0"
 readme = "README.md"
 keywords = ["pelican", "plugin", "markdown", "myst"]
-repository = "https://github.com/ashwinvis/myst-reader"
-documentation = "https://docs.getpelican.com"
-packages = [{ include = "pelican" }]
-
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -21,51 +32,39 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-[tool.poetry.urls]
-"Funding" = "https://donate.getpelican.com/"
+[project.urls]
+Funding = "https://donate.getpelican.com/"
 "Issue Tracker" = "https://github.com/ashwinvis/myst-reader/issues"
+Repository = "https://github.com/ashwinvis/myst-reader"
+Documentation = "https://docs.getpelican.com"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-pelican = "^4.5"
-markdown = { version = "^3.2.2", optional = true }
-markdown-word-count = "^0.1.0"
-beautifulsoup4 = "^4.9.3"
-myst-parser = "^4.0.0"
-docutils = ">=0.19"
-pybtex = "^0.25.1"
-sphinxcontrib-bibtex = "^2.6.3"
-pyyaml = "^6.0"
+[project.optional-dependencies]
+markdown = ["markdown<4.0.0,>=3.2.2"]
 
-[tool.poetry.group.tests.dependencies]
-pytest = "^8.0"
-pytest-cov = "^5.0"
-pytest-pythonpath = "^0.7.3"
-pytest-sugar = "^1.0.0"
-pytest-subtests = "^0.13.1"
+[dependency-groups]
+tests = [
+    "pytest<9.0,>=8.0",
+    "pytest-cov<6.0,>=5.0",
+    "pytest-pythonpath<1.0.0,>=0.7.3",
+    "pytest-sugar<2.0.0,>=1.0.0",
+    "pytest-subtests<1.0.0,>=0.13.1",
+]
+dev = [
+    "black<25.0.0,>=24.4.2",
+    "flake8<8.0.0,>=7.1.0",
+    "flake8-black<1.0.0,>=0.3.6",
+    "invoke<3.0,>=2.2",
+    "isort<6.0.0,>=5.8.0",
+    "livereload<3.0,>=2.6",
+    "markdown<4.0.0,>=3.2.2",
+    "Werkzeug<4.0,>=3.0",
+    "pre-commit<4.0.0,>=3.7.1",
+    "python-lsp-server<2.0.0,>=1.5.0",
+    "nox<2025.0.0,>=2024.4.15",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
-flake8 = "^7.1.0"
-flake8-black = "^0.3.6"
-invoke = "^2.2"
-isort = "^5.8.0"
-livereload = "^2.6"
-markdown = "^3.2.2"
-Werkzeug = "^3.0"
-pre-commit = "^3.7.1"
-python-lsp-server = "^1.5.0"
-nox = "^2024.4.15"
-poetry = "^1.2.2"
-
-[tool.poetry.extras]
-markdown = ["markdown"]
-
-[tool.autopub]
-project-name = "MyST Reader"
-git-username = "botpub"
-git-email = "botpub@autopub.rocks"
-append-github-contributor = true
+[tool.hatch.build.targets.wheel]
+packages = ["pelican"]
 
 [tool.coverage.run]
 omit = ["*/conf.py"]
@@ -86,7 +85,3 @@ known_pelican = "pelican"
 known_myst = "myst_reader"
 
 sections = "FUTURE,STDLIB,THIRDPARTY,PELICAN,MYST,FIRSTPARTY,LOCALFOLDER"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
