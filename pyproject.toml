@@ -72,5 +72,3 @@ ignore = ["E203", "E501"]
 [tool.ruff.lint.isort]
 known-first-party = ["pelican"]
 known-third-party = ["myst_reader"]
-
-sections = "FUTURE,STDLIB,THIRDPARTY,PELICAN,MYST,FIRSTPARTY,LOCALFOLDER"

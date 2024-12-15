@@ -1,7 +1,7 @@
 """Tests using valid default files for myst-reader plugin."""
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -167,6 +167,21 @@ def test_images():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
+def test_ext_tasklist():
+    """Check if using tasklist extension generates a bullet list with checkboxes"""
+    output2, _ = _test_valid(
+        "ext_tasklist",
+        MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["tasklist"]),
+        STATIC_PATHS=["_static"],
+    )
+    output3, _ = _test_valid(
+        "ext_tasklist",
+        MYST_FORCE_SPHINX=True,
+        MYST_SPHINX_SETTINGS=dict(myst_enable_extensions=["tasklist"]),
+        STATIC_PATHS=["_static"],
+    )
+
+
 def test_image_attrs_inline():
     """Check if using attrs_inline extension generates the correct
     image tag."""
@@ -176,11 +191,11 @@ def test_image_attrs_inline():
     )
 
     # New syntax w/ docutils. Does not work!
-    # output2, _ = _test_valid(
-    #     "image_attrs_inline",
-    #     MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
-    #     STATIC_PATHS=["_static"],
-    # )
+    output2, _ = _test_valid(
+        "image_attrs_inline",
+        MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
+        STATIC_PATHS=["_static"],
+    )
     # -------------
     # Image is rendered as follows with docutils. The extension seems to require
     # sphinx at some level
