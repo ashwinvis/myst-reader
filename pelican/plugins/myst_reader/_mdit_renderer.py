@@ -17,9 +17,9 @@ def _mdit_init_native(conf: dict[str, Any]) -> MarkdownIt:
     return md
 
 
-def _mdit_init_from_myst_parser(conf: dict[str, Any]) -> MarkdownIt:
-    extensions = conf.get("myst_enable_extensions", set())
-    parser_conf = MdParserConfig(enable_extensions=extensions)
+def _mdit_init_from_myst_parser(parser_conf: MdParserConfig) -> MarkdownIt:
+    # extensions = conf.get("myst_enable_extensions", set())
+    # parser_conf = MdParserConfig(enable_extensions=extensions)
     return create_md_parser(parser_conf, RendererHTML)
 
 

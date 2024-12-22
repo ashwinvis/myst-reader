@@ -85,8 +85,8 @@ DEFAULT_DOCUTILS_SETTINGS = {
 } | DEFAULT_MYST_SETTINGS
 
 DEFAULT_MDIT_SETTINGS = {
-    "myst_enable_extensions": set(),
-} | DEFAULT_MYST_SETTINGS
+    "enable_extensions": {"colon_fence", "deflist"},
+} | {k.removeprefix("myst_"): v for k, v in DEFAULT_MYST_SETTINGS.items()}
 
 # Default Sphinx settings.
 # These are going to be transformed into a Sphinx conf.py file.
@@ -139,12 +139,12 @@ class MySTReader(BaseReader):
             warnings.warn(
                 "MYST_EXTENSIONS will soon be deprecated. Use "
                 "MYST_DOCUTILS_SETTINGS['myst_enable_extensions'] and "
-                "MYST_MDIT_SETTINGS['myst_enable_extensions'] and "
+                "MYST_MDIT_SETTINGS['enable_extensions'] and "
                 "MYST_SPHINX_SETTINGS['myst_enable_extensions'] instead.",
                 FutureWarning,
             )
             self.docutils_settings["myst_enable_extensions"].update(myst_extensions)
-            self.mdit_settings["myst_enable_extensions"].update(myst_extensions)
+            self.mdit_settings["enable_extensions"].update(myst_extensions)
             self.sphinx_settings["myst_enable_extensions"].update(myst_extensions)
 
         # Parse and validate MyST settings.
@@ -154,7 +154,18 @@ class MySTReader(BaseReader):
         # Reintegrate normalized settings to the renderer settings.
         self.docutils_settings |= normalized_setting
 
-        mdit_myst_conf = self.mdit_settings
+        # We don't modify the dictionary here, since markdown-it-py is configured only
+        # through MdParserConfig.
+        if exts := self.mdit_settings.pop("myst_enable_extensions", False):
+            warnings.warn(
+                "Found MYST_MDIT_SETTINGS['myst_enable_extensions']. "
+                "It should be MYST_MDIT_SETTINGS['enable_extensions'] instead. "
+                "This could be an error in the future. Correcting it for now...",
+                FutureWarning,
+            )
+            self.mdit_settings["enable_extensions"].update(exts)
+
+        mdit_myst_conf = MdParserConfig(**self.mdit_settings)
 
         # Parse and validate MyST settings.
         sphinx_myst_conf, normalized_setting = self._validate_myst_settings(
@@ -383,6 +394,7 @@ class MySTReader(BaseReader):
         # ) or any(
         #     syntax in content for syntax in ("{filename}", "{static}", "{attach}")
         # ):
+        #     # return call_sphinx_renderer(), RENDERER.SPHINX
         #     return call_mdit_renderer(), RENDERER.MDIT
         else:
             return call_mdit_renderer(), RENDERER.MDIT
