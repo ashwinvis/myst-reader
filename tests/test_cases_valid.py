@@ -99,22 +99,28 @@ def test_minimal():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-@pytest.mark.parametrize("in_var", ["MYST_EXTENSIONS", "MYST_SPHINX_SETTINGS"])
-def test_mathjax(in_var):
+@pytest.mark.parametrize("renderer", ["DEFAULT", "SPHINX", "MDIT"])
+def test_mathjax(renderer):
     """Check if mathematics is rendered correctly with defaults."""
 
-    if in_var == "MYST_EXTENSIONS":
+    if renderer == "DEFAULT":
         pelicanconf = dict(MYST_EXTENSIONS=["dollarmath", "amsmath"])
     else:
-        pelicanconf = dict(
-            MYST_SPHINX_SETTINGS={"myst_enable_extensions": ["dollarmath", "amsmath"]}
-        )
+        pelicanconf = {
+            f"MYST_{renderer}_SETTINGS": {
+                "myst_enable_extensions": ["dollarmath", "amsmath"]
+            },
+            f"MYST_FORCE_{renderer}": True,
+        }
 
-    output, metadata = _test_valid("valid_content_mathjax", **pelicanconf)
+    output, metadata = _test_valid(
+        "valid_content_mathjax", f"valid_content_mathjax_{renderer=}", **pelicanconf
+    )
 
     assert "MathJax Content" == str(metadata["title"])
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
+    assert '<div class="math' in output
 
 
 def test_citations():
@@ -153,6 +159,7 @@ def test_comments(strip_comments):
         "valid_content_comments",
         expected_name=f"valid_content_comments_{strip_comments=}",
         MYST_DOCUTILS_SETTINGS={"strip_comments": strip_comments},
+        MYST_FORCE_DOCUTILS=True,
     )
 
     assert "Valid Content with Comments" == str(metadata["title"])
@@ -160,8 +167,8 @@ def test_comments(strip_comments):
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
-    expected_comment = not strip_comments
-    assert ("standalone comment" in output) is expected_comment
+    present = not strip_comments
+    assert ("standalone comment" in output) is present
 
 
 def test_links():
