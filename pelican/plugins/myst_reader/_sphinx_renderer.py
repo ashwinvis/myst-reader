@@ -63,6 +63,7 @@ def sphinx_renderer(
             cwd=tempdir,
             capture_output=True,
             text=True,
+            check=False,
         )
         completed_process.check_returncode()
 

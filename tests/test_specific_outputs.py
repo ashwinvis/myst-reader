@@ -1,7 +1,7 @@
 """Tests reading time and summary output from myst-reader plugin."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from pelican.plugins.myst_reader import MySTReader
 from pelican.tests.support import get_settings

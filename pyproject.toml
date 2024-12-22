@@ -67,7 +67,7 @@ packages = ["pelican"]
 omit = ["*/conf.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "PLE", "PLW"]
+select = ["E", "F", "W", "I", "PLE"]
 ignore = ["E203", "E501"]
 
 [tool.ruff.lint.isort]
