@@ -85,6 +85,7 @@ DEFAULT_DOCUTILS_SETTINGS = {
 } | DEFAULT_MYST_SETTINGS
 
 DEFAULT_MDIT_SETTINGS = {
+    # Default set of MyST extensions.
     "enable_extensions": {"colon_fence", "deflist"},
 } | {k.removeprefix("myst_"): v for k, v in DEFAULT_MYST_SETTINGS.items()}
 
