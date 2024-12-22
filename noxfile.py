@@ -11,13 +11,13 @@ Usage
 
 """
 
-from functools import partial
 import os
-from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
+from functools import partial
+from pathlib import Path
 
 import nox
 
