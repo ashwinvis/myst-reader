@@ -196,37 +196,18 @@ def test_ext_tasklist(renderer):
     output, _ = _test_valid("ext_tasklist", f"ext_tasklist_{renderer=}", **settings)
 
 
-def test_image_attrs_inline():
+@pytest.mark.parametrize("renderer", ["MDIT", "SPHINX"])
+def test_ext_attrs_inline_image(renderer):
     """Check if using attrs_inline extension generates the correct
     image tag."""
-    # Deprecated syntax
-    # output1, _ = _test_valid(
-    #     "image_attrs_inline", MYST_EXTENSIONS=["attrs_inline"], STATIC_PATHS=["_static"]
-    # )
+    settings = {
+        f"MYST_FORCE_{renderer}": True,
+        "STATIC_PATHS": ["_static"],
+        f"MYST_{renderer}_SETTINGS": dict(myst_enable_extensions=["attrs_inline"]),
+    }
 
-    # New syntax w/ markdown-it. Does not work!
-    output2, _ = _test_valid(
-        "image_attrs_inline",
-        MYST_MDIT_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
-        STATIC_PATHS=["_static"],
-        MYST_FORCE_MDIT=True,
-    )
-    # -------------
-    # Image is rendered as follows with docutils. The extension seems to require
-    # sphinx at some level
-    # <p>
-    # <img alt="fishy" src="img/fun-fish.png"/>
-    # {.bg-warning w=100px align=center}
-    # </p>
-
-    # New syntax w/ sphinx
-    output3, _ = _test_valid(
-        "image_attrs_inline",
-        MYST_FORCE_SPHINX=True,
-        MYST_SPHINX_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
-        STATIC_PATHS=["_static"],
+    output, _ = _test_valid(
+        "ext_attrs_inline_image", f"ext_attrs_inline_image_{renderer=}", **settings
     )
 
-    assert 'style="width: 100px;"' in output1
-    # assert 'style="width: 100px;"' in output2
-    assert 'style="width: 100px;"' in output3
+    assert 'style="width: 100px;"' in output
