@@ -310,6 +310,9 @@ class MySTReader(BaseReader):
             raise MystReaderContentError(
                 "Could not find front-matter metadata or invalid formatting."
             ) from err
+        else:
+            if myst_metadata is None:
+                raise MystReaderContentError("Invalid front-matter metadata.")
 
         for key in ["date", "modified", "Date", "Modified"]:
             try:
