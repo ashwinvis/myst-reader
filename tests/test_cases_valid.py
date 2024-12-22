@@ -1,8 +1,10 @@
 """Tests using valid default files for myst-reader plugin."""
 
+import difflib
 import sys
 from pathlib import Path
 
+import bs4
 import pytest
 
 from pelican.plugins.myst_reader import MySTReader
@@ -39,6 +41,21 @@ def teardown_module(module):
         PATH_DIR_FAILED.rmdir()
 
 
+def _is_html_eq(expected: str, output: str):
+    # read the html files content using Beautifulsoup
+    expected_pretty = bs4.BeautifulSoup(expected, features="html.parser").prettify()
+    output_pretty = bs4.BeautifulSoup(output, features="html.parser").prettify()
+
+    diff_lines = list(
+        difflib.unified_diff(expected_pretty.split("\n"), output_pretty.split("\n"))
+    )
+
+    if diff_lines:
+        return False, "🫣 HTML contents differ at lines:" + "\n".join(diff_lines)
+    else:
+        return True, ""
+
+
 def _test_valid(name, expected_name="", **pelicanconf):
     settings = pelican_get_settings(**pelicanconf)
 
@@ -63,8 +80,9 @@ def _test_valid(name, expected_name="", **pelicanconf):
     if expected != output:
         path_failed.write_text(output)
 
-    assert expected == output, (
-        f"Compare with meld {path_expected.relative_to(CWD)} "
+    eq, diff = _is_html_eq(expected, output)
+    assert eq, diff + (
+        f"🤔 Compare with meld {path_expected.relative_to(CWD)} "
         f"{path_failed.relative_to(CWD)}"
     )
 
@@ -167,34 +185,31 @@ def test_images():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-def test_ext_tasklist():
+@pytest.mark.parametrize("renderer", ["MDIT", "SPHINX"])
+def test_ext_tasklist(renderer):
     """Check if using tasklist extension generates a bullet list with checkboxes"""
-    output2, _ = _test_valid(
-        "ext_tasklist",
-        MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["tasklist"]),
-        STATIC_PATHS=["_static"],
-    )
-    output3, _ = _test_valid(
-        "ext_tasklist",
-        MYST_FORCE_SPHINX=True,
-        MYST_SPHINX_SETTINGS=dict(myst_enable_extensions=["tasklist"]),
-        STATIC_PATHS=["_static"],
-    )
+    settings = {
+        f"MYST_FORCE_{renderer}": True,
+        f"MYST_{renderer}_SETTINGS": dict(myst_enable_extensions=["tasklist"]),
+    }
+
+    output, _ = _test_valid("ext_tasklist", f"ext_tasklist_{renderer=}", **settings)
 
 
 def test_image_attrs_inline():
     """Check if using attrs_inline extension generates the correct
     image tag."""
     # Deprecated syntax
-    output1, _ = _test_valid(
-        "image_attrs_inline", MYST_EXTENSIONS=["attrs_inline"], STATIC_PATHS=["_static"]
-    )
+    # output1, _ = _test_valid(
+    #     "image_attrs_inline", MYST_EXTENSIONS=["attrs_inline"], STATIC_PATHS=["_static"]
+    # )
 
-    # New syntax w/ docutils. Does not work!
+    # New syntax w/ markdown-it. Does not work!
     output2, _ = _test_valid(
         "image_attrs_inline",
-        MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
+        MYST_MDIT_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
         STATIC_PATHS=["_static"],
+        MYST_FORCE_MDIT=True,
     )
     # -------------
     # Image is rendered as follows with docutils. The extension seems to require

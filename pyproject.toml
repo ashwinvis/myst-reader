@@ -16,6 +16,7 @@ dependencies = [
     # https://bitbucket.org/pybtex-devs/pybtex/issues/169/replace-pkg_resources-with
     "sphinxcontrib-bibtex<3.0.0,>=2.6.3",
     "pyyaml<7.0,>=6.0",
+    "markdown-it-py[linkify,plugins]>=3.0.0",
 ]
 name = "pelican-myst-reader"
 version = "1.4.0"

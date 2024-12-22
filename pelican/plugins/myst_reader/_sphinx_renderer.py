@@ -1,12 +1,11 @@
-"""Implementation of a Sphinx-based renderer for MyST documents.
-"""
+"""Implementation of a Sphinx-based renderer for MyST documents."""
 
 from __future__ import annotations
 
-from pathlib import Path
-from shutil import copyfile
 import subprocess
 import tempfile
+from pathlib import Path
+from shutil import copyfile
 from typing import Any, Iterable
 
 from bs4 import BeautifulSoup
