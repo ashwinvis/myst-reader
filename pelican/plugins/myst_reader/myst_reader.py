@@ -176,7 +176,7 @@ class MySTReader(BaseReader):
 
     def _validate_myst_settings(
         self, settings: dict[str, Any]
-    ) -> tuple(MdParserConfig, dict[str, Any]):
+    ) -> tuple[MdParserConfig, dict[str, Any]]:
         """Parse, validate and normalize MyST settings.
 
         Returns a MyST parser configuration object and a dictionary of normalized MyST
@@ -343,9 +343,21 @@ class MySTReader(BaseReader):
         - BibTeX files are found, or
         - user's settings force the use of Sphinx.
         """
-        if (
-            self.force_sphinx
-            or bib_files
+
+        def call_sphinx_renderer() -> str:
+            return sphinx_renderer(
+                content,
+                conf=self.sphinx_settings,
+                bib_files=bib_files,
+                tempdir_suffix=tempdir_suffix,
+            )
+
+        if self.force_sphinx:
+            return call_sphinx_renderer(), RENDERER.SPHINX
+        elif self.force_mdit:
+            return mdit_renderer(content, parser=self.mdit_myst_parser), RENDERER.MDIT
+        elif (
+            bib_files
             or self.sphinx_settings["myst_enable_extensions"].intersection(
                 ("dollarmath", "amsmath")
             )
@@ -353,17 +365,7 @@ class MySTReader(BaseReader):
                 syntax in content for syntax in ("{filename}", "{static}", "{attach}")
             )
         ):
-            return (
-                sphinx_renderer(
-                    content,
-                    conf=self.sphinx_settings,
-                    bib_files=bib_files,
-                    tempdir_suffix=tempdir_suffix,
-                ),
-                RENDERER.SPHINX,
-            )
-        elif self.force_mdit:
-            return mdit_renderer(content, parser=self.mdit_myst_parser), RENDERER.MDIT
+            return call_sphinx_renderer(), RENDERER.SPHINX
         else:
             try:
                 return (
