@@ -139,10 +139,12 @@ class MySTReader(BaseReader):
             warnings.warn(
                 "MYST_EXTENSIONS will soon be deprecated. Use "
                 "MYST_DOCUTILS_SETTINGS['myst_enable_extensions'] and "
+                "MYST_MDIT_SETTINGS['myst_enable_extensions'] and "
                 "MYST_SPHINX_SETTINGS['myst_enable_extensions'] instead.",
                 FutureWarning,
             )
             self.docutils_settings["myst_enable_extensions"].update(myst_extensions)
+            self.mdit_settings["myst_enable_extensions"].update(myst_extensions)
             self.sphinx_settings["myst_enable_extensions"].update(myst_extensions)
 
         # Parse and validate MyST settings.
@@ -167,8 +169,9 @@ class MySTReader(BaseReader):
         self.sphinx_myst_parser = create_md_parser(sphinx_myst_conf, RendererHTML)
 
         # Create a Docutils parser once to not have to re-create it for each file.
-        self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
+        self.force_docutils = self.settings.get("MYST_FORCE_DOCUTILS", False)
         self.force_mdit = self.settings.get("MYST_FORCE_MDIT", False)
+        self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
 
         # Save the creation of a parser if Sphinx is forced.
         if not self.force_sphinx:
@@ -344,6 +347,21 @@ class MySTReader(BaseReader):
         - user's settings force the use of Sphinx.
         """
 
+        def call_docutils_renderer() -> str:
+            try:
+                return docutils_renderer(
+                    content,
+                    conf=self.docutils_settings,
+                    parser=self.docutils_parser,
+                )
+            except docutils.utils.SystemMessage as err:
+                raise MystReaderContentError(
+                    f"Malformed content or front-matter metadata:\n{err}"
+                ) from err
+
+        def call_mdit_renderer():
+            return mdit_renderer(content, parser=self.mdit_myst_parser)
+
         def call_sphinx_renderer() -> str:
             return sphinx_renderer(
                 content,
@@ -352,34 +370,22 @@ class MySTReader(BaseReader):
                 tempdir_suffix=tempdir_suffix,
             )
 
-        if self.force_sphinx:
-            return call_sphinx_renderer(), RENDERER.SPHINX
+        if self.force_docutils:
+            return call_docutils_renderer(), RENDERER.DOCUTILS
         elif self.force_mdit:
-            return mdit_renderer(content, parser=self.mdit_myst_parser), RENDERER.MDIT
-        elif (
-            bib_files
-            or self.sphinx_settings["myst_enable_extensions"].intersection(
-                ("dollarmath", "amsmath")
-            )
-            or any(
-                syntax in content for syntax in ("{filename}", "{static}", "{attach}")
-            )
-        ):
+            return call_mdit_renderer(), RENDERER.MDIT
+        elif self.force_sphinx:
             return call_sphinx_renderer(), RENDERER.SPHINX
+        elif bib_files:
+            return call_sphinx_renderer(), RENDERER.SPHINX
+        # elif self.mdit_settings["myst_enable_extensions"].intersection(
+        #     ("dollarmath", "amsmath")
+        # ) or any(
+        #     syntax in content for syntax in ("{filename}", "{static}", "{attach}")
+        # ):
+        #     return call_mdit_renderer(), RENDERER.MDIT
         else:
-            try:
-                return (
-                    docutils_renderer(
-                        content,
-                        conf=self.docutils_settings,
-                        parser=self.docutils_parser,
-                    ),
-                    RENDERER.DOCUTILS,
-                )
-            except docutils.utils.SystemMessage as err:
-                raise MystReaderContentError(
-                    f"Malformed content or front-matter metadata:\n{err}"
-                ) from err
+            return call_mdit_renderer(), RENDERER.MDIT
 
     @staticmethod
     def _find_bibs(source_path: str) -> list[str]:
