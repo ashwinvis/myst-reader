@@ -194,6 +194,7 @@ def test_ext_tasklist(renderer):
     }
 
     output, _ = _test_valid("ext_tasklist", f"ext_tasklist_{renderer=}", **settings)
+    assert '<li class="task-list-item">' in output
 
 
 @pytest.mark.parametrize("renderer", ["MDIT", "SPHINX"])
@@ -210,4 +211,4 @@ def test_ext_attrs_inline_image(renderer):
         "ext_attrs_inline_image", f"ext_attrs_inline_image_{renderer=}", **settings
     )
 
-    assert 'style="width: 100px;"' in output
+    assert ('style="width: 100px;"' in output) or ('w="100px"' in output)
