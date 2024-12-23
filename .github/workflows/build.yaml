@@ -19,32 +19,29 @@ jobs:
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Install poetry
-      run: pipx install poetry
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
       with:
         python-version: ${{ matrix.python-version }}
-        cache: "poetry"
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install
+
+    - name: Install the project
+      run: uv sync --all-extras --dev
 
     - name: Verify Python environment
       run: |
-        pip list
-        pip cache list
-        pip check
-
-    - name: Install dependencies
-      run: python -m pip install --upgrade pip nox
+        uv pip list
 
     - name: Run tests
-      run: nox --session tests-cov -- -v
+      run: uv run nox --default-venv-backend uv --session tests-cov -- -v
 
   deploy:
     needs: [tests]
