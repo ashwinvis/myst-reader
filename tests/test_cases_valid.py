@@ -185,7 +185,11 @@ def test_links():
 def test_images():
     """Check with images."""
 
-    output, metadata = _test_valid("valid_content_images")
+    output, metadata = _test_valid(
+        "valid_content_images",
+        # MYST_FORCE_DOCUTILS=True,
+        # MYST_DOCUTILS_SETTINGS={"myst_enable_extensions": ["colon_fence"]},
+    )
 
     assert "Valid Content with Image" == str(metadata["title"])
     assert "My Author" == str(metadata["author"])

@@ -10,5 +10,9 @@ This is file contains a image.
 [![Image with link](/path/to/link.png)](https://example.com/link.png)
 
 ```{image} {filename}/path/to/image.png
-:alt: path/to/image
+:alt: using image directive with backticks
 ```
+
+:::{image} {filename}/path/to/image.png
+:alt: using image directive with colon fence
+:::
