@@ -143,6 +143,7 @@ class MySTReader(BaseReader):
                 "MYST_MDIT_SETTINGS['enable_extensions'] and "
                 "MYST_SPHINX_SETTINGS['myst_enable_extensions'] instead.",
                 FutureWarning,
+                stacklevel=2,
             )
             self.docutils_settings["myst_enable_extensions"].update(myst_extensions)
             self.mdit_settings["enable_extensions"].update(myst_extensions)
@@ -163,6 +164,7 @@ class MySTReader(BaseReader):
                 "It should be MYST_MDIT_SETTINGS['enable_extensions'] instead. "
                 "This could be an error in the future. Correcting it for now...",
                 FutureWarning,
+                stacklevel=2,
             )
             self.mdit_settings["enable_extensions"].update(exts)
 
