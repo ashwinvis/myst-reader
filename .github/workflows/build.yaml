@@ -30,18 +30,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Set up Python ${{ matrix.python-version }}
-      run: uv python install
-
-    - name: Install the project
-      run: uv sync --all-extras --dev
-
-    - name: Verify Python environment
-      run: |
-        uv pip list
-
     - name: Run tests
-      run: uv run nox --default-venv-backend uv --session tests-cov -- -v
+      run: uvx nox --default-venv-backend uv --session tests-cov -- -v
 
   deploy:
     needs: [tests]
