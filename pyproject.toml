@@ -3,6 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
+name = "pelican-myst-reader"
+version = "1.4.0"
+description = "Pelican plugin for converting MyST's Markdown variant to HTML."
 authors = [{ name = "Ashwin Vishnu", email = "dev@fluid.quest" }]
 license = { text = "AGPL-3.0" }
 requires-python = "<4.0,>=3.10"
@@ -17,9 +20,6 @@ dependencies = [
     "pyyaml<7.0,>=6.0",
     "markdown-it-py[linkify,plugins]>=3.0.0",
 ]
-name = "pelican-myst-reader"
-version = "1.4.0"
-description = "Pelican plugin for converting MyST's Markdown variant to HTML."
 readme = "README.md"
 keywords = ["pelican", "plugin", "markdown", "myst"]
 classifiers = [
@@ -34,6 +34,7 @@ classifiers = [
 ]
 
 [project.urls]
+Sponsor = "https://fluid.quest/pages/sponsors.html"
 Funding = "https://donate.getpelican.com/"
 "Issue Tracker" = "https://github.com/ashwinvis/myst-reader/issues"
 Repository = "https://github.com/ashwinvis/myst-reader"
