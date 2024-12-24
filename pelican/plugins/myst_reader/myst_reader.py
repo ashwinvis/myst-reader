@@ -17,13 +17,13 @@ from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
 from mwc.counter import count_words_in_markdown
 from myst_parser.config.main import MdParserConfig, TopmatterReadError, read_topmatter
-from myst_parser.docutils_ import Parser as DocutilsParser
 from myst_parser.parsers.mdit import create_md_parser
 
 from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
+from ._docutils_renderer import Parser as DocutilsParser
 from ._docutils_renderer import docutils_renderer
 from ._mdit_renderer import mdit_init, mdit_renderer
 from ._sphinx_renderer import sphinx_renderer
@@ -189,6 +189,7 @@ class MySTReader(BaseReader):
 
         # Save the creation of a parser if Sphinx is forced.
         if not self.force_sphinx:
+            DocutilsParser.override_settings_spec(docutils_myst_conf)
             self.docutils_parser = DocutilsParser()
 
     def _validate_myst_settings(

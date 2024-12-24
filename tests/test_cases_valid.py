@@ -99,7 +99,7 @@ def test_minimal():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-@pytest.mark.parametrize("renderer", ["DEFAULT", "SPHINX", "MDIT"])
+@pytest.mark.parametrize("renderer", ["DEFAULT", "DOCUTILS", "SPHINX", "MDIT"])
 def test_mathjax(renderer):
     """Check if mathematics is rendered correctly with defaults."""
 
@@ -196,7 +196,7 @@ def test_images():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-@pytest.mark.parametrize("renderer", ["MDIT", "SPHINX"])
+@pytest.mark.parametrize("renderer", ["DOCUTILS", "MDIT", "SPHINX"])
 def test_ext_tasklist(renderer):
     """Check if using tasklist extension generates a bullet list with checkboxes"""
     settings = {
@@ -208,7 +208,7 @@ def test_ext_tasklist(renderer):
     assert '<li class="task-list-item">' in output
 
 
-@pytest.mark.parametrize("renderer", ["MDIT", "SPHINX"])
+@pytest.mark.parametrize("renderer", ["DOCUTILS", "MDIT", "SPHINX"])
 def test_ext_attrs_inline_image(renderer):
     """Check if using attrs_inline extension generates the correct
     image tag."""
