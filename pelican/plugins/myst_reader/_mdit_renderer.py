@@ -17,6 +17,52 @@ from myst_parser.config.main import MdParserConfig
 from myst_parser.parsers.mdit import create_md_parser
 
 
+def _mdit_init_native(conf: dict[str, Any]) -> MarkdownIt:
+    extensions = conf.get("myst_enable_extensions", set("front_matter"))
+    md = MarkdownIt()  # .enable(rules)
+    for ext in extensions:
+        module = importlib.import_module(name=f".{ext}", package="mdit_py_plugins")
+        plugin = getattr(module, f"{ext}_plugin")
+        md = md.use(plugin)
+    return md
+
+
+def _mdit_init_from_myst_parser(config: MdParserConfig) -> MarkdownIt:
+    customized_extensions: list[str] = []
+    for ext in "amsmath", "dollarmath":
+        if ext in config.enable_extensions:
+            config.enable_extensions.remove(ext)
+            customized_extensions.append(ext)
+
+    md = create_md_parser(config, Renderer)
+
+    if "dollarmath" in customized_extensions:
+        _ = md.use(
+            dollarmath_plugin,
+            allow_labels=config.dmath_allow_labels,
+            allow_space=config.dmath_allow_space,
+            allow_digits=config.dmath_allow_digits,
+            double_inline=config.dmath_double_inline,
+            renderer=math_renderer,
+        )
+    if "amsmath" in customized_extensions:
+        _ = md.use(amsmath_plugin, renderer=math_renderer)
+
+    md.add_render_rule("colon_fence", render_colon_fence_image)
+
+    return md
+
+
+mdit_init = _mdit_init_from_myst_parser
+
+
+def mdit_renderer(
+    content: str,
+    parser: MarkdownIt,
+):
+    return parser.render(content).strip()
+
+
 class Renderer(RendererHTML):
     def _get_field(self, token: Token, field_name: str) -> str | None:
         # FIXME: there should be a better way of processing Docutils style
@@ -77,49 +123,3 @@ def math_renderer(
     # display_mode is False => inline
     display_mode = True if options is None else options.get("display_mode", True)
     return f"\\[ {content} \\]" if display_mode else f"\\( {content} \\)"
-
-
-def _mdit_init_native(conf: dict[str, Any]) -> MarkdownIt:
-    extensions = conf.get("myst_enable_extensions", set("front_matter"))
-    md = MarkdownIt()  # .enable(rules)
-    for ext in extensions:
-        module = importlib.import_module(name=f".{ext}", package="mdit_py_plugins")
-        plugin = getattr(module, f"{ext}_plugin")
-        md = md.use(plugin)
-    return md
-
-
-def _mdit_init_from_myst_parser(config: MdParserConfig) -> MarkdownIt:
-    customized_extensions: list[str] = []
-    for ext in "amsmath", "dollarmath":
-        if ext in config.enable_extensions:
-            config.enable_extensions.remove(ext)
-            customized_extensions.append(ext)
-
-    md = create_md_parser(config, Renderer)
-
-    if "dollarmath" in customized_extensions:
-        _ = md.use(
-            dollarmath_plugin,
-            allow_labels=config.dmath_allow_labels,
-            allow_space=config.dmath_allow_space,
-            allow_digits=config.dmath_allow_digits,
-            double_inline=config.dmath_double_inline,
-            renderer=math_renderer,
-        )
-    if "amsmath" in customized_extensions:
-        _ = md.use(amsmath_plugin, renderer=math_renderer)
-
-    md.add_render_rule("colon_fence", render_colon_fence_image)
-
-    return md
-
-
-mdit_init = _mdit_init_from_myst_parser
-
-
-def mdit_renderer(
-    content: str,
-    parser: MarkdownIt,
-):
-    return parser.render(content).strip()
