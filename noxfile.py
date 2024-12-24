@@ -11,19 +11,22 @@ Usage
 
 """
 
-from functools import partial
 import os
-from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
+from functools import partial
+from pathlib import Path
 
 import nox
 
 PACKAGE = "pelican-myst-reader"
 CWD = Path.cwd()
-if (CWD / "poetry.lock").exists():
+if (CWD / "uv.lock").exists():
+    BUILD_SYSTEM = "uv"
+    PACKAGE_SPEC = "pyproject.toml"
+elif (CWD / "poetry.lock").exists():
     BUILD_SYSTEM = "poetry"
     PACKAGE_SPEC = "pyproject.toml"
 else:
@@ -149,7 +152,17 @@ def pip_compile(session, extra):
 
 
 def install_with_tests(session, args=()):
-    if BUILD_SYSTEM == "poetry":
+    if BUILD_SYSTEM == "uv":
+        session.run_install(
+            "uv",
+            "sync",
+            "--group",
+            "tests",
+            *args,
+            env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
+        )
+        return "python", "-m", "pytest"
+    elif BUILD_SYSTEM == "poetry":
         session.install("poetry")
         session.run("python", "-m", "poetry", "install", "--with=tests", *args)
         session.run("python", "-m", "poetry", "env", "info")
