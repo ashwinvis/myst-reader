@@ -1,5 +1,4 @@
-"""Implementation of a Sphinx-based renderer for MyST documents.
-"""
+"""Implementation of a Sphinx-based renderer for MyST documents."""
 
 from __future__ import annotations
 
