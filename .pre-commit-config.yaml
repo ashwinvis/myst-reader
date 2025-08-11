@@ -3,7 +3,7 @@ exclude: '^tests/test_content/expected/.*\.html$'
 # See https://pre-commit.com/hooks.html for info on hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -21,7 +21,7 @@ repos:
       - id: black
 
   - repo: https://github.com/PyCQA/flake8
-    rev: bddd87797f8dfc07d2a10c894776018d9bec590b  # frozen: 7.1.2
+    rev: d93590f5be797aabb60e3b09f2f52dddb02f349f  # frozen: 7.3.0
     hooks:
       - id: flake8
         args: [--max-line-length=88]
