@@ -16,7 +16,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: a4920527036bb9a3f3e6055d595849d67d0da066  # frozen: 25.1.0
+    rev: fe95161893684893d68b1225356702ca71f8d388  # frozen: 25.9.0
     hooks:
       - id: black
 
@@ -27,6 +27,6 @@ repos:
         args: [--max-line-length=88]
 
   - repo: https://github.com/PyCQA/isort
-    rev: c8ab4a5b21bac924d106e3103dd7c979fdd0f9bc  # frozen: 6.0.1
+    rev: 0a09c783808cfe77bb3269250f663ff733d23302  # frozen: 7.0.0
     hooks:
       - id: isort
