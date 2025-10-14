@@ -2,30 +2,30 @@
 
 from __future__ import annotations
 
+import math
+import os
+import warnings
 from copy import deepcopy
 from enum import Enum
 from io import StringIO
-import math
-import os
 from pathlib import Path
 from typing import Any, Iterable
-import warnings
 
-from bs4 import BeautifulSoup, element
 import docutils
+from bs4 import BeautifulSoup, element
 from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
 from mwc.counter import count_words_in_markdown
-from myst_parser.config.main import MdParserConfig
-from myst_parser.docutils_ import Parser as DocutilsParser
+from myst_parser.config.main import MdParserConfig, TopmatterReadError, read_topmatter
 from myst_parser.parsers.mdit import create_md_parser
-import yaml
 
 from pelican import signals
 from pelican.readers import BaseReader
 from pelican.utils import pelican_open
 
+from ._docutils_renderer import Parser as DocutilsParser
 from ._docutils_renderer import docutils_renderer
+from ._mdit_renderer import mdit_init, mdit_renderer
 from ._sphinx_renderer import sphinx_renderer
 from .exceptions import MystReaderContentError
 
@@ -67,7 +67,7 @@ DEFAULT_MYST_SETTINGS = {
 # TODO: refactor Renderer management with classes to make code more readable and avoid
 # passing this enum as parameters everywhere. This should remove lots of duplicate code
 # and make the addition of new rendered easier.
-RENDERER = Enum("Renderer", ["DOCUTILS", "SPHINX"])
+RENDERER = Enum("Renderer", ["DOCUTILS", "SPHINX", "MDIT"])
 
 # Default Docutils settings.
 # These are the same default as the one hard-coded in Pelican:
@@ -83,6 +83,11 @@ DEFAULT_DOCUTILS_SETTINGS = {
     # Default set of MyST extensions.
     "myst_enable_extensions": set(),
 } | DEFAULT_MYST_SETTINGS
+
+DEFAULT_MDIT_SETTINGS = {
+    # Default set of MyST extensions.
+    "enable_extensions": {"colon_fence", "deflist", "fieldlist"},
+} | {k.removeprefix("myst_"): v for k, v in DEFAULT_MYST_SETTINGS.items()}
 
 # Default Sphinx settings.
 # These are going to be transformed into a Sphinx conf.py file.
@@ -121,6 +126,10 @@ class MySTReader(BaseReader):
         self.docutils_settings = deepcopy(
             DEFAULT_DOCUTILS_SETTINGS
         ) | self.settings.get("MYST_DOCUTILS_SETTINGS", dict())
+
+        self.mdit_settings = deepcopy(DEFAULT_MDIT_SETTINGS) | self.settings.get(
+            "MYST_MDIT_SETTINGS", dict()
+        )
         self.sphinx_settings = deepcopy(DEFAULT_SPHINX_SETTINGS) | self.settings.get(
             "MYST_SPHINX_SETTINGS", dict()
         )
@@ -131,10 +140,13 @@ class MySTReader(BaseReader):
             warnings.warn(
                 "MYST_EXTENSIONS will soon be deprecated. Use "
                 "MYST_DOCUTILS_SETTINGS['myst_enable_extensions'] and "
+                "MYST_MDIT_SETTINGS['enable_extensions'] and "
                 "MYST_SPHINX_SETTINGS['myst_enable_extensions'] instead.",
                 FutureWarning,
+                stacklevel=2,
             )
             self.docutils_settings["myst_enable_extensions"].update(myst_extensions)
+            self.mdit_settings["enable_extensions"].update(myst_extensions)
             self.sphinx_settings["myst_enable_extensions"].update(myst_extensions)
 
         # Parse and validate MyST settings.
@@ -143,6 +155,20 @@ class MySTReader(BaseReader):
         )
         # Reintegrate normalized settings to the renderer settings.
         self.docutils_settings |= normalized_setting
+
+        # We don't modify the dictionary here, since markdown-it-py is configured only
+        # through MdParserConfig.
+        if exts := self.mdit_settings.pop("myst_enable_extensions", False):
+            warnings.warn(
+                "Found MYST_MDIT_SETTINGS['myst_enable_extensions']. "
+                "It should be MYST_MDIT_SETTINGS['enable_extensions'] instead. "
+                "This could be an error in the future. Correcting it for now...",
+                FutureWarning,
+                stacklevel=2,
+            )
+            self.mdit_settings["enable_extensions"].update(exts)
+
+        mdit_myst_conf = MdParserConfig(**self.mdit_settings)
 
         # Parse and validate MyST settings.
         sphinx_myst_conf, normalized_setting = self._validate_myst_settings(
@@ -153,17 +179,22 @@ class MySTReader(BaseReader):
 
         # Create a MyST parser for each renderer with its own config.
         self.docutils_myst_parser = create_md_parser(docutils_myst_conf, RendererHTML)
+        self.mdit_myst_parser = mdit_init(mdit_myst_conf)
         self.sphinx_myst_parser = create_md_parser(sphinx_myst_conf, RendererHTML)
 
         # Create a Docutils parser once to not have to re-create it for each file.
+        self.force_docutils = self.settings.get("MYST_FORCE_DOCUTILS", False)
+        self.force_mdit = self.settings.get("MYST_FORCE_MDIT", False)
         self.force_sphinx = self.settings.get("MYST_FORCE_SPHINX", False)
+
         # Save the creation of a parser if Sphinx is forced.
         if not self.force_sphinx:
+            DocutilsParser.override_settings_spec(docutils_myst_conf)
             self.docutils_parser = DocutilsParser()
 
     def _validate_myst_settings(
         self, settings: dict[str, Any]
-    ) -> tuple(MdParserConfig, dict[str, Any]):
+    ) -> tuple[MdParserConfig, dict[str, Any]]:
         """Parse, validate and normalize MyST settings.
 
         Returns a MyST parser configuration object and a dictionary of normalized MyST
@@ -273,20 +304,18 @@ class MySTReader(BaseReader):
 
     def _extract_metadata(self, content: str, renderer: RENDERER) -> dict[str, Any]:
         """Extract metadata from MyST markdown content"""
-        tokens = self._run_myst_to_tokens(content, renderer)
-
-        if not tokens:
+        if not content:
             raise MystReaderContentError("Could not find metadata. File is empty.")
 
-        frontmatter = tokens[0]
-        if frontmatter.type != "front_matter":
+        try:
+            myst_metadata = read_topmatter(content)
+        except TopmatterReadError as err:
             raise MystReaderContentError(
                 "Could not find front-matter metadata or invalid formatting."
-            )
-
-        metadata_text = frontmatter.content
-        # Parse markdown in frontmatter, if any
-        myst_metadata = yaml.safe_load(metadata_text)
+            ) from err
+        else:
+            if myst_metadata is None:
+                raise MystReaderContentError("Invalid front-matter metadata.")
 
         for key in ["date", "modified", "Date", "Modified"]:
             try:
@@ -311,11 +340,14 @@ class MySTReader(BaseReader):
 
     def _run_myst_to_tokens(self, content: str, renderer: RENDERER) -> list[Token]:
         """Execute the MyST parser and generate the syntax tree / tokens"""
-        myst_parser = (
-            self.sphinx_myst_parser
-            if renderer == RENDERER.SPHINX
-            else self.docutils_myst_parser
-        )
+        match renderer:
+            case RENDERER.SPHINX:
+                myst_parser = self.sphinx_myst_parser
+            case RENDERER.DOCUTILS:
+                myst_parser = self.docutils_myst_parser
+            case _:
+                myst_parser = self.mdit_myst_parser
+
         return myst_parser.parse(content)
 
     def _run_myst_to_html(
@@ -332,39 +364,47 @@ class MySTReader(BaseReader):
         - BibTeX files are found, or
         - user's settings force the use of Sphinx.
         """
-        if (
-            self.force_sphinx
-            or bib_files
-            or self.sphinx_settings["myst_enable_extensions"].intersection(
-                ("dollarmath", "amsmath")
-            )
-            or any(
-                syntax in content for syntax in ("{filename}", "{static}", "{attach}")
-            )
-        ):
-            return (
-                sphinx_renderer(
-                    content,
-                    conf=self.sphinx_settings,
-                    bib_files=bib_files,
-                    tempdir_suffix=tempdir_suffix,
-                ),
-                RENDERER.SPHINX,
-            )
-        else:
+
+        def call_docutils_renderer() -> str:
             try:
-                return (
-                    docutils_renderer(
-                        content,
-                        conf=self.docutils_settings,
-                        parser=self.docutils_parser,
-                    ),
-                    RENDERER.DOCUTILS,
+                return docutils_renderer(
+                    content,
+                    conf=self.docutils_settings,
+                    parser=self.docutils_parser,
                 )
             except docutils.utils.SystemMessage as err:
                 raise MystReaderContentError(
                     f"Malformed content or front-matter metadata:\n{err}"
                 ) from err
+
+        def call_mdit_renderer():
+            return mdit_renderer(content, parser=self.mdit_myst_parser)
+
+        def call_sphinx_renderer() -> str:
+            return sphinx_renderer(
+                content,
+                conf=self.sphinx_settings,
+                bib_files=bib_files,
+                tempdir_suffix=tempdir_suffix,
+            )
+
+        if self.force_docutils:
+            return call_docutils_renderer(), RENDERER.DOCUTILS
+        elif self.force_mdit:
+            return call_mdit_renderer(), RENDERER.MDIT
+        elif self.force_sphinx:
+            return call_sphinx_renderer(), RENDERER.SPHINX
+        elif bib_files:
+            return call_sphinx_renderer(), RENDERER.SPHINX
+        # elif self.mdit_settings["myst_enable_extensions"].intersection(
+        #     ("dollarmath", "amsmath")
+        # ) or any(
+        #     syntax in content for syntax in ("{filename}", "{static}", "{attach}")
+        # ):
+        #     # return call_sphinx_renderer(), RENDERER.SPHINX
+        #     return call_mdit_renderer(), RENDERER.MDIT
+        else:
+            return call_mdit_renderer(), RENDERER.MDIT
 
     @staticmethod
     def _find_bibs(source_path: str) -> list[str]:

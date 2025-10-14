@@ -1,7 +1,7 @@
 """Tests reading time and summary output from myst-reader plugin."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from pelican.plugins.myst_reader import MySTReader
 from pelican.tests.support import get_settings
@@ -77,7 +77,7 @@ class TestReadingTimeAndSummary(unittest.TestCase):
             (
                 "<p>But this foundational principle of science has now been"
                 " called into question by"
-                ' <a class="reference external" href="https://www.britannica.com/science/string-theory">'
+                ' <a href="https://www.britannica.com/science/string-theory">'
                 "String Theory</a>.</p>"
             ),
             str(metadata["summary"]),

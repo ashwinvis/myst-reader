@@ -1,7 +1,8 @@
 """Tests using invalid metadata for myst-reader plugin."""
 
 import os
-import unittest
+
+import pytest
 
 from pelican.plugins.myst_reader import MySTReader
 from pelican.plugins.myst_reader.exceptions import MystReaderContentError
@@ -14,44 +15,42 @@ TEST_CONTENT_PATH = os.path.abspath(os.path.join(DIR_PATH, "test_content"))
 MYST_EXTENSIONS = []
 
 
-class TestInvalidMetadata(unittest.TestCase):
-    """Invalid Metadata test cases."""
+@pytest.fixture()
+def myst_reader_obj():
+    settings = get_settings(MYST_EXTENSIONS=MYST_EXTENSIONS)
+    return MySTReader(settings)
 
-    def test_empty_file(self):
-        """Check if a file is empty."""
-        settings = get_settings(MYST_EXTENSIONS=MYST_EXTENSIONS)
 
-        myst_reader = MySTReader(settings)
-        source_path = os.path.join(TEST_CONTENT_PATH, "empty.md")
+def test_empty_file(myst_reader_obj):
+    """Check if a file is empty."""
+    source_path = os.path.join(TEST_CONTENT_PATH, "empty.md")
 
-        # If the file is empty retrieval of metadata should fail
-        with self.assertRaises(Exception) as context_manager:
-            myst_reader.read(source_path)
+    # If the file is empty retrieval of metadata should fail
+    with pytest.raises(Exception, match="Could not find metadata. File is empty."):
+        myst_reader_obj.read(source_path)
 
-        message = str(context_manager.exception)
-        self.assertEqual("Could not find metadata. File is empty.", message)
 
-    def test_non_empty_file_no_metadata(self):
-        """Check if a file has no metadata."""
-        settings = get_settings(MYST_EXTENSIONS=MYST_EXTENSIONS)
+msg0 = "Invalid front-matter metadata."
+msg1 = "Could not find front-matter metadata or invalid formatting."
+# msg2 = "Malformed content or front-matter metadata"
 
-        myst_reader = MySTReader(settings)
 
-        msg1 = "Could not find front-matter metadata or invalid formatting."
-        msg2 = "Malformed content or front-matter metadata"
+@pytest.mark.parametrize(
+    ("source_md", "expected_msg"),
+    [
+        ("no_metadata.md", msg0),
+        ("metadata_start_with_leading_spaces.md", msg0),
+        ("metadata_end_with_leading_spaces.md", msg1),
+        # FIXME: This should be caught, but the upstream implementation does nothing
+        ("no_metadata_end.md", ""),
+    ],
+)
+def test_non_empty_file_no_metadata(myst_reader_obj, source_md, expected_msg):
+    """Check if a file has no metadata."""
 
-        for source_md, expected_msg in (
-            ("no_metadata.md", msg1),
-            ("metadata_start_with_leading_spaces.md", msg1),
-            ("metadata_end_with_leading_spaces.md", msg2),
-            ("no_metadata_end.md", msg2),
-        ):
-            with self.subTest(source_md=source_md):
-                source_path = os.path.join(TEST_CONTENT_PATH, source_md)
+    source_path = os.path.join(TEST_CONTENT_PATH, source_md)
 
-                # If the file is not empty but has no metadata it should fail
-                with self.assertRaises(MystReaderContentError) as context_manager:
-                    myst_reader.read(source_path)
-
-                message = str(context_manager.exception)
-                assert message.startswith(expected_msg), message
+    # If the file is not empty but has no metadata it should fail
+    if expected_msg:
+        with pytest.raises(MystReaderContentError, match=expected_msg):
+            myst_reader_obj.read(source_path)

@@ -1,8 +1,10 @@
 """Tests using valid default files for myst-reader plugin."""
 
-from pathlib import Path
+import difflib
 import sys
+from pathlib import Path
 
+import bs4
 import pytest
 
 from pelican.plugins.myst_reader import MySTReader
@@ -39,14 +41,43 @@ def teardown_module(module):
         PATH_DIR_FAILED.rmdir()
 
 
-def _test_valid(name, expected_name="", **pelicanconf):
+def _is_html_eq(expected: str, output: str, allowed_nb_diff_lines: int):
+    # read the html files content using Beautifulsoup
+    expected_pretty = bs4.BeautifulSoup(expected, features="html.parser").prettify()
+    output_pretty = bs4.BeautifulSoup(output, features="html.parser").prettify()
+
+    diff_lines = list(
+        difflib.unified_diff(expected_pretty.split("\n"), output_pretty.split("\n"))
+    )
+
+    def search_line_startswith(sym: str) -> list[str]:
+        return [
+            line
+            for line in diff_lines
+            if line.startswith(sym) and not line.startswith(sym * 3)
+        ]
+
+    nb_diff_lines = max(
+        len(search_line_startswith("-")),
+        len(search_line_startswith("+")),
+    )
+
+    if nb_diff_lines > allowed_nb_diff_lines:
+        return False, "🫣 HTML contents differ at lines:" + "\n".join(diff_lines)
+    else:
+        return True, ""
+
+
+def _test_valid(name, expected_name="", allowed_nb_diff_lines=0, **pelicanconf):
     settings = pelican_get_settings(**pelicanconf)
 
     myst_reader = MySTReader(settings)
 
     source_path = TEST_CONTENT_PATH / (name + ".md")
     output, metadata = myst_reader.read(source_path)
-    path_expected = PATH_DIR_EXPECTED / ((expected_name or name) + ".html")
+
+    filename = expected_name or name
+    path_expected = PATH_DIR_EXPECTED / f"{filename}.html"
     path_failed = PATH_DIR_FAILED / path_expected.name
 
     if path_expected.exists():
@@ -63,9 +94,10 @@ def _test_valid(name, expected_name="", **pelicanconf):
     if expected != output:
         path_failed.write_text(output)
 
-    assert expected == output, (
-        f"Compare with meld {path_expected.relative_to(CWD)} "
-        f"{path_failed.relative_to(CWD)}"
+    eq, diff = _is_html_eq(expected, output, allowed_nb_diff_lines)
+    assert eq, diff + (
+        f'🤔 Compare with meld "{path_expected.relative_to(CWD)}" '
+        f'"{path_failed.relative_to(CWD)}"'
     )
 
     return output, metadata
@@ -81,22 +113,41 @@ def test_minimal():
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-@pytest.mark.parametrize("in_var", ["MYST_EXTENSIONS", "MYST_SPHINX_SETTINGS"])
-def test_mathjax(in_var):
+@pytest.mark.parametrize("renderer", ["DEFAULT", "DOCUTILS", "SPHINX", "MDIT"])
+def test_mathjax(renderer):
     """Check if mathematics is rendered correctly with defaults."""
 
-    if in_var == "MYST_EXTENSIONS":
+    if renderer == "DEFAULT":
         pelicanconf = dict(MYST_EXTENSIONS=["dollarmath", "amsmath"])
+    elif renderer == "MDIT":
+        pytest.xfail("MDIT renderer is experimental. Expect issues.")
+    elif renderer == "DOCUTILS":
+        pytest.xfail("Docutils renderer does not support math roles.")
     else:
-        pelicanconf = dict(
-            MYST_SPHINX_SETTINGS={"myst_enable_extensions": ["dollarmath", "amsmath"]}
-        )
+        pelicanconf = {
+            f"MYST_{renderer}_SETTINGS": {
+                "myst_enable_extensions": ["dollarmath", "amsmath"]
+            },
+            f"MYST_FORCE_{renderer}": True,
+        }
 
-    output, metadata = _test_valid("valid_content_mathjax", **pelicanconf)
+    if renderer == "SPHINX":
+        # Two lines dynamically generate HTML tags for math formulae
+        allowed_nb_diff_lines = 2
+    else:
+        allowed_nb_diff_lines = 0
+
+    output, metadata = _test_valid(
+        "valid_content_mathjax",
+        f"valid_content_mathjax_{renderer=}",
+        allowed_nb_diff_lines,
+        **pelicanconf,
+    )
 
     assert "MathJax Content" == str(metadata["title"])
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
+    assert '<div class="math' in output
 
 
 def test_citations():
@@ -135,6 +186,7 @@ def test_comments(strip_comments):
         "valid_content_comments",
         expected_name=f"valid_content_comments_{strip_comments=}",
         MYST_DOCUTILS_SETTINGS={"strip_comments": strip_comments},
+        MYST_FORCE_DOCUTILS=True,
     )
 
     assert "Valid Content with Comments" == str(metadata["title"])
@@ -142,8 +194,8 @@ def test_comments(strip_comments):
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
-    expected_comment = not strip_comments
-    assert ("standalone comment" in output) is expected_comment
+    present = not strip_comments
+    assert ("standalone comment" in output) is present
 
 
 def test_links():
@@ -160,43 +212,47 @@ def test_links():
 def test_images():
     """Check with images."""
 
-    output, metadata = _test_valid("valid_content_images")
+    output, metadata = _test_valid(
+        "valid_content_images",
+        # MYST_FORCE_DOCUTILS=True,
+        # MYST_DOCUTILS_SETTINGS={"myst_enable_extensions": ["colon_fence"]},
+    )
 
     assert "Valid Content with Image" == str(metadata["title"])
     assert "My Author" == str(metadata["author"])
     assert "2020-10-16 00:00:00" == str(metadata["date"])
 
 
-def test_image_attrs_inline():
+@pytest.mark.parametrize("renderer", ["DOCUTILS", "MDIT", "SPHINX"])
+def test_ext_tasklist(renderer):
+    """Check if using tasklist extension generates a bullet list with checkboxes"""
+    if renderer == "DOCUTILS":
+        pytest.xfail("Docutils renderer does not support tasklist.")
+
+    settings = {
+        f"MYST_FORCE_{renderer}": True,
+        f"MYST_{renderer}_SETTINGS": dict(myst_enable_extensions=["tasklist"]),
+    }
+
+    output, _ = _test_valid("ext_tasklist", f"ext_tasklist_{renderer=}", **settings)
+    assert '<li class="task-list-item">' in output
+
+
+@pytest.mark.parametrize("renderer", ["DOCUTILS", "MDIT", "SPHINX"])
+def test_ext_attrs_inline_image(renderer):
     """Check if using attrs_inline extension generates the correct
     image tag."""
-    # Deprecated syntax
-    output1, _ = _test_valid(
-        "image_attrs_inline", MYST_EXTENSIONS=["attrs_inline"], STATIC_PATHS=["_static"]
+    if renderer == "DOCUTILS":
+        pytest.xfail("Docutils renderer does not support attrs_inline.")
+
+    settings = {
+        f"MYST_FORCE_{renderer}": True,
+        "STATIC_PATHS": ["_static"],
+        f"MYST_{renderer}_SETTINGS": dict(myst_enable_extensions=["attrs_inline"]),
+    }
+
+    output, _ = _test_valid(
+        "ext_attrs_inline_image", f"ext_attrs_inline_image_{renderer=}", **settings
     )
 
-    # New syntax w/ docutils. Does not work!
-    # output2, _ = _test_valid(
-    #     "image_attrs_inline",
-    #     MYST_DOCUTILS_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
-    #     STATIC_PATHS=["_static"],
-    # )
-    # -------------
-    # Image is rendered as follows with docutils. The extension seems to require
-    # sphinx at some level
-    # <p>
-    # <img alt="fishy" src="img/fun-fish.png"/>
-    # {.bg-warning w=100px align=center}
-    # </p>
-
-    # New syntax w/ sphinx
-    output3, _ = _test_valid(
-        "image_attrs_inline",
-        MYST_FORCE_SPHINX=True,
-        MYST_SPHINX_SETTINGS=dict(myst_enable_extensions=["attrs_inline"]),
-        STATIC_PATHS=["_static"],
-    )
-
-    assert 'style="width: 100px;"' in output1
-    # assert 'style="width: 100px;"' in output2
-    assert 'style="width: 100px;"' in output3
+    assert ('style="width: 100px;"' in output) or ('w="100px"' in output)

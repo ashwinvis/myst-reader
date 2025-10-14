@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from shutil import copyfile
 import subprocess
 import tempfile
+from pathlib import Path
+from shutil import copyfile
 from typing import Any, Iterable
 
 from bs4 import BeautifulSoup
@@ -63,6 +63,7 @@ def sphinx_renderer(
             cwd=tempdir,
             capture_output=True,
             text=True,
+            check=False,
         )
         completed_process.check_returncode()
 

@@ -20,13 +20,8 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: d93590f5be797aabb60e3b09f2f52dddb02f349f  # frozen: 7.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: fc6ef5d0dd21a2a98a7fc6956e4f16166cb6562a  # frozen: v0.8.3
     hooks:
-      - id: flake8
-        args: [--max-line-length=88]
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 0a09c783808cfe77bb3269250f663ff733d23302  # frozen: 7.0.0
-    hooks:
-      - id: isort
+      - id: ruff
+        args: ["--fix"]
