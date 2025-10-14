@@ -1670,22 +1670,22 @@ files = [
 
 [[package]]
 name = "pybtex"
-version = "0.24.0"
+version = "0.25.1"
 description = "A BibTeX-compatible bibliography processor in Python"
 optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*"
+python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "pybtex-0.24.0-py2.py3-none-any.whl", hash = "sha256:e1e0c8c69998452fea90e9179aa2a98ab103f3eed894405b7264e517cc2fcc0f"},
-    {file = "pybtex-0.24.0.tar.gz", hash = "sha256:818eae35b61733e5c007c3fcd2cfb75ed1bc8b4173c1f70b56cc4c0802d34755"},
+    {file = "pybtex-0.25.1-py2.py3-none-any.whl", hash = "sha256:9053b0d619409a0a83f38abad5d9921de5f7b3ede00742beafcd9f10ad0d8c5c"},
+    {file = "pybtex-0.25.1.tar.gz", hash = "sha256:9eaf90267c7e83e225af89fea65c370afbf65f458220d3946a9e3049e1eca491"},
 ]
 
 [package.dependencies]
 latexcodec = ">=1.0.4"
 PyYAML = ">=3.01"
-six = "*"
 
 [package.extras]
+doc = ["sphinx"]
 test = ["pytest"]
 
 [[package]]
@@ -2902,4 +2902,4 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "6bbb5668e09d2767dfdfaf0571c64bf58622cf6100e24263a9c7a303038f708b"
+content-hash = "2418d28fff30ce8c847dcdaa88da1f7842983fb156880d9f0683a0f92a14d2d4"
