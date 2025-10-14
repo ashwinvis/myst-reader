@@ -1,3 +1,36 @@
-<div class="math block">
-e^{i\theta} = \cos\theta + i \sin\theta.
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+<h2>Math role</h2>
+<p>Since Pythagoras, we know that <code class="myst role">{math}[a^2 + b^2 = c^2]</code>.</p>
+<pre><code class="language-{math}">:label: mymath
+(a + b)^2 = a^2 + 2ab + b^2
+
+(a + b)^2  &amp;=  (a + b)(a + b) \\
+           &amp;=  a^2 + 2ab + b^2
+</code></pre>
+<p>The equation <code class="myst role">{eq}[mymath]</code> is a quadratic equation.</p>
+<h2>With extension: <code>dollarmath</code></h2>
+<div id="mymath2" class="math block">
+<a href="#mymath2" class="mathlabel" title="Permalink to this equation">¶</a>
+\[ (a + b)^2  &=  (a + b)(a + b) \\
+           &=  a^2 + 2ab + b^2 \]
+</div>
+<p>The equation <code class="myst role">{eq}[mymath2]</code> is also a quadratic equation.</p>
+<p>Here is an inline equation <span class="math inline">\( x + 3y = 5 \)</span>.
+Here is a some money $10 which should not be converted.</p>
+<h2>With extension: amsmath</h2>
+<div class="math amsmath">
+\[ \begin{gather*}
+a_1=b_1+c_1\\
+a_2=b_2+c_2-d_2+e_2
+\end{gather*} \]
+</div>
+<div class="math amsmath">
+\[ \begin{align}
+a_{11}& =b_{11}&
+  a_{12}& =b_{12}\\
+a_{21}& =b_{21}&
+  a_{22}& =b_{22}+c_{22}
+\end{align} \]
 </div>
