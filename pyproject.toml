@@ -8,9 +8,7 @@ readme = "README.md"
 keywords = ["pelican", "plugin", "markdown", "myst"]
 repository = "https://github.com/ashwinvis/myst-reader"
 documentation = "https://docs.getpelican.com"
-packages = [
-    { include = "pelican" },
-]
+packages = [{ include = "pelican" }]
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -30,13 +28,12 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pelican = "^4.5"
-markdown = {version = "^3.2.2", optional = true}
+markdown = { version = "^3.2.2", optional = true }
 markdown-word-count = "^0.1.0"
 beautifulsoup4 = "^4.9.3"
 myst-parser = "^4.0.0"
 docutils = ">=0.19"
-# XXX Waiting for new release of pybtex (> 0.24.0):
-# https://bitbucket.org/pybtex-devs/pybtex/issues/169/replace-pkg_resources-with
+pybtex = "^0.25.1"
 sphinxcontrib-bibtex = "^2.6.3"
 pyyaml = "^6.0"
 
@@ -71,9 +68,7 @@ git-email = "botpub@autopub.rocks"
 append-github-contributor = true
 
 [tool.coverage.run]
-omit = [
-    "*/conf.py",
-]
+omit = ["*/conf.py"]
 
 [tool.isort]
 # Maintain compatibility with Black
