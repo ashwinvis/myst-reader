@@ -16,12 +16,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: fe95161893684893d68b1225356702ca71f8d388  # frozen: 25.9.0
+    rev: 2892f1f81088477370d4fbc56545c05d33d2493f  # frozen: 25.11.0
     hooks:
       - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 3b4bc031619cde2e0a9f3c4441ac7cc8227245a4  # frozen: v0.14.1
+    rev: 488940d9de1b658fac229e34c521d75a6ea476f2  # frozen: v0.14.5
     hooks:
       - id: ruff
         args: ["--fix"]
