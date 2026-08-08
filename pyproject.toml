@@ -8,19 +8,19 @@ version = "1.4.0"
 description = "Pelican plugin for converting MyST's Markdown variant to HTML."
 authors = [{ name = "Ashwin Vishnu", email = "dev@fluid.quest" }]
 license = { text = "AGPL-3.0" }
-requires-python = "<4.0,>=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "pelican<5.0,>=4.5",
-    "markdown-word-count<1.0.0,>=0.1.0",
-    "beautifulsoup4<5.0.0,>=4.9.3",
-    "myst-parser<5.0.0,>=4.0.0",
-    "docutils>=0.19",
-    "pybtex<1.0.0,>=0.25.1",
-    "sphinxcontrib-bibtex<3.0.0,>=2.6.3",
+    "pelican>=4.11",
+    "markdown-word-count>=0.1.0",
+    "beautifulsoup4>=4.13",
+    "myst-parser>=5.1",
+    "docutils>=0.20",
+    "pybtex>=0.25.1",
+    "sphinxcontrib-bibtex>=2.7",
     # for pybtex
     "setuptools>=68",
-    "pyyaml<7.0,>=6.0",
-    "markdown-it-py[linkify,plugins]>=3.0.0",
+    "pyyaml>=6",
+    "markdown-it-py[linkify,plugins]>=4.2",
 ]
 readme = "README.md"
 keywords = ["pelican", "plugin", "markdown", "myst"]
@@ -43,24 +43,24 @@ Repository = "https://github.com/ashwinvis/myst-reader"
 Documentation = "https://docs.getpelican.com"
 
 [project.optional-dependencies]
-markdown = ["markdown<4.0.0,>=3.2.2"]
+markdown = ["markdown>=3.2.2"]
 
 [dependency-groups]
 tests = [
-    "pytest<9.0,>=8.0",
-    "pytest-cov<6.0,>=5.0",
-    "pytest-pythonpath<1.0.0,>=0.7.3",
-    "pytest-sugar<2.0.0,>=1.0.0",
-    "pytest-subtests<1.0.0,>=0.13.1",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-pythonpath>=0.7.3",
+    "pytest-sugar>=1.0.0",
+    "pytest-subtests>=0.13.1",
 ]
 dev = [
-    "black<25.0.0,>=24.4.2",
-    "invoke<3.0,>=2.2",
-    "livereload<3.0,>=2.6",
-    "markdown<4.0.0,>=3.2.2",
-    "Werkzeug<4.0,>=3.0",
-    "pre-commit<4.0.0,>=3.7.1",
-    "nox<2025.0.0,>=2024.4.15",
+    "black>=24.4.2",
+    "invoke>=2.2",
+    "livereload>=2.6",
+    "markdown>=3.2.2",
+    "Werkzeug>=3.0",
+    "pre-commit>=3.7.1",
+    "nox>=2024.4.15",
 ]
 
 [tool.hatch.build.targets.wheel]
