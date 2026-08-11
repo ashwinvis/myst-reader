@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make the MDIT renderer opt-in through `MYST_FORCE_MDIT` rather than the fallback every document reached, and document it in the readme along with what it does not support yet.
 - Remove upper version caps on all dependencies, to avoid resolution conflicts in downstream projects.
 - Remove the upper bound on the supported Python version.
 - Upgrade to myst-parser 5.1. This is what lets the plugin be installed alongside Pelican 4.12, which requires `docutils >= 0.22`: every myst-parser 4 release caps `docutils` below 0.22, so the two could not resolve together.
@@ -21,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Render MyST directives and highlight code blocks again by default. MDIT had become the fallback for every document that did not reach Sphinx, and it renders through markdown-it-py alone, so it never reaches the Docutils layer where a directive becomes an admonition and a code block is handed to Pygments. A ` ```{note} ` fence came back as a literal code block, and code blocks carried no syntax highlighting markup at all.
+- Route documents holding a `{filename}`, `{static}` or `{attach}` intra-site link to Sphinx again, restoring a heuristic that had been left commented out. Docutils rejects those links as unknown targets, so this is what keeps them working.
+- Detect malformed front-matter in `metadata_end_with_leading_spaces.md` and `no_metadata_end.md` again. Both are only caught once the content itself is parsed, which MDIT did without complaining.
+- Stop a `:::` colon fence from crashing the MDIT renderer with `RuntimeError: super(): __class__ cell not found`. The handler was a module-level function calling a zero-argument `super()`, which needs the `__class__` cell that only a class body creates. It is now a `Renderer` method beside `fence`. A colon fence that is not an `{image}` renders the way the backtick spelling does, since `RendererHTML` has no `colon_fence` to inherit and myst-parser contributes only a block rule for that token.
 - Re-baseline the test fixtures against Sphinx 9. Citations gain the `bibtex-citation` class sphinxcontrib-bibtex 2.7 emits, an inline image's width moves from a `style` rule to a `width` attribute, and one image's class list is reordered.
 - Update the MDIT renderer's tasklist fixture. myst-parser 5.1 serializes boolean attributes as `disabled=""` where earlier releases emitted `disabled="disabled"`. The two are equivalent HTML.
 

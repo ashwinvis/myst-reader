@@ -133,6 +133,7 @@ This heuristic activates the Sphinx renderer if any of the following rule is met
 - a math extension from MyST
 is enabled ([`dollarmath` or `amsmath`](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#math-shortcuts)) in `MYST_SPHINX_SETTINGS`
 - BibTeX files are found
+- the file holds a `{filename}`, `{static}` or `{attach}` intra-site link, which Sphinx is the only renderer to leave untouched for Pelican to resolve afterwards
 
 Now this rendering mode also has its own dedicated configuration setting: `MYST_SPHINX_SETTINGS`. It is a dictionary that will be used to build a `conf.py` file to be passed to the Sphinx builder.
 
@@ -162,6 +163,36 @@ Like the previous renderer, it supports both settings:
 And again:
 - MyST-specific settings are prefixed with `myst_`
 - the list of additional [MyST extensions](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html) to activate is set with `myst_enable_extensions`
+
+### MDIT Renderer
+
+*MyST Reader* ships a third, experimental rendering mode going through
+[markdown-it-py](https://markdown-it-py.readthedocs.io) alone. It is opt-in:
+
+```python
+MYST_FORCE_MDIT = True
+```
+
+It is the fastest of the three, since it neither builds a Docutils document nor starts a Sphinx project. That is also what limits it. MyST syntax is still parsed, but the meaning of a directive lives in the Docutils layer this renderer never reaches, so:
+
+- a directive fence such as ` ```{note} ` comes back as a literal code block instead of an admonition
+- code blocks are not handed to Pygments, so they carry no syntax highlighting markup
+
+A few constructs are reimplemented on top of markdown-it-py directly, and those do work: `{image}` fences in both the backtick and `:::` spellings, and the `dollarmath` and `amsmath` extensions.
+
+> [!WARNING]
+> Because of the limitations above, this renderer is not the default and is not a drop-in replacement for the other two. See [#40](https://github.com/ashwinvis/myst-reader/issues/40).
+
+It has its own dedicated configuration setting, `MYST_MDIT_SETTINGS`. Unlike the two renderers above, it is configured only through the [MyST parser configuration](https://myst-parser.readthedocs.io/en/latest/configuration.html#global-configuration), so its keys carry no `myst_` prefix and the extension list is set with `enable_extensions`:
+
+```python
+MYST_MDIT_SETTINGS = {
+    "enable_extensions": {
+        "colon_fence",
+        "deflist",
+    },
+}
+```
 
 ### Deprecated `MYST_EXTENSIONS`
 
