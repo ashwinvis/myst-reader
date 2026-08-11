@@ -31,7 +31,6 @@ def test_empty_file(myst_reader_obj):
 
 
 msg0 = "Invalid front-matter metadata."
-msg1 = "Could not find front-matter metadata or invalid formatting."
 msg2 = "Malformed content or front-matter metadata"
 
 
@@ -41,8 +40,7 @@ msg2 = "Malformed content or front-matter metadata"
         ("no_metadata.md", msg0),
         ("metadata_start_with_leading_spaces.md", msg0),
         ("metadata_end_with_leading_spaces.md", msg2),
-        # FIXME: This should be caught, but the upstream implementation does nothing
-        ("no_metadata_end.md", ""),
+        ("no_metadata_end.md", msg2),
     ],
 )
 def test_non_empty_file_no_metadata(myst_reader_obj, source_md, expected_msg):
@@ -51,6 +49,5 @@ def test_non_empty_file_no_metadata(myst_reader_obj, source_md, expected_msg):
     source_path = os.path.join(TEST_CONTENT_PATH, source_md)
 
     # If the file is not empty but has no metadata it should fail
-    if expected_msg:
-        with pytest.raises(MystReaderContentError, match=expected_msg):
-            myst_reader_obj.read(source_path)
+    with pytest.raises(MystReaderContentError, match=expected_msg):
+        myst_reader_obj.read(source_path)

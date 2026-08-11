@@ -256,3 +256,78 @@ def test_ext_attrs_inline_image(renderer):
     )
 
     assert ('style="width: 100px;"' in output) or ('w="100px"' in output)
+
+
+def _read_source(tmp_path, body, **pelicanconf):
+    """Read a one-off document through the reader, the way Pelican does."""
+    source = tmp_path / "probe.md"
+    source.write_text(f"---\ntitle: Probe\n---\n\n{body}\n", encoding="utf-8")
+
+    settings = pelican_get_settings(PATH=str(tmp_path), **pelicanconf)
+    output, _ = MySTReader(settings).read(str(source))
+    return output
+
+
+def test_default_renderer_keeps_directives_and_highlighting(tmp_path):
+    """Both of these come from the Docutils layer the default renderer goes through.
+
+    MyST syntax is recognized by markdown-it-py, but a directive only becomes an
+    admonition, and a code block only reaches Pygments, once the token stream is
+    walked into a Docutils document. A default pointed at MDIT skips that layer and
+    loses both. Neither loss raises, so an assertion is the only thing that catches it.
+    """
+    admonition = _read_source(tmp_path, "```{note}\nBody text.\n```")
+    assert 'class="admonition note"' in admonition, "directive rendered as literal text"
+
+    highlighted = _read_source(tmp_path, '```python\nprint("hello")\n```')
+    assert "literal-block" in highlighted
+    assert '<span class="nb">print</span>' in highlighted, "code block reached no lexer"
+
+
+@pytest.mark.parametrize("fence", ("```", ":::"))
+def test_mdit_renders_both_directive_fence_spellings(tmp_path, fence):
+    """A colon fence used to crash MDIT instead of rendering.
+
+    `colon_fence` is not a `RendererHTML` method and myst-parser registers no render
+    rule for the token, so the handler had nothing to inherit and raised
+    `RuntimeError: super(): __class__ cell not found`. The extension is on by default
+    for MDIT, so any `:::` in a document was enough to reach it.
+    """
+    output = _read_source(
+        tmp_path, f"{fence}{{note}}\nBody text.\n{fence}", MYST_FORCE_MDIT=True
+    )
+
+    assert "Body text." in output
+
+
+def test_math_extension_in_sphinx_settings_selects_sphinx(tmp_path):
+    """A math extension enabled for Sphinx is what routes a document to it.
+
+    `test_mathjax` cannot tell: `MYST_EXTENSIONS` enables the extension for every
+    renderer at once, so its document reaches Sphinx whichever settings the heuristic
+    reads.
+    """
+    output = _read_source(
+        tmp_path,
+        "Pears cost $x^2$ each.",
+        MYST_SPHINX_SETTINGS={"myst_enable_extensions": {"dollarmath"}},
+    )
+
+    assert '<span class="math' in output, "document did not reach Sphinx"
+
+
+@pytest.mark.parametrize("key", ("myst_enable_extensions", "enable_extensions"))
+def test_mdit_settings_take_the_myst_prefix(tmp_path, recwarn, key):
+    """MDIT reads a MyST option under the key the two other renderers use.
+
+    The unprefixed spelling is the one 2.0.0b0 asked for, and it still works.
+    """
+    output = _read_source(
+        tmp_path,
+        "- [x] Pear",
+        MYST_FORCE_MDIT=True,
+        MYST_MDIT_SETTINGS={key: {"tasklist"}},
+    )
+
+    assert 'class="task-list-item"' in output
+    assert not [w for w in recwarn if "MYST_MDIT_SETTINGS" in str(w.message)]
