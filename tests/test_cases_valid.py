@@ -131,8 +131,9 @@ def test_mathjax(renderer):
             f"MYST_FORCE_{renderer}": True,
         }
 
-    if renderer == "SPHINX":
-        # Two lines dynamically generate HTML tags for math formulae
+    if renderer in ("DEFAULT", "SPHINX"):
+        # Two lines dynamically generate HTML tags for math formulae. DEFAULT is
+        # affected too, since enabling a math extension routes it to Sphinx.
         allowed_nb_diff_lines = 2
     else:
         allowed_nb_diff_lines = 0
@@ -256,3 +257,45 @@ def test_ext_attrs_inline_image(renderer):
     )
 
     assert ('style="width: 100px;"' in output) or ('w="100px"' in output)
+
+
+def _read_source(tmp_path, body, **pelicanconf):
+    """Read a one-off document through the reader, the way Pelican does."""
+    source = tmp_path / "probe.md"
+    source.write_text(f"---\ntitle: Probe\n---\n\n{body}\n", encoding="utf-8")
+
+    settings = pelican_get_settings(PATH=str(tmp_path), **pelicanconf)
+    output, _ = MySTReader(settings).read(str(source))
+    return output
+
+
+def test_default_renderer_keeps_directives_and_highlighting(tmp_path):
+    """Both of these come from the Docutils layer the default renderer goes through.
+
+    MyST syntax is recognized by markdown-it-py, but a directive only becomes an
+    admonition, and a code block only reaches Pygments, once the token stream is
+    walked into a Docutils document. A default pointed at MDIT skips that layer and
+    loses both. Neither loss raises, so an assertion is the only thing that catches it.
+    """
+    admonition = _read_source(tmp_path, "```{note}\nBody text.\n```")
+    assert 'class="admonition note"' in admonition, "directive rendered as literal text"
+
+    highlighted = _read_source(tmp_path, '```python\nprint("hello")\n```')
+    assert "literal-block" in highlighted
+    assert '<span class="nb">print</span>' in highlighted, "code block reached no lexer"
+
+
+@pytest.mark.parametrize("fence", ("```", ":::"))
+def test_mdit_renders_both_directive_fence_spellings(tmp_path, fence):
+    """A colon fence used to crash MDIT instead of rendering.
+
+    `colon_fence` is not a `RendererHTML` method and myst-parser registers no render
+    rule for the token, so the handler had nothing to inherit and raised
+    `RuntimeError: super(): __class__ cell not found`. The extension is on by default
+    for MDIT, so any `:::` in a document was enough to reach it.
+    """
+    output = _read_source(
+        tmp_path, f"{fence}{{note}}\nBody text.\n{fence}", MYST_FORCE_MDIT=True
+    )
+
+    assert "Body text." in output
