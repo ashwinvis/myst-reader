@@ -8,16 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.0.0b0]
+
+First implmentation of the MDIT renderer.
+
+Plugin can be installed alongside Pelican 4.12, which requires `docutils >= 0.22`: every myst-parser 4 release caps `docutils` below 0.22, so the two could not resolve together. Therefore `myst-parser >= 5.1 ` was set. Also, all upper bound of dependencies were removed.
+
+## Added
+
+- Implements the MDIT renderer (undocumented).
+
 ### Changed
 
+- Passes, or tries to pass MyST settings to DOCUTILS renderer.
 - Remove upper version caps on all dependencies, to avoid resolution conflicts in downstream projects.
 - Remove the upper bound on the supported Python version.
-- Upgrade to myst-parser 5.1. This is what lets the plugin be installed alongside Pelican 4.12, which requires `docutils >= 0.22`: every myst-parser 4 release caps `docutils` below 0.22, so the two could not resolve together.
-- Bump minimal requirement to Python 3.11, which myst-parser 5 requires.
-- Bump minimal requirement to docutils 0.20 and markdown-it-py 4.2, both of which myst-parser 5 requires, and to sphinxcontrib-bibtex 2.7.
-- Realign the remaining lower bounds, which had not been revisited since they were first written: Pelican 4.11 and Beautiful Soup 4.13. Every declared lower bound now passes the test suite when resolved at its exact minimum.
-- Refresh the lock file, which had drifted well behind the declared ranges. It now resolves Sphinx 9, docutils 0.22 and Pelican 4.12, so the combination downstream projects hit is the one being tested.
-- Test against Python 3.14, so both ends of the supported range are covered rather than just the floor.
+- Bump minimal requirements: Python 3.11, myst-parser 5.1, docutils 0.20, markdown-it-py 4.2, sphinxcontrib-bibtex 2.7, Pelican 4.11, and Beautiful Soup 4.13.
+- Refresh the lock file to resolve Sphinx 9, docutils 0.22 and Pelican 4.12, matching the combination downstream projects use.
+- Test against Python 3.14, covering both ends of the supported range.
 
 ### Fixed
 
