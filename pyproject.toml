@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pelican-myst-reader"
-version = "1.4.0"
+version = "2.0.0b0"
 description = "Pelican plugin for converting MyST's Markdown variant to HTML."
 authors = [{ name = "Ashwin Vishnu", email = "dev@fluid.quest" }]
 license = { text = "AGPL-3.0" }
@@ -25,7 +25,8 @@ dependencies = [
 readme = "README.md"
 keywords = ["pelican", "plugin", "markdown", "myst"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
+    # "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Framework :: Pelican",
     "Framework :: Pelican :: Plugins",
