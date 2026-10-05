@@ -396,15 +396,14 @@ class MySTReader(BaseReader):
             return call_sphinx_renderer(), RENDERER.SPHINX
         elif bib_files:
             return call_sphinx_renderer(), RENDERER.SPHINX
-        # elif self.mdit_settings["myst_enable_extensions"].intersection(
-        #     ("dollarmath", "amsmath")
-        # ) or any(
-        #     syntax in content for syntax in ("{filename}", "{static}", "{attach}")
-        # ):
-        #     # return call_sphinx_renderer(), RENDERER.SPHINX
-        #     return call_mdit_renderer(), RENDERER.MDIT
+        elif self.mdit_settings["myst_enable_extensions"].intersection(
+            ("dollarmath", "amsmath")
+        ) or any(
+            syntax in content for syntax in ("{filename}", "{static}", "{attach}")
+        ):
+            return call_sphinx_renderer(), RENDERER.SPHINX
         else:
-            return call_mdit_renderer(), RENDERER.MDIT
+            return call_docutils_renderer(), RENDERER.DOCUTILS
 
     @staticmethod
     def _find_bibs(source_path: str) -> list[str]:
