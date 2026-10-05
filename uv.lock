@@ -746,7 +746,7 @@ wheels = [
 
 [[package]]
 name = "pelican-myst-reader"
-version = "1.4.0"
+version = "2.0.0b0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },

@@ -337,6 +337,8 @@ def download_testpypi(session, dist_type):
         "download",
         "--index",
         "https://test.pypi.org/simple",
+        "--extra-index-url",
+        "https://pypi.org/simple",
         "--pre",
         "--no-deps",
         f"--{dist_type}",
