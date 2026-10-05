@@ -131,7 +131,7 @@ def test_mathjax(renderer):
             f"MYST_FORCE_{renderer}": True,
         }
 
-    if renderer == "SPHINX":
+    if renderer in ("DEFAULT", "SPHINX"):
         # Two lines dynamically generate HTML tags for math formulae
         allowed_nb_diff_lines = 2
     else:

@@ -32,7 +32,7 @@ def test_empty_file(myst_reader_obj):
 
 msg0 = "Invalid front-matter metadata."
 msg1 = "Could not find front-matter metadata or invalid formatting."
-# msg2 = "Malformed content or front-matter metadata"
+msg2 = "Malformed content or front-matter metadata"
 
 
 @pytest.mark.parametrize(
@@ -40,7 +40,7 @@ msg1 = "Could not find front-matter metadata or invalid formatting."
     [
         ("no_metadata.md", msg0),
         ("metadata_start_with_leading_spaces.md", msg0),
-        ("metadata_end_with_leading_spaces.md", msg1),
+        ("metadata_end_with_leading_spaces.md", msg2),
         # FIXME: This should be caught, but the upstream implementation does nothing
         ("no_metadata_end.md", ""),
     ],

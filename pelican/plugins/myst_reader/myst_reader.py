@@ -396,7 +396,7 @@ class MySTReader(BaseReader):
             return call_sphinx_renderer(), RENDERER.SPHINX
         elif bib_files:
             return call_sphinx_renderer(), RENDERER.SPHINX
-        elif self.mdit_settings["myst_enable_extensions"].intersection(
+        elif self.mdit_settings["enable_extensions"].intersection(
             ("dollarmath", "amsmath")
         ) or any(
             syntax in content for syntax in ("{filename}", "{static}", "{attach}")
