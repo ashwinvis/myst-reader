@@ -5,15 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
-
 
 ## [2.0.0b0]
 
 First implmentation of the MDIT renderer.
 
-Plugin can be installed alongside Pelican 4.12, which requires `docutils >= 0.22`: every myst-parser 4 release caps `docutils` below 0.22, so the two could not resolve together. Therefore `myst-parser >= 5.1 ` was set. Also, all upper bound of dependencies were removed.
+Plugin can be installed alongside Pelican 4.12, which requires `docutils >= 0.22`: every myst-parser 4 release caps `docutils` below 0.22, so the two could not resolve together. Therefore `myst-parser >= 5.1` was set. Also, all upper bound of dependencies were removed.
 
 ## Added
 
@@ -103,7 +101,8 @@ It is time to move this out of beta.
 
 ## [1.0.0] - 2020-12-04
 
-[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/1.4.0...HEAD
+[Unreleased]: https://github.com/ashwinvis/myst-reader/compare/2.0.0b0...HEAD
+[2.0.0b0]: https://github.com/ashwinvis/myst-reader/compare/1.4.0...2.0.0b0
 [1.4.0]: https://github.com/ashwinvis/myst-reader/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/ashwinvis/myst-reader/compare/1.3.0b1...1.3.0
 [1.3.0b1]: https://github.com/ashwinvis/myst-reader/compare/1.2.0b1...1.3.0b1
