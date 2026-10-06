@@ -48,8 +48,6 @@ def _mdit_init_from_myst_parser(config: MdParserConfig) -> MarkdownIt:
     if "amsmath" in customized_extensions:
         _ = md.use(amsmath_plugin, renderer=math_renderer)
 
-    md.add_render_rule("colon_fence", render_colon_fence_image)
-
     return md
 
 
@@ -96,19 +94,18 @@ class Renderer(RendererHTML):
         else:
             return super().fence(tokens, idx, options, env)
 
-
-def render_colon_fence_image(
-    self: Renderer,
-    tokens: Sequence[Token],
-    idx: int,
-    options: OptionsDict,
-    env: EnvType,
-) -> str:
-    token = tokens[idx]
-    if token.info.startswith("{image}"):
-        return self._render_img(token)
-    else:
-        return super().colon_fence(tokens, idx, options, env)
+    def colon_fence(
+        self, tokens: Sequence[Token], idx: int, options: OptionsDict, env: EnvType
+    ) -> str:
+        token = tokens[idx]
+        if token.info.startswith("{image}"):
+            return self._render_img(token)
+        # Unlike `fence` above, there is no `super().colon_fence` to fall back on.
+        # `colon_fence` is not part of `RendererHTML`, and myst-parser contributes only
+        # a block rule for the token, never a render rule. Since a colon fence is an
+        # alternative spelling of a directive fence, render it the way the backtick
+        # spelling is rendered rather than inventing a second shape for it.
+        return self.fence(tokens, idx, options, env)
 
 
 def math_renderer(

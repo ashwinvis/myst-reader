@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Document the MDIT renderer in the readme: `MYST_FORCE_MDIT` opts in, `MYST_MDIT_SETTINGS` configures it, and the section lists what it does not support yet.
+- Read the keys of `MYST_MDIT_SETTINGS` with the `myst_` prefix the two other renderers use, like `myst_enable_extensions`. The unprefixed spelling of 2.0.0b0 still works.
+
+### Fixed
+
+- Route documents to Sphinx again when `dollarmath` or `amsmath` is enabled in `MYST_SPHINX_SETTINGS`, as the readme documents. 2.0.0b0 read `MYST_MDIT_SETTINGS` instead.
+- Stop a `:::` colon fence from crashing the MDIT renderer with `RuntimeError: super(): __class__ cell not found`. A colon fence that is not an `{image}` now renders like its backtick spelling.
+
 ## [2.0.0b0]
 
 First implmentation of the MDIT renderer.

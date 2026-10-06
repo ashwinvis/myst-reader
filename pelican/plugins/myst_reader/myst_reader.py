@@ -127,9 +127,13 @@ class MySTReader(BaseReader):
             DEFAULT_DOCUTILS_SETTINGS
         ) | self.settings.get("MYST_DOCUTILS_SETTINGS", dict())
 
-        self.mdit_settings = deepcopy(DEFAULT_MDIT_SETTINGS) | self.settings.get(
-            "MYST_MDIT_SETTINGS", dict()
-        )
+        # markdown-it-py is configured through MdParserConfig alone, whose fields carry
+        # no ``myst_`` prefix. Strip it, so that a MyST option is spelled the same way
+        # in the settings of all three renderers.
+        self.mdit_settings = deepcopy(DEFAULT_MDIT_SETTINGS) | {
+            key.removeprefix("myst_"): value
+            for key, value in self.settings.get("MYST_MDIT_SETTINGS", dict()).items()
+        }
         self.sphinx_settings = deepcopy(DEFAULT_SPHINX_SETTINGS) | self.settings.get(
             "MYST_SPHINX_SETTINGS", dict()
         )
@@ -140,7 +144,7 @@ class MySTReader(BaseReader):
             warnings.warn(
                 "MYST_EXTENSIONS will soon be deprecated. Use "
                 "MYST_DOCUTILS_SETTINGS['myst_enable_extensions'] and "
-                "MYST_MDIT_SETTINGS['enable_extensions'] and "
+                "MYST_MDIT_SETTINGS['myst_enable_extensions'] and "
                 "MYST_SPHINX_SETTINGS['myst_enable_extensions'] instead.",
                 FutureWarning,
                 stacklevel=2,
@@ -155,18 +159,6 @@ class MySTReader(BaseReader):
         )
         # Reintegrate normalized settings to the renderer settings.
         self.docutils_settings |= normalized_setting
-
-        # We don't modify the dictionary here, since markdown-it-py is configured only
-        # through MdParserConfig.
-        if exts := self.mdit_settings.pop("myst_enable_extensions", False):
-            warnings.warn(
-                "Found MYST_MDIT_SETTINGS['myst_enable_extensions']. "
-                "It should be MYST_MDIT_SETTINGS['enable_extensions'] instead. "
-                "This could be an error in the future. Correcting it for now...",
-                FutureWarning,
-                stacklevel=2,
-            )
-            self.mdit_settings["enable_extensions"].update(exts)
 
         mdit_myst_conf = MdParserConfig(**self.mdit_settings)
 
@@ -362,7 +354,12 @@ class MySTReader(BaseReader):
 
         - any math extension is enabled, or
         - BibTeX files are found, or
+        - the content holds an intra-site link, which only Sphinx leaves untouched, or
         - user's settings force the use of Sphinx.
+
+        Everything else goes to Docutils. MDIT is opt-in through ``MYST_FORCE_MDIT``:
+        it renders through markdown-it-py alone, so it never reaches the Docutils layer
+        where MyST directives become admonitions and code blocks are handed to Pygments.
         """
 
         def call_docutils_renderer() -> str:
@@ -396,7 +393,7 @@ class MySTReader(BaseReader):
             return call_sphinx_renderer(), RENDERER.SPHINX
         elif bib_files:
             return call_sphinx_renderer(), RENDERER.SPHINX
-        elif self.mdit_settings["enable_extensions"].intersection(
+        elif self.sphinx_settings["myst_enable_extensions"].intersection(
             ("dollarmath", "amsmath")
         ) or any(
             syntax in content for syntax in ("{filename}", "{static}", "{attach}")
